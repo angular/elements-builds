@@ -1,6 +1,6 @@
 {
   "name": "@angular/elements",
-  "version": "5.1.0-beta.0-f7c9b94",
+  "version": "5.1.0-beta.0-dbec3ca",
   "description": "Angular - library for using Angular in a web browser",
   "main": "./bundles/elements.umd.js",
   "module": "./esm5/elements.js",
@@ -12,8 +12,8 @@
     "tslib": "^1.7.1"
   },
   "peerDependencies": {
-    "@angular/core": "5.1.0-beta.0-f7c9b94",
-    "@angular/platform-browser": "5.1.0-beta.0-f7c9b94"
+    "@angular/core": "5.1.0-beta.0-dbec3ca",
+    "@angular/platform-browser": "5.1.0-beta.0-dbec3ca"
   },
   "repository": {
     "type": "git",
