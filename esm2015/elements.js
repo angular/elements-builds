@@ -1,5 +1,5 @@
 /**
- * @license Angular v5.1.0-beta.0-03f080b
+ * @license Angular v5.1.0-beta.0-1d19d61
  * (c) 2010-2017 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -856,7 +856,7 @@ function registerAsCustomElements(customElementComponents, platformRefOrBootstra
 /**
  * \@experimental
  */
-const VERSION = new Version('5.1.0-beta.0-03f080b');
+const VERSION = new Version('5.1.0-beta.0-1d19d61');
 
 /**
  * @fileoverview added by tsickle
