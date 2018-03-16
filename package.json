@@ -1,7 +1,7 @@
 {
   "name": "@angular/elements",
-  "version": "5.1.0-beta.0-200d92d",
-  "description": "Angular - library for using Angular in a web browser",
+  "version": "6.0.0-beta.7-688096b",
+  "description": "Angular - library for using Angular Components as Custom Elements",
   "main": "./bundles/elements.umd.js",
   "module": "./esm5/elements.js",
   "es2015": "./esm2015/elements.js",
@@ -9,14 +9,19 @@
   "author": "angular",
   "license": "MIT",
   "dependencies": {
-    "tslib": "^1.7.1"
+    "tslib": "^1.9.0"
   },
   "peerDependencies": {
-    "@angular/core": "5.1.0-beta.0-200d92d",
-    "@angular/platform-browser": "5.1.0-beta.0-200d92d"
+    "@angular/core": "6.0.0-beta.7-688096b",
+    "@angular/platform-browser": "6.0.0-beta.7-688096b",
+    "rxjs": "^5.5.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/angular/angular.git"
-  }
+  },
+  "ng-update": {
+    "packageGroup": ["@angular/core", "@angular/compiler", "@angular/common", "@angular/animations", "@angular/platform-browser", "@angular/platform-browser-dynamic", "@angular/forms", "@angular/http", "@angular/platform-server", "@angular/platform-webworker", "@angular/platform-webworker-dynamic", "@angular/upgrade", "@angular/router", "@angular/compiler-cli", "@angular/language-service", "@angular/benchpress", "@angular/service-worker", "@angular/elements"]
+  },
+  "sideEffects": false
 }

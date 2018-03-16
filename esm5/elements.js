@@ -1,42 +1,12 @@
 /**
- * @license Angular v5.1.0-beta.0-200d92d
- * (c) 2010-2017 Google, Inc. https://angular.io/
+ * @license Angular v6.0.0-beta.7-688096b
+ * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
-import { DOCUMENT } from '@angular/platform-browser';
-import { ApplicationRef, EventEmitter, Injector, NgZone, SimpleChange, Version } from '@angular/core';
 import { __extends } from 'tslib';
-
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes} checked by tsc
- */
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-var NgElementApplicationContext = (function () {
-    function NgElementApplicationContext(injector) {
-        this.injector = injector;
-        this.applicationRef = this.injector.get(ApplicationRef);
-        this.ngZone = this.injector.get(NgZone);
-    }
-    /**
-     * @template R
-     * @param {?} cb
-     * @return {?}
-     */
-    NgElementApplicationContext.prototype.runInNgZone = /**
-     * @template R
-     * @param {?} cb
-     * @return {?}
-     */
-    function (cb) { return this.ngZone.run(cb); };
-    return NgElementApplicationContext;
-}());
+import { ApplicationRef, ComponentFactoryResolver, Injector, SimpleChange, Version } from '@angular/core';
+import { merge } from 'rxjs/observable/merge';
+import { map } from 'rxjs/operator/map';
 
 /**
  * @fileoverview added by tsickle
@@ -51,31 +21,40 @@ var matches = elProto.matches || elProto.matchesSelector || elProto.mozMatchesSe
 var scheduler = {
     /**
      * Schedule a callback to be called after some delay.
+     *
+     * Returns a function that when executed will cancel the scheduled function.
      */
     schedule: /**
      * Schedule a callback to be called after some delay.
-     * @param {?} cb
+     *
+     * Returns a function that when executed will cancel the scheduled function.
+     * @param {?} taskFn
      * @param {?} delay
      * @return {?}
      */
-    function (cb, delay) { var /** @type {?} */ id = window.setTimeout(cb, delay); return function () { return window.clearTimeout(id); }; },
+    function (taskFn, delay) { var /** @type {?} */ id = window.setTimeout(taskFn, delay); return function () { return window.clearTimeout(id); }; },
     /**
      * Schedule a callback to be called before the next render.
      * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
+     *
+     * Returns a function that when executed will cancel the scheduled function.
      */
     scheduleBeforeRender: /**
      * Schedule a callback to be called before the next render.
      * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
-     * @param {?} cb
+     *
+     * Returns a function that when executed will cancel the scheduled function.
+     * @param {?} taskFn
      * @return {?}
      */
-    function (cb) {
+    function (taskFn) {
         // TODO(gkalpak): Implement a better way of accessing `requestAnimationFrame()`
         //                (e.g. accounting for vendor prefix, SSR-compatibility, etc).
         if (typeof window.requestAnimationFrame === 'undefined') {
-            return scheduler.schedule(cb, 16);
+            var /** @type {?} */ frameMs = 16;
+            return scheduler.schedule(taskFn, frameMs);
         }
-        var /** @type {?} */ id = window.requestAnimationFrame(cb);
+        var /** @type {?} */ id = window.requestAnimationFrame(taskFn);
         return function () { return window.cancelAnimationFrame(id); };
     },
 };
@@ -84,7 +63,7 @@ var scheduler = {
  * @param {?} input
  * @return {?}
  */
-function camelToKebabCase(input) {
+function camelToDashCase(input) {
     return input.replace(/[A-Z]/g, function (char) { return "-" + char.toLowerCase(); });
 }
 /**
@@ -104,15 +83,6 @@ function createCustomEvent(doc, name, detail) {
         return event_1;
     }
     return new CustomEvent(name, { bubbles: bubbles, cancelable: cancelable, detail: detail });
-}
-/**
- * Return the name of the component or the first line of its stringified version.
- * @param {?} component
- * @return {?}
- */
-function getComponentName(component) {
-    return (/** @type {?} */ (component)).overriddenName || component.name ||
-        component.toString().split('\n', 1)[0];
 }
 /**
  * Check whether the input is an `Element`.
@@ -155,13 +125,29 @@ function strictEquals(value1, value2) {
     return value1 === value2 || (value1 !== value1 && value2 !== value2);
 }
 /**
- * Throw an error with the specified message.
- * (It provides a centralized place where it is easy to apply some change/behavior to all errors.)
- * @param {?} message
+ * Gets a map of default set of attributes to observe and the properties they affect.
+ * @param {?} inputs
  * @return {?}
  */
-function throwError(message) {
-    throw Error(message);
+function getDefaultAttributeToPropertyInputs(inputs) {
+    var /** @type {?} */ attributeToPropertyInputs = {};
+    inputs.forEach(function (_a) {
+        var propName = _a.propName, templateName = _a.templateName;
+        attributeToPropertyInputs[camelToDashCase(templateName)] = propName;
+    });
+    return attributeToPropertyInputs;
+}
+/**
+ * Gets a component's set of inputs. Uses the injector to get the component factory where the inputs
+ * are defined.
+ * @param {?} component
+ * @param {?} injector
+ * @return {?}
+ */
+function getComponentInputs(component, injector) {
+    var /** @type {?} */ componentFactoryResolver = injector.get(ComponentFactoryResolver);
+    var /** @type {?} */ componentFactory = componentFactoryResolver.resolveComponentFactory(component);
+    return componentFactory.inputs;
 }
 
 /**
@@ -175,9 +161,6 @@ function throwError(message) {
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-// NOTE: This is a (slightly improved) version of what is used in ngUpgrade's
-//       `DowngradeComponentAdapter`.
-// TODO(gkalpak): Investigate if it makes sense to share the code.
 /**
  * @param {?} host
  * @param {?} ngContentSelectors
@@ -235,745 +218,346 @@ function findMatchingIndex(node, selectors, defaultIndex) {
  * found in the LICENSE file at https://angular.io/license
  */
 /**
- * TODO(gkalpak): Add docs.
+ * Time in milliseconds to wait before destroying the component ref when disconnected.
+ */
+var DESTROY_DELAY = 10;
+/**
+ * Factory that creates new ComponentNgElementStrategy instance. Gets the component factory with the
+ * constructor's injector's factory resolver and passes that factory to each strategy.
+ *
  * \@experimental
- * @record
  */
-
-/**
- * Represents an `NgElement` input.
- * Similar to a `ComponentFactory` input (`{propName: string, templateName: string}`),
- * except that `attrName` is derived by kebab-casing `templateName`.
- * @record
- */
-
-/**
- * Represents an `NgElement` input.
- * Similar to a `ComponentFactory` output (`{propName: string, templateName: string}`),
- * except that `templateName` is renamed to `eventName`.
- * @record
- */
-
-/**
- * @abstract
- */
-var NgElementImpl = (function (_super) {
-    __extends(NgElementImpl, _super);
-    function NgElementImpl(appContext, componentFactory, inputs, outputs) {
-        var _this = _super.call(this) || this;
-        _this.appContext = appContext;
-        _this.componentFactory = componentFactory;
-        _this.inputs = inputs;
-        _this.outputs = outputs;
-        _this.ngElement = null;
-        _this.componentRef = null;
-        _this.onConnected = new EventEmitter();
-        _this.onDisconnected = new EventEmitter();
-        _this.host = /** @type {?} */ (_this);
-        _this.componentName = getComponentName(_this.componentFactory.componentType);
-        _this.initialInputValues = new Map();
-        _this.uninitializedInputs = new Set();
-        _this.outputSubscriptions = new Map();
-        _this.inputChanges = null;
-        _this.implementsOnChanges = false;
-        _this.changeDetectionScheduled = false;
-        _this.lifecyclePhase = "unconnected" /* unconnected */;
-        _this.cancelDestruction = null;
-        return _this;
+var ComponentNgElementStrategyFactory = /** @class */ (function () {
+    function ComponentNgElementStrategyFactory(component, injector) {
+        this.component = component;
+        this.injector = injector;
+        this.componentFactory =
+            injector.get(ComponentFactoryResolver).resolveComponentFactory(component);
     }
     /**
-     * @param {?} attrName
-     * @param {?} oldValue
-     * @param {?} newValue
-     * @param {?=} namespace
+     * @param {?} injector
      * @return {?}
      */
-    NgElementImpl.prototype.attributeChangedCallback = /**
-     * @param {?} attrName
-     * @param {?} oldValue
-     * @param {?} newValue
-     * @param {?=} namespace
+    ComponentNgElementStrategyFactory.prototype.create = /**
+     * @param {?} injector
      * @return {?}
      */
-    function (attrName, oldValue, newValue, namespace) {
-        var /** @type {?} */ input = /** @type {?} */ ((this.inputs.find(function (input) { return input.attrName === attrName; })));
-        if (input) {
-            this.setInputValue(input.propName, newValue);
+    function (injector) {
+        return new ComponentNgElementStrategy(this.componentFactory, injector);
+    };
+    return ComponentNgElementStrategyFactory;
+}());
+/**
+ * Creates and destroys a component ref using a component factory and handles change detection
+ * in response to input changes.
+ *
+ * \@experimental
+ */
+var ComponentNgElementStrategy = /** @class */ (function () {
+    function ComponentNgElementStrategy(componentFactory, injector) {
+        this.componentFactory = componentFactory;
+        this.injector = injector;
+        /**
+         * Changes that have been made to the component ref since the last time onChanges was called.
+         */
+        this.inputChanges = null;
+        /**
+         * Whether the created component implements the onChanges function.
+         */
+        this.implementsOnChanges = false;
+        /**
+         * Whether a change detection has been scheduled to run on the component.
+         */
+        this.scheduledChangeDetectionFn = null;
+        /**
+         * Callback function that when called will cancel a scheduled destruction on the component.
+         */
+        this.scheduledDestroyFn = null;
+        /**
+         * Initial input values that were set before the component was created.
+         */
+        this.initialInputValues = new Map();
+        /**
+         * Set of inputs that were not initially set when the component was created.
+         */
+        this.uninitializedInputs = new Set();
+    }
+    /**
+     * Initializes a new component if one has not yet been created and cancels any scheduled
+     * destruction.
+     */
+    /**
+     * Initializes a new component if one has not yet been created and cancels any scheduled
+     * destruction.
+     * @param {?} element
+     * @return {?}
+     */
+    ComponentNgElementStrategy.prototype.connect = /**
+     * Initializes a new component if one has not yet been created and cancels any scheduled
+     * destruction.
+     * @param {?} element
+     * @return {?}
+     */
+    function (element) {
+        // If the element is marked to be destroyed, cancel the task since the component was reconnected
+        if (this.scheduledDestroyFn !== null) {
+            this.scheduledDestroyFn();
+            this.scheduledDestroyFn = null;
+            return;
         }
-        else {
-            throwError("Calling 'attributeChangedCallback()' with unknown attribute '" + attrName + "' " +
-                ("on component '" + this.componentName + "' is not allowed."));
+        if (!this.componentRef) {
+            this.initializeComponent(element);
         }
     };
     /**
-     * @param {?=} ignoreUpgraded
+     * Schedules the component to be destroyed after some small delay in case the element is just
+     * being moved across the DOM.
+     */
+    /**
+     * Schedules the component to be destroyed after some small delay in case the element is just
+     * being moved across the DOM.
      * @return {?}
      */
-    NgElementImpl.prototype.connectedCallback = /**
-     * @param {?=} ignoreUpgraded
+    ComponentNgElementStrategy.prototype.disconnect = /**
+     * Schedules the component to be destroyed after some small delay in case the element is just
+     * being moved across the DOM.
      * @return {?}
      */
-    function (ignoreUpgraded) {
+    function () {
         var _this = this;
-        if (ignoreUpgraded === void 0) { ignoreUpgraded = false; }
-        this.assertNotInPhase("disconnected" /* disconnected */, 'connectedCallback');
-        if (this.cancelDestruction !== null) {
-            this.cancelDestruction();
-            this.cancelDestruction = null;
-        }
-        if (this.lifecyclePhase === "connected" /* connected */) {
+        // Return if there is no componentRef or the component is already scheduled for destruction
+        if (!this.componentRef || this.scheduledDestroyFn !== null) {
             return;
         }
-        var /** @type {?} */ host = /** @type {?} */ (this.host);
-        if (host.ngElement) {
-            if (ignoreUpgraded) {
-                return;
+        // Schedule the component to be destroyed after a small timeout in case it is being
+        // moved elsewhere in the DOM
+        this.scheduledDestroyFn = scheduler.schedule(function () {
+            if (_this.componentRef) {
+                /** @type {?} */ ((_this.componentRef)).destroy();
+                _this.componentRef = null;
             }
-            var /** @type {?} */ existingNgElement = (/** @type {?} */ (host)).ngElement;
-            var /** @type {?} */ existingComponentName = getComponentName(existingNgElement.componentRef.componentType);
-            throwError("Upgrading '" + this.host.nodeName + "' element to component '" + this.componentName + "' is not allowed, " +
-                ("because the element is already upgraded to component '" + existingComponentName + "'."));
+        }, DESTROY_DELAY);
+    };
+    /**
+     * Returns the component property value. If the component has not yet been created, the value is
+     * retrieved from the cached initialization values.
+     */
+    /**
+     * Returns the component property value. If the component has not yet been created, the value is
+     * retrieved from the cached initialization values.
+     * @param {?} property
+     * @return {?}
+     */
+    ComponentNgElementStrategy.prototype.getInputValue = /**
+     * Returns the component property value. If the component has not yet been created, the value is
+     * retrieved from the cached initialization values.
+     * @param {?} property
+     * @return {?}
+     */
+    function (property) {
+        if (!this.componentRef) {
+            return this.initialInputValues.get(property);
         }
-        this.appContext.runInNgZone(function () {
-            _this.lifecyclePhase = "connected" /* connected */;
-            var /** @type {?} */ cThis = (/** @type {?} */ ((_this)));
-            var /** @type {?} */ childInjector = Injector.create([], cThis.appContext.injector);
-            var /** @type {?} */ projectableNodes = extractProjectableNodes(cThis.host, cThis.componentFactory.ngContentSelectors);
-            cThis.componentRef =
-                cThis.componentFactory.create(childInjector, projectableNodes, cThis.host);
-            cThis.implementsOnChanges =
-                isFunction((/** @type {?} */ ((cThis.componentRef.instance))).ngOnChanges);
-            cThis.initializeInputs();
-            cThis.initializeOutputs();
-            cThis.detectChanges();
-            cThis.appContext.applicationRef.attachView(cThis.componentRef.hostView);
-            // Ensure `ngElement` is set on the host too (even for manually upgraded elements)
-            // in order to be able to detect that the element has been been upgraded.
-            cThis.ngElement = host.ngElement = cThis;
-            cThis.onConnected.emit();
-        });
+        return (/** @type {?} */ (this.componentRef.instance))[property];
     };
     /**
-     * @return {?}
+     * Sets the input value for the property. If the component has not yet been created, the value is
+     * cached and set when the component is created.
      */
-    NgElementImpl.prototype.detach = /**
-     * @return {?}
-     */
-    function () { this.disconnectedCallback(); };
     /**
-     * @return {?}
-     */
-    NgElementImpl.prototype.detectChanges = /**
-     * @return {?}
-     */
-    function () {
-        var _this = this;
-        if (this.lifecyclePhase === "disconnected" /* disconnected */) {
-            return;
-        }
-        this.assertNotInPhase("unconnected" /* unconnected */, 'detectChanges');
-        this.appContext.runInNgZone(function () {
-            var /** @type {?} */ cThis = /** @type {?} */ ((_this));
-            cThis.changeDetectionScheduled = false;
-            cThis.callNgOnChanges();
-            cThis.componentRef.changeDetectorRef.detectChanges();
-        });
-    };
-    /**
-     * @return {?}
-     */
-    NgElementImpl.prototype.disconnectedCallback = /**
-     * @return {?}
-     */
-    function () {
-        var _this = this;
-        if (this.lifecyclePhase === "disconnected" /* disconnected */ ||
-            this.cancelDestruction !== null) {
-            return;
-        }
-        this.assertNotInPhase("unconnected" /* unconnected */, 'disconnectedCallback');
-        var /** @type {?} */ doDestroy = function () { return _this.appContext.runInNgZone(function () { return _this.destroy(); }); };
-        this.cancelDestruction = scheduler.schedule(doDestroy, NgElementImpl.DESTROY_DELAY);
-    };
-    /**
-     * @return {?}
-     */
-    NgElementImpl.prototype.getHost = /**
-     * @return {?}
-     */
-    function () { return this.host; };
-    /**
-     * @param {?} propName
-     * @return {?}
-     */
-    NgElementImpl.prototype.getInputValue = /**
-     * @param {?} propName
-     * @return {?}
-     */
-    function (propName) {
-        this.assertNotInPhase("disconnected" /* disconnected */, 'getInputValue');
-        if (this.lifecyclePhase === "unconnected" /* unconnected */) {
-            return this.initialInputValues.get(propName);
-        }
-        var /** @type {?} */ cThis = /** @type {?} */ ((this));
-        return (/** @type {?} */ (cThis.componentRef.instance))[propName];
-    };
-    /**
-     * @return {?}
-     */
-    NgElementImpl.prototype.markDirty = /**
-     * @return {?}
-     */
-    function () {
-        var _this = this;
-        if (!this.changeDetectionScheduled) {
-            this.changeDetectionScheduled = true;
-            scheduler.scheduleBeforeRender(function () { return _this.detectChanges(); });
-        }
-    };
-    /**
-     * @param {?} host
-     * @return {?}
-     */
-    NgElementImpl.prototype.setHost = /**
-     * @param {?} host
-     * @return {?}
-     */
-    function (host) {
-        this.assertNotInPhase("connected" /* connected */, 'setHost');
-        this.assertNotInPhase("disconnected" /* disconnected */, 'setHost');
-        this.host = host;
-    };
-    /**
-     * @param {?} propName
-     * @param {?} newValue
-     * @return {?}
-     */
-    NgElementImpl.prototype.setInputValue = /**
-     * @param {?} propName
-     * @param {?} newValue
-     * @return {?}
-     */
-    function (propName, newValue) {
-        this.assertNotInPhase("disconnected" /* disconnected */, 'setInputValue');
-        if (this.lifecyclePhase === "unconnected" /* unconnected */) {
-            this.initialInputValues.set(propName, newValue);
-            return;
-        }
-        var /** @type {?} */ cThis = /** @type {?} */ ((this));
-        if (!strictEquals(newValue, cThis.getInputValue(propName))) {
-            cThis.recordInputChange(propName, newValue);
-            (/** @type {?} */ (cThis.componentRef.instance))[propName] = newValue;
-            cThis.markDirty();
-        }
-    };
-    /**
-     * @param {?} phase
-     * @param {?} caller
-     * @return {?}
-     */
-    NgElementImpl.prototype.assertNotInPhase = /**
-     * @param {?} phase
-     * @param {?} caller
-     * @return {?}
-     */
-    function (phase, caller) {
-        if (this.lifecyclePhase === phase) {
-            throwError("Calling '" + caller + "()' on " + phase + " component '" + this.componentName + "' is not allowed.");
-        }
-    };
-    /**
-     * @this {?}
-     * @return {?}
-     */
-    NgElementImpl.prototype.callNgOnChanges = /**
-     * @this {?}
-     * @return {?}
-     */
-    function () {
-        if (this.implementsOnChanges && this.inputChanges !== null) {
-            var /** @type {?} */ inputChanges = this.inputChanges;
-            this.inputChanges = null;
-            (/** @type {?} */ ((this.componentRef.instance))).ngOnChanges(inputChanges);
-        }
-    };
-    /**
-     * @return {?}
-     */
-    NgElementImpl.prototype.destroy = /**
-     * @return {?}
-     */
-    function () {
-        var /** @type {?} */ cThis = /** @type {?} */ ((this));
-        cThis.componentRef.destroy();
-        cThis.outputs.forEach(function (output) { return cThis.unsubscribeFromOutput(output); });
-        this.ngElement = (/** @type {?} */ (this.host)).ngElement = null;
-        cThis.host.innerHTML = '';
-        cThis.lifecyclePhase = "disconnected" /* disconnected */;
-        cThis.onDisconnected.emit();
-    };
-    /**
-     * @param {?} eventName
+     * Sets the input value for the property. If the component has not yet been created, the value is
+     * cached and set when the component is created.
+     * @param {?} property
      * @param {?} value
      * @return {?}
      */
-    NgElementImpl.prototype.dispatchCustomEvent = /**
-     * @param {?} eventName
+    ComponentNgElementStrategy.prototype.setInputValue = /**
+     * Sets the input value for the property. If the component has not yet been created, the value is
+     * cached and set when the component is created.
+     * @param {?} property
      * @param {?} value
      * @return {?}
      */
-    function (eventName, value) {
-        var /** @type {?} */ event = createCustomEvent(this.host.ownerDocument, eventName, value);
-        this.dispatchEvent(event);
-        if (this.host !== this) {
-            this.host.dispatchEvent(event);
+    function (property, value) {
+        if (strictEquals(value, this.getInputValue(property))) {
+            return;
         }
+        if (!this.componentRef) {
+            this.initialInputValues.set(property, value);
+            return;
+        }
+        this.recordInputChange(property, value);
+        (/** @type {?} */ (this.componentRef.instance))[property] = value;
+        this.scheduleDetectChanges();
     };
     /**
+     * Creates a new component through the component factory with the provided element host and
+     * sets up its initial inputs, listens for outputs changes, and runs an initial change detection.
+     */
+    /**
+     * Creates a new component through the component factory with the provided element host and
+     * sets up its initial inputs, listens for outputs changes, and runs an initial change detection.
+     * @param {?} element
      * @return {?}
      */
-    NgElementImpl.prototype.initializeInputs = /**
+    ComponentNgElementStrategy.prototype.initializeComponent = /**
+     * Creates a new component through the component factory with the provided element host and
+     * sets up its initial inputs, listens for outputs changes, and runs an initial change detection.
+     * @param {?} element
+     * @return {?}
+     */
+    function (element) {
+        var /** @type {?} */ childInjector = Injector.create({ providers: [], parent: this.injector });
+        var /** @type {?} */ projectableNodes = extractProjectableNodes(element, this.componentFactory.ngContentSelectors);
+        this.componentRef = this.componentFactory.create(childInjector, projectableNodes, element);
+        this.implementsOnChanges =
+            isFunction((/** @type {?} */ ((this.componentRef.instance))).ngOnChanges);
+        this.initializeInputs();
+        this.initializeOutputs();
+        this.detectChanges();
+        var /** @type {?} */ applicationRef = this.injector.get(ApplicationRef);
+        applicationRef.attachView(this.componentRef.hostView);
+    };
+    /** Set any stored initial inputs on the component's properties. */
+    /**
+     * Set any stored initial inputs on the component's properties.
+     * @return {?}
+     */
+    ComponentNgElementStrategy.prototype.initializeInputs = /**
+     * Set any stored initial inputs on the component's properties.
      * @return {?}
      */
     function () {
         var _this = this;
-        this.inputs.forEach(function (_a) {
-            var propName = _a.propName, attrName = _a.attrName;
-            var /** @type {?} */ initialValue;
-            if (_this.initialInputValues.has(propName)) {
-                // The property has already been set (prior to initialization).
-                // Update the component instance.
-                initialValue = _this.initialInputValues.get(propName);
-            }
-            else if (_this.host.hasAttribute(attrName)) {
-                // A matching attribute exists.
-                // Update the component instance.
-                initialValue = _this.host.getAttribute(attrName);
+        this.componentFactory.inputs.forEach(function (_a) {
+            var propName = _a.propName;
+            var /** @type {?} */ initialValue = _this.initialInputValues.get(propName);
+            if (initialValue) {
+                _this.setInputValue(propName, initialValue);
             }
             else {
-                // The property does not have an initial value.
-                // The property does not have an initial value.
+                // Keep track of inputs that were not initialized in case we need to know this for
+                // calling ngOnChanges with SimpleChanges
+                // Keep track of inputs that were not initialized in case we need to know this for
+                // calling ngOnChanges with SimpleChanges
                 _this.uninitializedInputs.add(propName);
-            }
-            if (!_this.uninitializedInputs.has(propName)) {
-                // The property does have an initial value.
-                // Forward it to the component instance.
-                // The property does have an initial value.
-                // Forward it to the component instance.
-                _this.setInputValue(propName, initialValue);
             }
         });
         this.initialInputValues.clear();
     };
+    /** Sets up listeners for the component's outputs so that the events stream emits the events. */
     /**
-     * @this {?}
+     * Sets up listeners for the component's outputs so that the events stream emits the events.
      * @return {?}
      */
-    NgElementImpl.prototype.initializeOutputs = /**
-     * @this {?}
+    ComponentNgElementStrategy.prototype.initializeOutputs = /**
+     * Sets up listeners for the component's outputs so that the events stream emits the events.
      * @return {?}
      */
     function () {
         var _this = this;
-        this.outputs.forEach(function (output) { return _this.subscribeToOutput(output); });
+        var /** @type {?} */ eventEmitters = this.componentFactory.outputs.map(function (_a) {
+            var propName = _a.propName, templateName = _a.templateName;
+            var /** @type {?} */ emitter = /** @type {?} */ ((/** @type {?} */ (((_this.componentRef)).instance))[propName]);
+            return map.call(emitter, function (value) { return ({ name: templateName, value: value }); });
+        });
+        this.events = merge.apply(void 0, eventEmitters);
+    };
+    /** Calls ngOnChanges with all the inputs that have changed since the last call. */
+    /**
+     * Calls ngOnChanges with all the inputs that have changed since the last call.
+     * @return {?}
+     */
+    ComponentNgElementStrategy.prototype.callNgOnChanges = /**
+     * Calls ngOnChanges with all the inputs that have changed since the last call.
+     * @return {?}
+     */
+    function () {
+        if (!this.implementsOnChanges || this.inputChanges === null) {
+            return;
+        }
+        // Cache the changes and set inputChanges to null to capture any changes that might occur
+        // during ngOnChanges.
+        var /** @type {?} */ inputChanges = this.inputChanges;
+        this.inputChanges = null;
+        (/** @type {?} */ ((((this.componentRef)).instance))).ngOnChanges(inputChanges);
     };
     /**
-     * @param {?} propName
+     * Schedules change detection to run on the component.
+     * Ignores subsequent calls if already scheduled.
+     */
+    /**
+     * Schedules change detection to run on the component.
+     * Ignores subsequent calls if already scheduled.
+     * @return {?}
+     */
+    ComponentNgElementStrategy.prototype.scheduleDetectChanges = /**
+     * Schedules change detection to run on the component.
+     * Ignores subsequent calls if already scheduled.
+     * @return {?}
+     */
+    function () {
+        var _this = this;
+        if (this.scheduledChangeDetectionFn) {
+            return;
+        }
+        this.scheduledChangeDetectionFn = scheduler.scheduleBeforeRender(function () {
+            _this.scheduledChangeDetectionFn = null;
+            _this.detectChanges();
+        });
+    };
+    /**
+     * Records input changes so that the component receives SimpleChanges in its onChanges function.
+     */
+    /**
+     * Records input changes so that the component receives SimpleChanges in its onChanges function.
+     * @param {?} property
      * @param {?} currentValue
      * @return {?}
      */
-    NgElementImpl.prototype.recordInputChange = /**
-     * @param {?} propName
+    ComponentNgElementStrategy.prototype.recordInputChange = /**
+     * Records input changes so that the component receives SimpleChanges in its onChanges function.
+     * @param {?} property
      * @param {?} currentValue
      * @return {?}
      */
-    function (propName, currentValue) {
-        if (!this.implementsOnChanges) {
-            // The component does not implement `OnChanges`. Ignore the change.
+    function (property, currentValue) {
+        // Do not record the change if the component does not implement `OnChanges`.
+        if (this.componentRef && !this.implementsOnChanges) {
             return;
         }
         if (this.inputChanges === null) {
             this.inputChanges = {};
         }
-        var /** @type {?} */ pendingChange = this.inputChanges[propName];
+        // If there already is a change, modify the current value to match but leave the values for
+        // previousValue and isFirstChange.
+        var /** @type {?} */ pendingChange = this.inputChanges[property];
         if (pendingChange) {
             pendingChange.currentValue = currentValue;
             return;
         }
-        var /** @type {?} */ isFirstChange = this.uninitializedInputs.has(propName);
-        var /** @type {?} */ previousValue = isFirstChange ? undefined : this.getInputValue(propName);
-        this.inputChanges[propName] = new SimpleChange(previousValue, currentValue, isFirstChange);
-        if (isFirstChange) {
-            this.uninitializedInputs.delete(propName);
-        }
+        var /** @type {?} */ isFirstChange = this.uninitializedInputs.has(property);
+        this.uninitializedInputs.delete(property);
+        var /** @type {?} */ previousValue = isFirstChange ? undefined : this.getInputValue(property);
+        this.inputChanges[property] = new SimpleChange(previousValue, currentValue, isFirstChange);
     };
+    /** Runs change detection on the component. */
     /**
-     * @this {?}
-     * @param {?} output
+     * Runs change detection on the component.
      * @return {?}
      */
-    NgElementImpl.prototype.subscribeToOutput = /**
-     * @this {?}
-     * @param {?} output
+    ComponentNgElementStrategy.prototype.detectChanges = /**
+     * Runs change detection on the component.
      * @return {?}
      */
-    function (output) {
-        var _this = this;
-        var propName = output.propName, eventName = output.eventName;
-        var /** @type {?} */ emitter = /** @type {?} */ ((/** @type {?} */ (this.componentRef.instance))[output.propName]);
-        if (!emitter) {
-            throwError("Missing emitter '" + propName + "' on component '" + this.componentName + "'.");
-        }
-        this.unsubscribeFromOutput(output);
-        var /** @type {?} */ subscription = emitter.subscribe(function (value) { return _this.dispatchCustomEvent(eventName, value); });
-        this.outputSubscriptions.set(propName, subscription);
-    };
-    /**
-     * @param {?} __0
-     * @return {?}
-     */
-    NgElementImpl.prototype.unsubscribeFromOutput = /**
-     * @param {?} __0
-     * @return {?}
-     */
-    function (_a) {
-        var propName = _a.propName;
-        if (!this.outputSubscriptions.has(propName)) {
+    function () {
+        if (!this.componentRef) {
             return;
         }
-        var /** @type {?} */ subscription = /** @type {?} */ ((this.outputSubscriptions.get(propName)));
-        this.outputSubscriptions.delete(propName);
-        subscription.unsubscribe();
+        this.callNgOnChanges(); /** @type {?} */
+        ((this.componentRef)).changeDetectorRef.detectChanges();
     };
-    NgElementImpl.DESTROY_DELAY = 10;
-    return NgElementImpl;
-}(HTMLElement));
-
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes} checked by tsc
- */
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-/**
- * TODO(gkalpak): Add docs.
- * \@experimental
- * @record
- */
-
-/**
- * @record
- */
-
-// For more info on `PotentialCustomElementName` rules see:
-// https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name
-var PCEN_RE = createPcenRe();
-var PCEN_BLACKLIST = [
-    'annotation-xml',
-    'color-profile',
-    'font-face',
-    'font-face-src',
-    'font-face-uri',
-    'font-face-format',
-    'font-face-name',
-    'missing-glyph',
-];
-/**
- * @template T, P
- * @param {?} appContext
- * @param {?} componentFactory
- * @return {?}
- */
-function createNgElementConstructor(appContext, componentFactory) {
-    var /** @type {?} */ selector = componentFactory.selector;
-    if (!isPotentialCustomElementName(selector)) {
-        throwError("Using '" + selector + "' as a custom element name is not allowed. " +
-            'See https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name for more info.');
-    }
-    var /** @type {?} */ inputs = componentFactory.inputs.map(function (_a) {
-        var propName = _a.propName, templateName = _a.templateName;
-        return ({
-            propName: propName,
-            attrName: camelToKebabCase(templateName),
-        });
-    });
-    var /** @type {?} */ outputs = componentFactory.outputs.map(function (_a) {
-        var propName = _a.propName, templateName = _a.templateName;
-        return ({
-            propName: propName,
-            // TODO(gkalpak): Verify this is what we want and document.
-            eventName: templateName,
-        });
-    });
-    var NgElementConstructorImpl = (function (_super) {
-        __extends(NgElementConstructorImpl, _super);
-        function NgElementConstructorImpl() {
-            var _this = _super.call(this, appContext, componentFactory, inputs, outputs) || this;
-            var /** @type {?} */ ngElement = /** @type {?} */ (_this);
-            _this.onConnected.subscribe(function () { return NgElementConstructorImpl.onConnected.emit(ngElement); });
-            _this.onDisconnected.subscribe(function () { return NgElementConstructorImpl.onDisconnected.emit(ngElement); });
-            return _this;
-        }
-        /**
-         * @param {?} host
-         * @param {?=} ignoreUpgraded
-         * @return {?}
-         */
-        NgElementConstructorImpl.upgrade = /**
-         * @param {?} host
-         * @param {?=} ignoreUpgraded
-         * @return {?}
-         */
-        function (host, ignoreUpgraded) {
-            if (ignoreUpgraded === void 0) { ignoreUpgraded = false; }
-            var /** @type {?} */ ngElement = new NgElementConstructorImpl();
-            ngElement.setHost(host);
-            ngElement.connectedCallback(ignoreUpgraded);
-            return /** @type {?} */ (ngElement);
-        };
-        NgElementConstructorImpl.is = selector;
-        NgElementConstructorImpl.observedAttributes = inputs.map(function (input) { return input.attrName; });
-        NgElementConstructorImpl.onConnected = new EventEmitter();
-        NgElementConstructorImpl.onDisconnected = new EventEmitter();
-        return NgElementConstructorImpl;
-    }(NgElementImpl));
-    inputs.forEach(function (_a) {
-        var propName = _a.propName;
-        Object.defineProperty(NgElementConstructorImpl.prototype, propName, {
-            get: function () { return this.getInputValue(propName); },
-            set: function (newValue) {
-                this.setInputValue(propName, newValue);
-            },
-            configurable: true,
-            enumerable: true,
-        });
-    });
-    return /** @type {?} */ (NgElementConstructorImpl);
-}
-/**
- * @return {?}
- */
-function createPcenRe() {
-    // According to [the
-    // spec](https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name),
-    // `pcenChar` is allowed to contain Unicode characters in the 10000-EFFFF range. But in order to
-    // match this characters with a RegExp, we need the implementation to support the `u` flag.
-    // On browsers that do not support it, valid PotentialCustomElementNames using characters in the
-    // 10000-EFFFF range will still cause an error (but these characters are not expected to be used
-    // in practice).
-    var /** @type {?} */ pcenChar = '-.0-9_a-z\\u00B7\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u037D\\u037F-\\u1FFF' +
-        '\\u200C-\\u200D\\u203F-\\u2040\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF' +
-        '\\uF900-\\uFDCF\\uFDF0-\\uFFFD';
-    var /** @type {?} */ flags = '';
-    if (RegExp.prototype.hasOwnProperty('unicode')) {
-        pcenChar += '\\u{10000}-\\u{EFFFF}';
-        flags += 'u';
-    }
-    return RegExp("^[a-z][" + pcenChar + "]*-[" + pcenChar + "]*$", flags);
-}
-/**
- * @param {?} name
- * @return {?}
- */
-function isPotentialCustomElementName(name) {
-    return PCEN_RE.test(name) && (PCEN_BLACKLIST.indexOf(name) === -1);
-}
-
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes} checked by tsc
- */
-/**
- * TODO(gkalpak): Add docs.
- * \@experimental
- */
-var NgElements = (function () {
-    function NgElements(moduleRef, customElementComponents) {
-        var _this = this;
-        this.moduleRef = moduleRef;
-        this.doc = this.moduleRef.injector.get(DOCUMENT);
-        this.definitions = new Map();
-        this.upgradedElements = new Set();
-        this.appContext = new NgElementApplicationContext(this.moduleRef.injector);
-        this.changeDetectionScheduled = false;
-        var /** @type {?} */ resolver = moduleRef.componentFactoryResolver;
-        customElementComponents.forEach(function (componentType) { return _this.defineNgElement(_this.appContext, resolver, componentType); });
-    }
-    /**
-     * @param {?=} root
-     * @return {?}
-     */
-    NgElements.prototype.detachAll = /**
-     * @param {?=} root
-     * @return {?}
-     */
-    function (root) {
-        if (root === void 0) { root = this.doc.documentElement; }
-        var /** @type {?} */ upgradedElements = Array.from(this.upgradedElements.values());
-        var /** @type {?} */ elementsToDetach = [];
-        this.traverseTree(root, function (node) {
-            upgradedElements.some(function (ngElement) {
-                if (ngElement.getHost() === node) {
-                    elementsToDetach.push(ngElement);
-                    return true;
-                }
-                return false;
-            });
-        });
-        // Detach in reverse traversal order.
-        this.appContext.runInNgZone(function () { return elementsToDetach.reverse().forEach(function (ngElement) { return ngElement.detach(); }); });
-    };
-    /**
-     * @return {?}
-     */
-    NgElements.prototype.detectChanges = /**
-     * @return {?}
-     */
-    function () {
-        var _this = this;
-        this.changeDetectionScheduled = false;
-        this.appContext.runInNgZone(function () { return _this.upgradedElements.forEach(function (ngElement) { return ngElement.detectChanges(); }); });
-    };
-    /**
-     * @param {?} cb
-     * @return {?}
-     */
-    NgElements.prototype.forEach = /**
-     * @param {?} cb
-     * @return {?}
-     */
-    function (cb) {
-        return this.definitions.forEach(cb);
-    };
-    /**
-     * @template C, P
-     * @param {?} selector
-     * @return {?}
-     */
-    NgElements.prototype.get = /**
-     * @template C, P
-     * @param {?} selector
-     * @return {?}
-     */
-    function (selector) {
-        return this.definitions.get(selector);
-    };
-    /**
-     * @return {?}
-     */
-    NgElements.prototype.markDirty = /**
-     * @return {?}
-     */
-    function () {
-        var _this = this;
-        if (!this.changeDetectionScheduled) {
-            this.changeDetectionScheduled = true;
-            scheduler.scheduleBeforeRender(function () { return _this.detectChanges(); });
-        }
-    };
-    /**
-     * @param {?=} customElements
-     * @return {?}
-     */
-    NgElements.prototype.register = /**
-     * @param {?=} customElements
-     * @return {?}
-     */
-    function (customElements) {
-        if (!customElements && (typeof window !== 'undefined')) {
-            customElements = window.customElements;
-        }
-        if (!customElements) {
-            throwError('Custom Elements are not supported in this environment.');
-        }
-        this.definitions.forEach(function (def) { return /** @type {?} */ ((customElements)).define(def.is, def); });
-    };
-    /**
-     * @param {?=} root
-     * @return {?}
-     */
-    NgElements.prototype.upgradeAll = /**
-     * @param {?=} root
-     * @return {?}
-     */
-    function (root) {
-        var _this = this;
-        if (root === void 0) { root = this.doc.documentElement; }
-        var /** @type {?} */ definitions = Array.from(this.definitions.values());
-        this.appContext.runInNgZone(function () {
-            _this.traverseTree(root, function (node) {
-                var /** @type {?} */ nodeName = node.nodeName.toLowerCase();
-                definitions.some(function (def) {
-                    if (def.is === nodeName) {
-                        // TODO(gkalpak): What happens if `node` contains more custom elements
-                        //                (as projectable content)?
-                        def.upgrade(node, true);
-                        return true;
-                    }
-                    return false;
-                });
-            });
-        });
-    };
-    /**
-     * @param {?} appContext
-     * @param {?} resolver
-     * @param {?} componentType
-     * @return {?}
-     */
-    NgElements.prototype.defineNgElement = /**
-     * @param {?} appContext
-     * @param {?} resolver
-     * @param {?} componentType
-     * @return {?}
-     */
-    function (appContext, resolver, componentType) {
-        var _this = this;
-        var /** @type {?} */ componentFactory = resolver.resolveComponentFactory(componentType);
-        var /** @type {?} */ def = createNgElementConstructor(appContext, componentFactory);
-        var /** @type {?} */ selector = def.is;
-        if (this.definitions.has(selector)) {
-            throwError("Defining an Angular custom element with selector '" + selector + "' is not allowed, " +
-                'because one is already defined.');
-        }
-        def.onConnected.subscribe(function (ngElement) { return _this.upgradedElements.add(ngElement); });
-        def.onDisconnected.subscribe(function (ngElement) { return _this.upgradedElements.delete(ngElement); });
-        this.definitions.set(selector, def);
-    };
-    /**
-     * @param {?} root
-     * @param {?} cb
-     * @return {?}
-     */
-    NgElements.prototype.traverseTree = /**
-     * @param {?} root
-     * @param {?} cb
-     * @return {?}
-     */
-    function (root, cb) {
-        var /** @type {?} */ currentNode = root;
-        var /** @type {?} */ getNextNonDescendant = function (node) {
-            var /** @type {?} */ currNode = node;
-            var /** @type {?} */ nextNode = null;
-            while (!nextNode && currNode && (currNode !== root)) {
-                nextNode = currNode.nextElementSibling;
-                currNode = currNode.parentElement;
-            }
-            return nextNode;
-        };
-        while (currentNode) {
-            if (currentNode instanceof HTMLElement) {
-                cb(currentNode);
-            }
-            currentNode = currentNode.firstElementChild || getNextNonDescendant(currentNode);
-        }
-    };
-    return NgElements;
+    return ComponentNgElementStrategy;
 }());
 
 /**
@@ -981,21 +565,134 @@ var NgElements = (function () {
  * @suppress {checkTypes} checked by tsc
  */
 /**
- * @template T
- * @param {?} customElementComponents
- * @param {?} platformRefOrBootstrapFn
- * @param {?=} moduleFactory
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+/**
+ * Class constructor based on an Angular Component to be used for custom element registration.
+ *
+ * \@experimental
+ * @record
+ * @template P
+ */
+
+/**
+ * Class that extends HTMLElement and implements the functionality needed for a custom element.
+ *
+ * \@experimental
+ * @abstract
+ */
+var NgElement = /** @class */ (function (_super) {
+    __extends(NgElement, _super);
+    function NgElement() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.ngElementEventsSubscription = null;
+        return _this;
+    }
+    return NgElement;
+}(HTMLElement));
+/**
+ * Initialization configuration for the NgElementConstructor which contains the injector to be used
+ * for retrieving the component's factory as well as the default context for the component. May
+ * provide a custom strategy factory to be used instead of the default.
+ *
+ * \@experimental
+ * @record
+ */
+
+/**
+ * \@whatItDoes Creates a custom element class based on an Angular Component. Takes a configuration
+ * that provides initialization information to the created class. E.g. the configuration's injector
+ * will be the initial injector set on the class which will be used for each created instance.
+ *
+ * \@description Builds a class that encapsulates the functionality of the provided component and
+ * uses the config's information to provide more context to the class. Takes the component factory's
+ * inputs and outputs to convert them to the proper custom element API and add hooks to input
+ * changes. Passes the config's injector to each created instance (may be overridden with the
+ * static property to affect all newly created instances, or as a constructor argument for
+ * one-off creations).
+ *
+ * \@experimental
+ * @template P
+ * @param {?} component
+ * @param {?} config
  * @return {?}
  */
-function registerAsCustomElements(customElementComponents, platformRefOrBootstrapFn, moduleFactory) {
-    var /** @type {?} */ bootstrapFn = isFunction(platformRefOrBootstrapFn) ?
-        platformRefOrBootstrapFn :
-        function () { return platformRefOrBootstrapFn.bootstrapModuleFactory(/** @type {?} */ ((moduleFactory))); };
-    return bootstrapFn().then(function (moduleRef) {
-        var /** @type {?} */ ngElements = new NgElements(moduleRef, customElementComponents);
-        ngElements.register();
-        return moduleRef;
+function createCustomElement(component, config) {
+    var /** @type {?} */ inputs = getComponentInputs(component, config.injector);
+    var /** @type {?} */ strategyFactory = config.strategyFactory || new ComponentNgElementStrategyFactory(component, config.injector);
+    var /** @type {?} */ attributeToPropertyInputs = getDefaultAttributeToPropertyInputs(inputs);
+    var NgElementImpl = /** @class */ (function (_super) {
+        __extends(NgElementImpl, _super);
+        function NgElementImpl(injector) {
+            var _this = _super.call(this) || this;
+            _this.ngElementStrategy = strategyFactory.create(injector || config.injector);
+            return _this;
+        }
+        /**
+         * @param {?} attrName
+         * @param {?} oldValue
+         * @param {?} newValue
+         * @param {?=} namespace
+         * @return {?}
+         */
+        NgElementImpl.prototype.attributeChangedCallback = /**
+         * @param {?} attrName
+         * @param {?} oldValue
+         * @param {?} newValue
+         * @param {?=} namespace
+         * @return {?}
+         */
+        function (attrName, oldValue, newValue, namespace) {
+            var /** @type {?} */ propName = /** @type {?} */ ((attributeToPropertyInputs[attrName]));
+            this.ngElementStrategy.setInputValue(propName, newValue);
+        };
+        /**
+         * @return {?}
+         */
+        NgElementImpl.prototype.connectedCallback = /**
+         * @return {?}
+         */
+        function () {
+            var _this = this;
+            this.ngElementStrategy.connect(this);
+            // Listen for events from the strategy and dispatch them as custom events
+            this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(function (e) {
+                var /** @type {?} */ customEvent = createCustomEvent(_this.ownerDocument, e.name, e.value);
+                _this.dispatchEvent(customEvent);
+            });
+        };
+        /**
+         * @return {?}
+         */
+        NgElementImpl.prototype.disconnectedCallback = /**
+         * @return {?}
+         */
+        function () {
+            this.ngElementStrategy.disconnect();
+            if (this.ngElementEventsSubscription) {
+                this.ngElementEventsSubscription.unsubscribe();
+                this.ngElementEventsSubscription = null;
+            }
+        };
+        NgElementImpl.observedAttributes = Object.keys(attributeToPropertyInputs);
+        return NgElementImpl;
+    }(NgElement));
+    inputs.map(function (_a) {
+        var propName = _a.propName;
+        return propName;
+    }).forEach(function (property) {
+        Object.defineProperty(NgElementImpl.prototype, property, {
+            get: function () { return this.ngElementStrategy.getInputValue(property); },
+            set: function (newValue) { this.ngElementStrategy.setInputValue(property, newValue); },
+            configurable: true,
+            enumerable: true,
+        });
     });
+    return /** @type {?} */ ((/** @type {?} */ (NgElementImpl)));
 }
 
 /**
@@ -1012,11 +709,18 @@ function registerAsCustomElements(customElementComponents, platformRefOrBootstra
 /**
  * \@experimental
  */
-var VERSION = new Version('5.1.0-beta.0-200d92d');
+var VERSION = new Version('6.0.0-beta.7-688096b');
 
 /**
  * @fileoverview added by tsickle
  * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
  */
 
 // This file only reexports content of the `src` folder. Keep it that way.
@@ -1029,5 +733,5 @@ var VERSION = new Version('5.1.0-beta.0-200d92d');
  * Generated bundle index. Do not edit.
  */
 
-export { registerAsCustomElements, VERSION };
+export { NgElement, createCustomElement, VERSION };
 //# sourceMappingURL=elements.js.map

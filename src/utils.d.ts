@@ -5,26 +5,22 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { Type } from '@angular/core';
+import { Injector, Type } from '@angular/core';
 /**
  * Provide methods for scheduling the execution of a callback.
  */
 export declare const scheduler: {
-    schedule(cb: () => void, delay: number): () => void;
-    scheduleBeforeRender(cb: () => void): () => void;
+    schedule(taskFn: () => void, delay: number): () => void;
+    scheduleBeforeRender(taskFn: () => void): () => void;
 };
 /**
  * Convert a camelCased string to kebab-cased.
  */
-export declare function camelToKebabCase(input: string): string;
+export declare function camelToDashCase(input: string): string;
 /**
  * Create a `CustomEvent` (even on browsers where `CustomEvent` is not a constructor).
  */
 export declare function createCustomEvent(doc: Document, name: string, detail: any): CustomEvent;
-/**
- * Return the name of the component or the first line of its stringified version.
- */
-export declare function getComponentName(component: Type<any>): string;
 /**
  * Check whether the input is an `Element`.
  */
@@ -45,8 +41,18 @@ export declare function matchesSelector(element: Element, selector: string): boo
  * Test two values for strict equality, accounting for the fact that `NaN !== NaN`.
  */
 export declare function strictEquals(value1: any, value2: any): boolean;
+/** Gets a map of default set of attributes to observe and the properties they affect. */
+export declare function getDefaultAttributeToPropertyInputs(inputs: {
+    propName: string;
+    templateName: string;
+}[]): {
+    [key: string]: string;
+};
 /**
- * Throw an error with the specified message.
- * (It provides a centralized place where it is easy to apply some change/behavior to all errors.)
+ * Gets a component's set of inputs. Uses the injector to get the component factory where the inputs
+ * are defined.
  */
-export declare function throwError(message: string): void;
+export declare function getComponentInputs(component: Type<any>, injector: Injector): {
+    propName: string;
+    templateName: string;
+}[];
