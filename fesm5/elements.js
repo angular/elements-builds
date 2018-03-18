@@ -3,43 +3,11 @@
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core'), require('rxjs/observable/merge'), require('rxjs/operator/map')) :
-	typeof define === 'function' && define.amd ? define('@angular/elements', ['exports', '@angular/core', 'rxjs/observable/merge', 'rxjs/operator/map'], factory) :
-	(factory((global.ng = global.ng || {}, global.ng.elements = {}),global.ng.core,global.Rx.Observable,global.Rx.Observable.prototype));
-}(this, (function (exports,_angular_core,rxjs_observable_merge,rxjs_operator_map) { 'use strict';
+import { __extends } from 'tslib';
+import { ApplicationRef, ComponentFactoryResolver, Injector, SimpleChange, Version } from '@angular/core';
+import { merge } from 'rxjs/observable/merge';
+import { map } from 'rxjs/operator/map';
 
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation. All rights reserved.
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
-
-THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-MERCHANTABLITY OR NON-INFRINGEMENT.
-
-See the Apache Version 2.0 License for specific language governing permissions
-and limitations under the License.
-***************************************************************************** */
-/* global Reflect, Promise */
-
-var extendStatics = Object.setPrototypeOf ||
-    ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-    function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-
-function __extends(d, b) {
-    extendStatics(d, b);
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-}
-
-/**
- * @license Angular v6.0.0-beta.7-ce63dc6
- * (c) 2010-2018 Google, Inc. https://angular.io/
- * License: MIT
- */
 /**
  * @fileoverview added by tsickle
  * @suppress {checkTypes} checked by tsc
@@ -177,7 +145,7 @@ function getDefaultAttributeToPropertyInputs(inputs) {
  * @return {?}
  */
 function getComponentInputs(component, injector) {
-    var /** @type {?} */ componentFactoryResolver = injector.get(_angular_core.ComponentFactoryResolver);
+    var /** @type {?} */ componentFactoryResolver = injector.get(ComponentFactoryResolver);
     var /** @type {?} */ componentFactory = componentFactoryResolver.resolveComponentFactory(component);
     return componentFactory.inputs;
 }
@@ -264,7 +232,7 @@ var ComponentNgElementStrategyFactory = /** @class */ (function () {
         this.component = component;
         this.injector = injector;
         this.componentFactory =
-            injector.get(_angular_core.ComponentFactoryResolver).resolveComponentFactory(component);
+            injector.get(ComponentFactoryResolver).resolveComponentFactory(component);
     }
     /**
      * @param {?} injector
@@ -439,7 +407,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
      * @return {?}
      */
     function (element) {
-        var /** @type {?} */ childInjector = _angular_core.Injector.create({ providers: [], parent: this.injector });
+        var /** @type {?} */ childInjector = Injector.create({ providers: [], parent: this.injector });
         var /** @type {?} */ projectableNodes = extractProjectableNodes(element, this.componentFactory.ngContentSelectors);
         this.componentRef = this.componentFactory.create(childInjector, projectableNodes, element);
         this.implementsOnChanges =
@@ -447,7 +415,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
         this.initializeInputs();
         this.initializeOutputs();
         this.detectChanges();
-        var /** @type {?} */ applicationRef = this.injector.get(_angular_core.ApplicationRef);
+        var /** @type {?} */ applicationRef = this.injector.get(ApplicationRef);
         applicationRef.attachView(this.componentRef.hostView);
     };
     /** Set any stored initial inputs on the component's properties. */
@@ -491,9 +459,9 @@ var ComponentNgElementStrategy = /** @class */ (function () {
         var /** @type {?} */ eventEmitters = this.componentFactory.outputs.map(function (_a) {
             var propName = _a.propName, templateName = _a.templateName;
             var /** @type {?} */ emitter = /** @type {?} */ ((/** @type {?} */ (((_this.componentRef)).instance))[propName]);
-            return rxjs_operator_map.map.call(emitter, function (value) { return ({ name: templateName, value: value }); });
+            return map.call(emitter, function (value) { return ({ name: templateName, value: value }); });
         });
-        this.events = rxjs_observable_merge.merge.apply(void 0, eventEmitters);
+        this.events = merge.apply(void 0, eventEmitters);
     };
     /** Calls ngOnChanges with all the inputs that have changed since the last call. */
     /**
@@ -571,7 +539,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
         var /** @type {?} */ isFirstChange = this.uninitializedInputs.has(property);
         this.uninitializedInputs.delete(property);
         var /** @type {?} */ previousValue = isFirstChange ? undefined : this.getInputValue(property);
-        this.inputChanges[property] = new _angular_core.SimpleChange(previousValue, currentValue, isFirstChange);
+        this.inputChanges[property] = new SimpleChange(previousValue, currentValue, isFirstChange);
     };
     /** Runs change detection on the component. */
     /**
@@ -741,13 +709,29 @@ function createCustomElement(component, config) {
 /**
  * \@experimental
  */
-var VERSION = new _angular_core.Version('6.0.0-beta.7-ce63dc6');
+var VERSION = new Version('6.0.0-beta.7-ce63dc6');
 
-exports.NgElement = NgElement;
-exports.createCustomElement = createCustomElement;
-exports.VERSION = VERSION;
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 
-Object.defineProperty(exports, '__esModule', { value: true });
+// This file only reexports content of the `src` folder. Keep it that way.
 
-})));
-//# sourceMappingURL=elements.umd.js.map
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes} checked by tsc
+ */
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+export { NgElement, createCustomElement, VERSION };
+//# sourceMappingURL=elements.js.map
