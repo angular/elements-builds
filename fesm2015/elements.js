@@ -1,11 +1,11 @@
 /**
- * @license Angular v6.0.0-beta.7-2b3de63
+ * @license Angular v6.0.0-beta.7-4648597
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
 import { ApplicationRef, ComponentFactoryResolver, Injector, SimpleChange, Version } from '@angular/core';
-import { merge } from 'rxjs/observable/merge';
-import { map } from 'rxjs/operator/map';
+import { merge } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 /**
  * @fileoverview added by tsickle
@@ -382,7 +382,7 @@ class ComponentNgElementStrategy {
     initializeOutputs() {
         const /** @type {?} */ eventEmitters = this.componentFactory.outputs.map(({ propName, templateName }) => {
             const /** @type {?} */ emitter = /** @type {?} */ ((/** @type {?} */ (((this.componentRef)).instance))[propName]);
-            return map.call(emitter, (value) => ({ name: templateName, value }));
+            return emitter.pipe(map((value) => ({ name: templateName, value })));
         });
         this.events = merge(...eventEmitters);
     }
@@ -582,7 +582,7 @@ function createCustomElement(component, config) {
 /**
  * \@experimental
  */
-const VERSION = new Version('6.0.0-beta.7-2b3de63');
+const VERSION = new Version('6.0.0-beta.7-4648597');
 
 /**
  * @fileoverview added by tsickle

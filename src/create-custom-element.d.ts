@@ -6,7 +6,7 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { Injector, Type } from '@angular/core';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { NgElementStrategy, NgElementStrategyFactory } from './element-strategy';
 /**
  * Class constructor based on an Angular Component to be used for custom element registration.

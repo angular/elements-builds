@@ -1,12 +1,12 @@
 /**
- * @license Angular v6.0.0-beta.7-2b3de63
+ * @license Angular v6.0.0-beta.7-4648597
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
 import { __extends } from 'tslib';
 import { ApplicationRef, ComponentFactoryResolver, Injector, SimpleChange, Version } from '@angular/core';
-import { merge } from 'rxjs/observable/merge';
-import { map } from 'rxjs/operator/map';
+import { merge } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 /**
  * @fileoverview added by tsickle
@@ -459,7 +459,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
         var /** @type {?} */ eventEmitters = this.componentFactory.outputs.map(function (_a) {
             var propName = _a.propName, templateName = _a.templateName;
             var /** @type {?} */ emitter = /** @type {?} */ ((/** @type {?} */ (((_this.componentRef)).instance))[propName]);
-            return map.call(emitter, function (value) { return ({ name: templateName, value: value }); });
+            return emitter.pipe(map(function (value) { return ({ name: templateName, value: value }); }));
         });
         this.events = merge.apply(void 0, eventEmitters);
     };
@@ -709,7 +709,7 @@ function createCustomElement(component, config) {
 /**
  * \@experimental
  */
-var VERSION = new Version('6.0.0-beta.7-2b3de63');
+var VERSION = new Version('6.0.0-beta.7-4648597');
 
 /**
  * @fileoverview added by tsickle

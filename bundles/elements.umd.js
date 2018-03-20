@@ -1,13 +1,13 @@
 /**
- * @license Angular v6.0.0-beta.7-2b3de63
+ * @license Angular v6.0.0-beta.7-4648597
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core'), require('rxjs/observable/merge'), require('rxjs/operator/map')) :
-	typeof define === 'function' && define.amd ? define('@angular/elements', ['exports', '@angular/core', 'rxjs/observable/merge', 'rxjs/operator/map'], factory) :
-	(factory((global.ng = global.ng || {}, global.ng.elements = {}),global.ng.core,global.Rx.Observable,global.Rx.Observable.prototype));
-}(this, (function (exports,_angular_core,rxjs_observable_merge,rxjs_operator_map) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('@angular/core'), require('rxjs'), require('rxjs/operators')) :
+	typeof define === 'function' && define.amd ? define('@angular/elements', ['exports', '@angular/core', 'rxjs', 'rxjs/operators'], factory) :
+	(factory((global.ng = global.ng || {}, global.ng.elements = {}),global.ng.core,global.rxjs,global.rxjs.operators));
+}(this, (function (exports,_angular_core,rxjs,rxjs_operators) { 'use strict';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -36,7 +36,7 @@ function __extends(d, b) {
 }
 
 /**
- * @license Angular v6.0.0-beta.7-2b3de63
+ * @license Angular v6.0.0-beta.7-4648597
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -491,9 +491,9 @@ var ComponentNgElementStrategy = /** @class */ (function () {
         var /** @type {?} */ eventEmitters = this.componentFactory.outputs.map(function (_a) {
             var propName = _a.propName, templateName = _a.templateName;
             var /** @type {?} */ emitter = /** @type {?} */ ((/** @type {?} */ (((_this.componentRef)).instance))[propName]);
-            return rxjs_operator_map.map.call(emitter, function (value) { return ({ name: templateName, value: value }); });
+            return emitter.pipe(rxjs_operators.map(function (value) { return ({ name: templateName, value: value }); }));
         });
-        this.events = rxjs_observable_merge.merge.apply(void 0, eventEmitters);
+        this.events = rxjs.merge.apply(void 0, eventEmitters);
     };
     /** Calls ngOnChanges with all the inputs that have changed since the last call. */
     /**
@@ -741,7 +741,7 @@ function createCustomElement(component, config) {
 /**
  * \@experimental
  */
-var VERSION = new _angular_core.Version('6.0.0-beta.7-2b3de63');
+var VERSION = new _angular_core.Version('6.0.0-beta.7-4648597');
 
 exports.NgElement = NgElement;
 exports.createCustomElement = createCustomElement;

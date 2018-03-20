@@ -10,8 +10,8 @@
  * found in the LICENSE file at https://angular.io/license
  */
 import { ApplicationRef, ComponentFactoryResolver, Injector, SimpleChange } from '@angular/core';
-import { merge } from 'rxjs/observable/merge';
-import { map } from 'rxjs/operator/map';
+import { merge } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { extractProjectableNodes } from './extract-projectable-nodes';
 import { isFunction, scheduler, strictEquals } from './utils';
 /**
@@ -283,7 +283,7 @@ ComponentNgElementStrategy = /** @class */ (function () {
         var /** @type {?} */ eventEmitters = this.componentFactory.outputs.map(function (_a) {
             var propName = _a.propName, templateName = _a.templateName;
             var /** @type {?} */ emitter = /** @type {?} */ ((/** @type {?} */ (((_this.componentRef)).instance))[propName]);
-            return map.call(emitter, function (value) { return ({ name: templateName, value: value }); });
+            return emitter.pipe(map(function (value) { return ({ name: templateName, value: value }); }));
         });
         this.events = merge.apply(void 0, eventEmitters);
     };
