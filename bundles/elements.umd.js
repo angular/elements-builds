@@ -1,5 +1,5 @@
 /**
- * @license Angular v6.0.0-rc.0-45e090b
+ * @license Angular v6.0.0-rc.0-481b22e
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -36,7 +36,7 @@ function __extends(d, b) {
 }
 
 /**
- * @license Angular v6.0.0-rc.0-45e090b
+ * @license Angular v6.0.0-rc.0-481b22e
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -741,7 +741,7 @@ function createCustomElement(component, config) {
 /**
  * \@experimental
  */
-var VERSION = new _angular_core.Version('6.0.0-rc.0-45e090b');
+var VERSION = new _angular_core.Version('6.0.0-rc.0-481b22e');
 
 exports.NgElement = NgElement;
 exports.createCustomElement = createCustomElement;
