@@ -1,5 +1,5 @@
 /**
- * @license Angular v6.0.0-rc.1-85d3b59
+ * @license Angular v6.0.0-rc.1-ff34d5e
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -36,7 +36,7 @@ function __extends(d, b) {
 }
 
 /**
- * @license Angular v6.0.0-rc.1-85d3b59
+ * @license Angular v6.0.0-rc.1-ff34d5e
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -604,7 +604,9 @@ var ComponentNgElementStrategy = /** @class */ (function () {
  * found in the LICENSE file at https://angular.io/license
  */
 /**
- * Class constructor based on an Angular Component to be used for custom element registration.
+ * Prototype for a class constructor based on an Angular component
+ * that can be used for custom element registration. Implemented and returned
+ * by the {\@link createCustomElement createCustomElement() function}.
  *
  * \@experimental
  * @record
@@ -612,7 +614,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
  */
 
 /**
- * Class that extends HTMLElement and implements the functionality needed for a custom element.
+ * Implements the functionality needed for a custom element.
  *
  * \@experimental
  * @abstract
@@ -621,37 +623,43 @@ var NgElement = /** @class */ (function (_super) {
     __extends(NgElement, _super);
     function NgElement() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
+        /**
+         * A subscription to change, connect, and disconnect events in the custom element.
+         */
         _this.ngElementEventsSubscription = null;
         return _this;
     }
     return NgElement;
 }(HTMLElement));
 /**
- * Initialization configuration for the NgElementConstructor which contains the injector to be used
- * for retrieving the component's factory as well as the default context for the component. May
- * provide a custom strategy factory to be used instead of the default.
+ * A configuration that initializes an NgElementConstructor with the
+ * dependencies and strategy it needs to transform a component into
+ * a custom element class.
  *
  * \@experimental
  * @record
  */
 
 /**
- * \@whatItDoes Creates a custom element class based on an Angular Component. Takes a configuration
- * that provides initialization information to the created class. E.g. the configuration's injector
- * will be the initial injector set on the class which will be used for each created instance.
+ *  \@description Creates a custom element class based on an Angular component.
  *
- * \@description Builds a class that encapsulates the functionality of the provided component and
- * uses the config's information to provide more context to the class. Takes the component factory's
- * inputs and outputs to convert them to the proper custom element API and add hooks to input
- * changes. Passes the config's injector to each created instance (may be overridden with the
+ * Builds a class that encapsulates the functionality of the provided component and
+ * uses the configuration information to provide more context to the class.
+ * Takes the component factory's inputs and outputs to convert them to the proper
+ * custom element API and add hooks to input changes.
+ *
+ * The configuration's injector is the initial injector set on the class,
+ * and used by default for each created instance.This behavior can be overridden with the
  * static property to affect all newly created instances, or as a constructor argument for
- * one-off creations).
+ * one-off creations.
  *
  * \@experimental
  * @template P
- * @param {?} component
- * @param {?} config
- * @return {?}
+ * @param {?} component The component to transform.
+ * @param {?} config A configuration that provides initialization information to the created class.
+ * @return {?} The custom-element construction class, which can be registered with
+ * a browser's `CustomElementRegistry`.
+ *
  */
 function createCustomElement(component, config) {
     var /** @type {?} */ inputs = getComponentInputs(component, config.injector);
@@ -741,7 +749,7 @@ function createCustomElement(component, config) {
 /**
  * \@experimental
  */
-var VERSION = new _angular_core.Version('6.0.0-rc.1-85d3b59');
+var VERSION = new _angular_core.Version('6.0.0-rc.1-ff34d5e');
 
 exports.NgElement = NgElement;
 exports.createCustomElement = createCustomElement;
