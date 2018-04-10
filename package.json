@@ -1,0 +1,31 @@
+{
+  "name": "@angular/elements",
+  "version": "6.0.0-rc.3-5992fe6",
+  "description": "Angular - library for using Angular Components as Custom Elements",
+  "main": "./bundles/elements.umd.js",
+  "module": "./fesm5/elements.js",
+  "es2015": "./fesm2015/elements.js",
+  "esm5": "./esm5/elements.js",
+  "esm2015": "./esm2015/elements.js",
+  "fesm5": "../fesm5/testing.js",
+  "fesm2015": "../fesm2015/testing.js",
+  "typings": "./elements.d.ts",
+  "author": "angular",
+  "license": "MIT",
+  "dependencies": {
+    "tslib": "^1.9.0"
+  },
+  "peerDependencies": {
+    "@angular/core": "6.0.0-rc.3-5992fe6",
+    "@angular/platform-browser": "6.0.0-rc.3-5992fe6",
+    "rxjs": "^6.0.0-rc.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/angular/angular.git"
+  },
+  "ng-update": {
+    "packageGroup": ["@angular/core", "@angular/compiler", "@angular/common", "@angular/animations", "@angular/platform-browser", "@angular/platform-browser-dynamic", "@angular/forms", "@angular/http", "@angular/platform-server", "@angular/platform-webworker", "@angular/platform-webworker-dynamic", "@angular/upgrade", "@angular/router", "@angular/compiler-cli", "@angular/language-service", "@angular/benchpress", "@angular/service-worker", "@angular/elements"]
+  },
+  "sideEffects": false
+}
