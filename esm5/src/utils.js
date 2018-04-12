@@ -23,7 +23,7 @@ export var /** @type {?} */ scheduler = {
      * @param {?} delay
      * @return {?}
      */
-    function (taskFn, delay) { var /** @type {?} */ id = window.setTimeout(taskFn, delay); return function () { return window.clearTimeout(id); }; },
+    function (taskFn, delay) { var /** @type {?} */ id = setTimeout(taskFn, delay); return function () { return clearTimeout(id); }; },
     /**
      * Schedule a callback to be called before the next render.
      * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
@@ -41,6 +41,10 @@ export var /** @type {?} */ scheduler = {
     function (taskFn) {
         // TODO(gkalpak): Implement a better way of accessing `requestAnimationFrame()`
         //                (e.g. accounting for vendor prefix, SSR-compatibility, etc).
+        if (typeof window === 'undefined') {
+            // For SSR just schedule immediately.
+            return scheduler.schedule(taskFn, 0);
+        }
         if (typeof window.requestAnimationFrame === 'undefined') {
             var /** @type {?} */ frameMs = 16;
             return scheduler.schedule(taskFn, frameMs);

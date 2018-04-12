@@ -1,5 +1,5 @@
 /**
- * @license Angular v6.0.0-rc.3-7e8cee6
+ * @license Angular v6.0.0-rc.3-af46d09
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -32,7 +32,7 @@ var scheduler = {
      * @param {?} delay
      * @return {?}
      */
-    function (taskFn, delay) { var /** @type {?} */ id = window.setTimeout(taskFn, delay); return function () { return window.clearTimeout(id); }; },
+    function (taskFn, delay) { var /** @type {?} */ id = setTimeout(taskFn, delay); return function () { return clearTimeout(id); }; },
     /**
      * Schedule a callback to be called before the next render.
      * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
@@ -50,6 +50,10 @@ var scheduler = {
     function (taskFn) {
         // TODO(gkalpak): Implement a better way of accessing `requestAnimationFrame()`
         //                (e.g. accounting for vendor prefix, SSR-compatibility, etc).
+        if (typeof window === 'undefined') {
+            // For SSR just schedule immediately.
+            return scheduler.schedule(taskFn, 0);
+        }
         if (typeof window.requestAnimationFrame === 'undefined') {
             var /** @type {?} */ frameMs = 16;
             return scheduler.schedule(taskFn, frameMs);
@@ -717,7 +721,7 @@ function createCustomElement(component, config) {
 /**
  * \@experimental
  */
-var VERSION = new Version('6.0.0-rc.3-7e8cee6');
+var VERSION = new Version('6.0.0-rc.3-af46d09');
 
 /**
  * @fileoverview added by tsickle
