@@ -1,5 +1,5 @@
 /**
- * @license Angular v6.0.0+47.sha-2b578f5
+ * @license Angular v6.0.0+48.sha-d280077
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -534,6 +534,10 @@ function createCustomElement(component, config) {
          */
         constructor(injector) {
             super();
+            // Note that some polyfills (e.g. document-register-element) do not call the constructor.
+            // Do not assume this strategy has been created.
+            // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
+            // now this is tested using a Google internal test suite.
             this.ngElementStrategy = strategyFactory.create(injector || config.injector);
         }
         /**
@@ -544,6 +548,9 @@ function createCustomElement(component, config) {
          * @return {?}
          */
         attributeChangedCallback(attrName, oldValue, newValue, namespace) {
+            if (!this.ngElementStrategy) {
+                this.ngElementStrategy = strategyFactory.create(config.injector);
+            }
             const /** @type {?} */ propName = /** @type {?} */ ((attributeToPropertyInputs[attrName]));
             this.ngElementStrategy.setInputValue(propName, newValue);
         }
@@ -551,6 +558,9 @@ function createCustomElement(component, config) {
          * @return {?}
          */
         connectedCallback() {
+            if (!this.ngElementStrategy) {
+                this.ngElementStrategy = strategyFactory.create(config.injector);
+            }
             this.ngElementStrategy.connect(this);
             // Listen for events from the strategy and dispatch them as custom events
             this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(e => {
@@ -562,7 +572,9 @@ function createCustomElement(component, config) {
          * @return {?}
          */
         disconnectedCallback() {
-            this.ngElementStrategy.disconnect();
+            if (this.ngElementStrategy) {
+                this.ngElementStrategy.disconnect();
+            }
             if (this.ngElementEventsSubscription) {
                 this.ngElementEventsSubscription.unsubscribe();
                 this.ngElementEventsSubscription = null;
@@ -595,7 +607,7 @@ function createCustomElement(component, config) {
 /**
  * \@experimental
  */
-const VERSION = new Version('6.0.0+47.sha-2b578f5');
+const VERSION = new Version('6.0.0+48.sha-d280077');
 
 /**
  * @fileoverview added by tsickle
