@@ -1,5 +1,5 @@
 /**
- * @license Angular v6.0.0-rc.5+174.sha-cfde36d
+ * @license Angular v6.0.0-rc.5+175.sha-d4b8b24
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -581,7 +581,7 @@ function createCustomElement(component, config) {
             }
         }
     }
-    NgElementImpl.observedAttributes = Object.keys(attributeToPropertyInputs);
+    NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
     inputs.map(({ propName }) => propName).forEach(property => {
         Object.defineProperty(NgElementImpl.prototype, property, {
             get: function () { return this.ngElementStrategy.getInputValue(property); },
@@ -607,7 +607,7 @@ function createCustomElement(component, config) {
 /**
  * \@experimental
  */
-const VERSION = new Version('6.0.0-rc.5+174.sha-cfde36d');
+const VERSION = new Version('6.0.0-rc.5+175.sha-d4b8b24');
 
 /**
  * @fileoverview added by tsickle

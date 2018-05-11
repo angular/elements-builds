@@ -1,5 +1,5 @@
 /**
- * @license Angular v6.0.0-rc.5+174.sha-cfde36d
+ * @license Angular v6.0.0-rc.5+175.sha-d4b8b24
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -597,7 +597,7 @@ function createCustomElement(component, config) {
                 this.ngElementEventsSubscription = null;
             }
         };
-        NgElementImpl.observedAttributes = Object.keys(attributeToPropertyInputs);
+        NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
         return NgElementImpl;
     }(NgElement));
     // Add getters and setters to the prototype for each property input. If the config does not
@@ -626,7 +626,7 @@ function createCustomElement(component, config) {
 /**
  * @experimental
  */
-var VERSION = new core.Version('6.0.0-rc.5+174.sha-cfde36d');
+var VERSION = new core.Version('6.0.0-rc.5+175.sha-d4b8b24');
 
 /**
  * @license
