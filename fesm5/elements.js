@@ -1,5 +1,5 @@
 /**
- * @license Angular v6.0.0-rc.5+78.sha-e1c4930
+ * @license Angular v6.0.0-rc.5+215.sha-23a98b9
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -490,15 +490,29 @@ function createCustomElement(component, config) {
         __extends(NgElementImpl, _super);
         function NgElementImpl(injector) {
             var _this = _super.call(this) || this;
+            // Note that some polyfills (e.g. document-register-element) do not call the constructor.
+            // Do not assume this strategy has been created.
+            // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
+            // now this is tested using a Google internal test suite.
+            // Note that some polyfills (e.g. document-register-element) do not call the constructor.
+            // Do not assume this strategy has been created.
+            // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
+            // now this is tested using a Google internal test suite.
             _this.ngElementStrategy = strategyFactory.create(injector || config.injector);
             return _this;
         }
         NgElementImpl.prototype.attributeChangedCallback = function (attrName, oldValue, newValue, namespace) {
+            if (!this.ngElementStrategy) {
+                this.ngElementStrategy = strategyFactory.create(config.injector);
+            }
             var propName = (attributeToPropertyInputs[attrName]);
             this.ngElementStrategy.setInputValue(propName, newValue);
         };
         NgElementImpl.prototype.connectedCallback = function () {
             var _this = this;
+            if (!this.ngElementStrategy) {
+                this.ngElementStrategy = strategyFactory.create(config.injector);
+            }
             this.ngElementStrategy.connect(this);
             // Listen for events from the strategy and dispatch them as custom events
             this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(function (e) {
@@ -507,13 +521,15 @@ function createCustomElement(component, config) {
             });
         };
         NgElementImpl.prototype.disconnectedCallback = function () {
-            this.ngElementStrategy.disconnect();
+            if (this.ngElementStrategy) {
+                this.ngElementStrategy.disconnect();
+            }
             if (this.ngElementEventsSubscription) {
                 this.ngElementEventsSubscription.unsubscribe();
                 this.ngElementEventsSubscription = null;
             }
         };
-        NgElementImpl.observedAttributes = Object.keys(attributeToPropertyInputs);
+        NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
         return NgElementImpl;
     }(NgElement));
     // Add getters and setters to the prototype for each property input. If the config does not
@@ -542,7 +558,7 @@ function createCustomElement(component, config) {
 /**
  * @experimental
  */
-var VERSION = new Version('6.0.0-rc.5+78.sha-e1c4930');
+var VERSION = new Version('6.0.0-rc.5+215.sha-23a98b9');
 
 /**
  * @license
