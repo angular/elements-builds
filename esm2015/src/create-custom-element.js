@@ -104,7 +104,7 @@ function NgElementConfig_tsickle_Closure_declarations() {
     NgElementConfig.prototype.strategyFactory;
 }
 /**
- *  \@description Creates a custom element class based on an Angular component.
+ * \@description Creates a custom element class based on an Angular component.
  *
  * Builds a class that encapsulates the functionality of the provided component and
  * uses the configuration information to provide more context to the class.

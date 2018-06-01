@@ -1,5 +1,5 @@
 /**
- * @license Angular v6.0.0-rc.5+288.sha-7e3f8f7
+ * @license Angular v6.0.0-rc.5+297.sha-6948ef1
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -504,7 +504,7 @@ class NgElement extends HTMLElement {
  */
 
 /**
- *  \@description Creates a custom element class based on an Angular component.
+ * \@description Creates a custom element class based on an Angular component.
  *
  * Builds a class that encapsulates the functionality of the provided component and
  * uses the configuration information to provide more context to the class.
@@ -607,7 +607,7 @@ function createCustomElement(component, config) {
 /**
  * \@experimental
  */
-const VERSION = new Version('6.0.0-rc.5+288.sha-7e3f8f7');
+const VERSION = new Version('6.0.0-rc.5+297.sha-6948ef1');
 
 /**
  * @fileoverview added by tsickle
