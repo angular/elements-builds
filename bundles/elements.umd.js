@@ -1,5 +1,5 @@
 /**
- * @license Angular v6.0.0-rc.5+294.sha-60aa943
+ * @license Angular v6.0.0-rc.5+295.sha-f69ac67
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -77,6 +77,13 @@ function __spread() {
     return ar;
 }
 
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
 var elProto = Element.prototype;
 var matches = elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
     elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
@@ -89,25 +96,14 @@ var scheduler = {
      *
      * Returns a function that when executed will cancel the scheduled function.
      */
-    schedule: /**
-       * Schedule a callback to be called after some delay.
-       *
-       * Returns a function that when executed will cancel the scheduled function.
-       */
-    function (taskFn, delay) { var id = setTimeout(taskFn, delay); return function () { return clearTimeout(id); }; },
+    schedule: function (taskFn, delay) { var id = setTimeout(taskFn, delay); return function () { return clearTimeout(id); }; },
     /**
      * Schedule a callback to be called before the next render.
      * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
      *
      * Returns a function that when executed will cancel the scheduled function.
      */
-    scheduleBeforeRender: /**
-       * Schedule a callback to be called before the next render.
-       * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
-       *
-       * Returns a function that when executed will cancel the scheduled function.
-       */
-    function (taskFn) {
+    scheduleBeforeRender: function (taskFn) {
         // TODO(gkalpak): Implement a better way of accessing `requestAnimationFrame()`
         //                (e.g. accounting for vendor prefix, SSR-compatibility, etc).
         if (typeof window === 'undefined') {
@@ -196,6 +192,9 @@ function getComponentInputs(component, injector) {
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+// NOTE: This is a (slightly improved) version of what is used in ngUpgrade's
+//       `DowngradeComponentAdapter`.
+// TODO(gkalpak): Investigate if it makes sense to share the code.
 function extractProjectableNodes(host, ngContentSelectors) {
     var nodes = host.childNodes;
     var projectableNodes = ngContentSelectors.map(function () { return []; });
@@ -284,15 +283,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
      * Initializes a new component if one has not yet been created and cancels any scheduled
      * destruction.
      */
-    /**
-       * Initializes a new component if one has not yet been created and cancels any scheduled
-       * destruction.
-       */
-    ComponentNgElementStrategy.prototype.connect = /**
-       * Initializes a new component if one has not yet been created and cancels any scheduled
-       * destruction.
-       */
-    function (element) {
+    ComponentNgElementStrategy.prototype.connect = function (element) {
         // If the element is marked to be destroyed, cancel the task since the component was reconnected
         if (this.scheduledDestroyFn !== null) {
             this.scheduledDestroyFn();
@@ -307,15 +298,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
      * Schedules the component to be destroyed after some small delay in case the element is just
      * being moved across the DOM.
      */
-    /**
-       * Schedules the component to be destroyed after some small delay in case the element is just
-       * being moved across the DOM.
-       */
-    ComponentNgElementStrategy.prototype.disconnect = /**
-       * Schedules the component to be destroyed after some small delay in case the element is just
-       * being moved across the DOM.
-       */
-    function () {
+    ComponentNgElementStrategy.prototype.disconnect = function () {
         var _this = this;
         // Return if there is no componentRef or the component is already scheduled for destruction
         if (!this.componentRef || this.scheduledDestroyFn !== null) {
@@ -334,15 +317,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
      * Returns the component property value. If the component has not yet been created, the value is
      * retrieved from the cached initialization values.
      */
-    /**
-       * Returns the component property value. If the component has not yet been created, the value is
-       * retrieved from the cached initialization values.
-       */
-    ComponentNgElementStrategy.prototype.getInputValue = /**
-       * Returns the component property value. If the component has not yet been created, the value is
-       * retrieved from the cached initialization values.
-       */
-    function (property) {
+    ComponentNgElementStrategy.prototype.getInputValue = function (property) {
         if (!this.componentRef) {
             return this.initialInputValues.get(property);
         }
@@ -352,15 +327,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
      * Sets the input value for the property. If the component has not yet been created, the value is
      * cached and set when the component is created.
      */
-    /**
-       * Sets the input value for the property. If the component has not yet been created, the value is
-       * cached and set when the component is created.
-       */
-    ComponentNgElementStrategy.prototype.setInputValue = /**
-       * Sets the input value for the property. If the component has not yet been created, the value is
-       * cached and set when the component is created.
-       */
-    function (property, value) {
+    ComponentNgElementStrategy.prototype.setInputValue = function (property, value) {
         if (strictEquals(value, this.getInputValue(property))) {
             return;
         }
@@ -376,15 +343,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
      * Creates a new component through the component factory with the provided element host and
      * sets up its initial inputs, listens for outputs changes, and runs an initial change detection.
      */
-    /**
-       * Creates a new component through the component factory with the provided element host and
-       * sets up its initial inputs, listens for outputs changes, and runs an initial change detection.
-       */
-    ComponentNgElementStrategy.prototype.initializeComponent = /**
-       * Creates a new component through the component factory with the provided element host and
-       * sets up its initial inputs, listens for outputs changes, and runs an initial change detection.
-       */
-    function (element) {
+    ComponentNgElementStrategy.prototype.initializeComponent = function (element) {
         var childInjector = core.Injector.create({ providers: [], parent: this.injector });
         var projectableNodes = extractProjectableNodes(element, this.componentFactory.ngContentSelectors);
         this.componentRef = this.componentFactory.create(childInjector, projectableNodes, element);
@@ -397,9 +356,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
         applicationRef.attachView(this.componentRef.hostView);
     };
     /** Set any stored initial inputs on the component's properties. */
-    /** Set any stored initial inputs on the component's properties. */
-    ComponentNgElementStrategy.prototype.initializeInputs = /** Set any stored initial inputs on the component's properties. */
-    function () {
+    ComponentNgElementStrategy.prototype.initializeInputs = function () {
         var _this = this;
         this.componentFactory.inputs.forEach(function (_a) {
             var propName = _a.propName;
@@ -410,17 +367,13 @@ var ComponentNgElementStrategy = /** @class */ (function () {
             else {
                 // Keep track of inputs that were not initialized in case we need to know this for
                 // calling ngOnChanges with SimpleChanges
-                // Keep track of inputs that were not initialized in case we need to know this for
-                // calling ngOnChanges with SimpleChanges
                 _this.uninitializedInputs.add(propName);
             }
         });
         this.initialInputValues.clear();
     };
     /** Sets up listeners for the component's outputs so that the events stream emits the events. */
-    /** Sets up listeners for the component's outputs so that the events stream emits the events. */
-    ComponentNgElementStrategy.prototype.initializeOutputs = /** Sets up listeners for the component's outputs so that the events stream emits the events. */
-    function () {
+    ComponentNgElementStrategy.prototype.initializeOutputs = function () {
         var _this = this;
         var eventEmitters = this.componentFactory.outputs.map(function (_a) {
             var propName = _a.propName, templateName = _a.templateName;
@@ -430,9 +383,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
         this.events = rxjs.merge.apply(void 0, __spread(eventEmitters));
     };
     /** Calls ngOnChanges with all the inputs that have changed since the last call. */
-    /** Calls ngOnChanges with all the inputs that have changed since the last call. */
-    ComponentNgElementStrategy.prototype.callNgOnChanges = /** Calls ngOnChanges with all the inputs that have changed since the last call. */
-    function () {
+    ComponentNgElementStrategy.prototype.callNgOnChanges = function () {
         if (!this.implementsOnChanges || this.inputChanges === null) {
             return;
         }
@@ -446,15 +397,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
      * Schedules change detection to run on the component.
      * Ignores subsequent calls if already scheduled.
      */
-    /**
-       * Schedules change detection to run on the component.
-       * Ignores subsequent calls if already scheduled.
-       */
-    ComponentNgElementStrategy.prototype.scheduleDetectChanges = /**
-       * Schedules change detection to run on the component.
-       * Ignores subsequent calls if already scheduled.
-       */
-    function () {
+    ComponentNgElementStrategy.prototype.scheduleDetectChanges = function () {
         var _this = this;
         if (this.scheduledChangeDetectionFn) {
             return;
@@ -467,13 +410,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
     /**
      * Records input changes so that the component receives SimpleChanges in its onChanges function.
      */
-    /**
-       * Records input changes so that the component receives SimpleChanges in its onChanges function.
-       */
-    ComponentNgElementStrategy.prototype.recordInputChange = /**
-       * Records input changes so that the component receives SimpleChanges in its onChanges function.
-       */
-    function (property, currentValue) {
+    ComponentNgElementStrategy.prototype.recordInputChange = function (property, currentValue) {
         // Do not record the change if the component does not implement `OnChanges`.
         if (this.componentRef && !this.implementsOnChanges) {
             return;
@@ -494,9 +431,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
         this.inputChanges[property] = new core.SimpleChange(previousValue, currentValue, isFirstChange);
     };
     /** Runs change detection on the component. */
-    /** Runs change detection on the component. */
-    ComponentNgElementStrategy.prototype.detectChanges = /** Runs change detection on the component. */
-    function () {
+    ComponentNgElementStrategy.prototype.detectChanges = function () {
         if (!this.componentRef) {
             return;
         }
@@ -523,8 +458,8 @@ var NgElement = /** @class */ (function (_super) {
     function NgElement() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
         /**
-           * A subscription to change, connect, and disconnect events in the custom element.
-           */
+         * A subscription to change, connect, and disconnect events in the custom element.
+         */
         _this.ngElementEventsSubscription = null;
         return _this;
     }
@@ -562,10 +497,6 @@ function createCustomElement(component, config) {
             // Do not assume this strategy has been created.
             // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
             // now this is tested using a Google internal test suite.
-            // Note that some polyfills (e.g. document-register-element) do not call the constructor.
-            // Do not assume this strategy has been created.
-            // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
-            // now this is tested using a Google internal test suite.
             _this.ngElementStrategy = strategyFactory.create(injector || config.injector);
             return _this;
         }
@@ -573,7 +504,7 @@ function createCustomElement(component, config) {
             if (!this.ngElementStrategy) {
                 this.ngElementStrategy = strategyFactory.create(config.injector);
             }
-            var propName = (attributeToPropertyInputs[attrName]);
+            var propName = attributeToPropertyInputs[attrName];
             this.ngElementStrategy.setInputValue(propName, newValue);
         };
         NgElementImpl.prototype.connectedCallback = function () {
@@ -597,6 +528,8 @@ function createCustomElement(component, config) {
                 this.ngElementEventsSubscription = null;
             }
         };
+        // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
+        // field externs. So using quoted access to explicitly prevent renaming.
         NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
         return NgElementImpl;
     }(NgElement));
@@ -626,7 +559,7 @@ function createCustomElement(component, config) {
 /**
  * @experimental
  */
-var VERSION = new core.Version('6.0.0-rc.5+294.sha-60aa943');
+var VERSION = new core.Version('6.0.0-rc.5+295.sha-f69ac67');
 
 /**
  * @license
@@ -634,6 +567,11 @@ var VERSION = new core.Version('6.0.0-rc.5+294.sha-60aa943');
  *
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
+ */
+/**
+ * @module
+ * @description
+ * Entry point for all public APIs of the `elements` package.
  */
 
 // This file only reexports content of the `src` folder. Keep it that way.
@@ -645,6 +583,10 @@ var VERSION = new core.Version('6.0.0-rc.5+294.sha-60aa943');
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+// This file is not used to build this module. It is only used during editing
+// by the TypeScript language service and during build for verification. `ngc`
+// replaces this file with production index.ts when it rewrites private symbol
+// names.
 
 /**
  * Generated bundle index. Do not edit.
