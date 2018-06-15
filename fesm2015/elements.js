@@ -1,5 +1,5 @@
 /**
- * @license Angular v6.0.5+24.sha-3147a92
+ * @license Angular v6.0.5+25.sha-f5b3661
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -607,7 +607,7 @@ function createCustomElement(component, config) {
 /**
  * \@experimental
  */
-const VERSION = new Version('6.0.5+24.sha-3147a92');
+const VERSION = new Version('6.0.5+25.sha-f5b3661');
 
 /**
  * @fileoverview added by tsickle
