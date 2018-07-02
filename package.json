@@ -1,6 +1,6 @@
 {
   "name": "@angular/elements",
-  "version": "6.1.0-beta.3+20.sha-d243baf",
+  "version": "6.1.0-beta.3+21.sha-d1805d0",
   "description": "Angular - library for using Angular Components as Custom Elements",
   "main": "./bundles/elements.umd.js",
   "module": "./fesm5/elements.js",
@@ -16,8 +16,8 @@
     "tslib": "^1.9.0"
   },
   "peerDependencies": {
-    "@angular/core": "6.1.0-beta.3+20.sha-d243baf",
-    "@angular/platform-browser": "6.1.0-beta.3+20.sha-d243baf",
+    "@angular/core": "6.1.0-beta.3+21.sha-d1805d0",
+    "@angular/platform-browser": "6.1.0-beta.3+21.sha-d1805d0",
     "rxjs": "^6.0.0"
   },
   "repository": {
