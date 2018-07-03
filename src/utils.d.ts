@@ -10,18 +10,7 @@ import { Injector, Type } from '@angular/core';
  * Provide methods for scheduling the execution of a callback.
  */
 export declare const scheduler: {
-    /**
-     * Schedule a callback to be called after some delay.
-     *
-     * Returns a function that when executed will cancel the scheduled function.
-     */
     schedule(taskFn: () => void, delay: number): () => void;
-    /**
-     * Schedule a callback to be called before the next render.
-     * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
-     *
-     * Returns a function that when executed will cancel the scheduled function.
-     */
     scheduleBeforeRender(taskFn: () => void): () => void;
 };
 /**
