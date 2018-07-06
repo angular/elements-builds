@@ -1,10 +1,10 @@
 /**
- * @license Angular v6.1.0-beta.3+45.sha-fddd2af
+ * @license Angular v6.1.0-beta.3+47.sha-1e74ea9
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
 
-import { ApplicationRef, ComponentFactoryResolver, Injector, SimpleChange, Version } from '@angular/core';
+import { ComponentFactoryResolver, ApplicationRef, Injector, SimpleChange, Version } from '@angular/core';
 import { merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -105,12 +105,6 @@ function isFunction(value) {
     return typeof value === 'function';
 }
 /**
- * Convert a kebab-cased string to camelCased.
- * @param {?} input
- * @return {?}
- */
-
-/**
  * Check whether an `Element` matches a CSS selector.
  * @param {?} element
  * @param {?} selector
@@ -159,13 +153,6 @@ function getComponentInputs(component, injector) {
 /**
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
- */
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
  */
 /**
  * @param {?} host
@@ -221,13 +208,6 @@ function findMatchingIndex(node, selectors, defaultIndex) {
 /**
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
- */
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
  */
 /** *
  * Time in milliseconds to wait before destroying the component ref when disconnected.
@@ -489,23 +469,6 @@ class ComponentNgElementStrategy {
  * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
 /**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-/**
- * Prototype for a class constructor based on an Angular component
- * that can be used for custom element registration. Implemented and returned
- * by the {\@link createCustomElement createCustomElement() function}.
- *
- * \@experimental
- * @record
- * @template P
- */
-
-/**
  * Implements the functionality needed for a custom element.
  *
  * \@experimental
@@ -520,15 +483,6 @@ class NgElement extends HTMLElement {
         this.ngElementEventsSubscription = null;
     }
 }
-/**
- * A configuration that initializes an NgElementConstructor with the
- * dependencies and strategy it needs to transform a component into
- * a custom element class.
- *
- * \@experimental
- * @record
- */
-
 /**
  * \@description Creates a custom element class based on an Angular component.
  *
@@ -613,6 +567,8 @@ function createCustomElement(component, config) {
         }
     }
     NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
+    // Add getters and setters to the prototype for each property input. If the config does not
+    // contain property inputs, use all inputs by default.
     inputs.map(({ propName }) => propName).forEach(property => {
         Object.defineProperty(NgElementImpl.prototype, property, {
             get: function () { return this.ngElementStrategy.getInputValue(property); },
@@ -628,47 +584,21 @@ function createCustomElement(component, config) {
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
 /** *
  * \@experimental
   @type {?} */
-const VERSION = new Version('6.1.0-beta.3+45.sha-fddd2af');
+const VERSION = new Version('6.1.0-beta.3+47.sha-1e74ea9');
 
 /**
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-
 // This file only reexports content of the `src` folder. Keep it that way.
 
 /**
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-// This file is not used to build this module. It is only used during editing
-// by the TypeScript language service and during build for verification. `ngc`
-// replaces this file with production index.ts when it rewrites private symbol
-// names.
 
 /**
  * Generated bundle index. Do not edit.
