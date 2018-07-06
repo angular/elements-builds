@@ -1,5 +1,5 @@
 /**
- * @license Angular v6.0.7+19.sha-b51ce62
+ * @license Angular v6.0.7+18.sha-25b532e
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -557,7 +557,7 @@ function createCustomElement(component, config) {
 /**
  * @experimental
  */
-var VERSION = new core.Version('6.0.7+19.sha-b51ce62');
+var VERSION = new core.Version('6.0.7+18.sha-25b532e');
 
 /**
  * @license
