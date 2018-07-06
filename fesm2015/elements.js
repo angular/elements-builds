@@ -1,10 +1,10 @@
 /**
- * @license Angular v6.1.0-beta.3+45.sha-fddd2af
+ * @license Angular v6.1.0-beta.3+47.sha-1e74ea9
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
 
-import { ApplicationRef, ComponentFactoryResolver, Injector, SimpleChange, Version } from '@angular/core';
+import { ComponentFactoryResolver, ApplicationRef, Injector, SimpleChange, Version } from '@angular/core';
 import { merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -82,10 +82,6 @@ function isFunction(value) {
     return typeof value === 'function';
 }
 /**
- * Convert a kebab-cased string to camelCased.
- */
-
-/**
  * Check whether an `Element` matches a CSS selector.
  */
 function matchesSelector(element, selector) {
@@ -122,9 +118,6 @@ function getComponentInputs(component, injector) {
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-// NOTE: This is a (slightly improved) version of what is used in ngUpgrade's
-//       `DowngradeComponentAdapter`.
-// TODO(gkalpak): Investigate if it makes sense to share the code.
 function extractProjectableNodes(host, ngContentSelectors) {
     const nodes = host.childNodes;
     const projectableNodes = ngContentSelectors.map(() => []);
@@ -471,7 +464,7 @@ function createCustomElement(component, config) {
 /**
  * @experimental
  */
-const VERSION = new Version('6.1.0-beta.3+45.sha-fddd2af');
+const VERSION = new Version('6.1.0-beta.3+47.sha-1e74ea9');
 
 /**
  * @license
@@ -480,12 +473,6 @@ const VERSION = new Version('6.1.0-beta.3+45.sha-fddd2af');
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-/**
- * @module
- * @description
- * Entry point for all public APIs of the `elements` package.
- */
-
 // This file only reexports content of the `src` folder. Keep it that way.
 
 /**
@@ -495,10 +482,6 @@ const VERSION = new Version('6.1.0-beta.3+45.sha-fddd2af');
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-// This file is not used to build this module. It is only used during editing
-// by the TypeScript language service and during build for verification. `ngc`
-// replaces this file with production index.ts when it rewrites private symbol
-// names.
 
 export { NgElement, createCustomElement, VERSION };
 //# sourceMappingURL=elements.js.map
