@@ -1,10 +1,10 @@
 /**
- * @license Angular v6.0.7+21.sha-0437598
+ * @license Angular v6.0.8+4.sha-48415ed
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
 
-import { ApplicationRef, ComponentFactoryResolver, Injector, SimpleChange, Version } from '@angular/core';
+import { ComponentFactoryResolver, ApplicationRef, Injector, SimpleChange, Version } from '@angular/core';
 import { merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -12,13 +12,13 @@ import { map } from 'rxjs/operators';
  * @fileoverview added by tsickle
  * @suppress {checkTypes} checked by tsc
  */
-const elProto = /** @type {?} */ (Element.prototype);
-const matches = elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
+const /** @type {?} */ elProto = /** @type {?} */ (Element.prototype);
+const /** @type {?} */ matches = elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
     elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
 /**
  * Provide methods for scheduling the execution of a callback.
  */
-const scheduler = {
+const /** @type {?} */ scheduler = {
     /**
      * Schedule a callback to be called after some delay.
      *
@@ -94,12 +94,6 @@ function isFunction(value) {
     return typeof value === 'function';
 }
 /**
- * Convert a kebab-cased string to camelCased.
- * @param {?} input
- * @return {?}
- */
-
-/**
  * Check whether an `Element` matches a CSS selector.
  * @param {?} element
  * @param {?} selector
@@ -145,13 +139,6 @@ function getComponentInputs(component, injector) {
 /**
  * @fileoverview added by tsickle
  * @suppress {checkTypes} checked by tsc
- */
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
  */
 /**
  * @param {?} host
@@ -203,16 +190,9 @@ function findMatchingIndex(node, selectors, defaultIndex) {
  * @suppress {checkTypes} checked by tsc
  */
 /**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-/**
  * Time in milliseconds to wait before destroying the component ref when disconnected.
  */
-const DESTROY_DELAY = 10;
+const /** @type {?} */ DESTROY_DELAY = 10;
 /**
  * Factory that creates new ComponentNgElementStrategy instance. Gets the component factory with the
  * constructor's injector's factory resolver and passes that factory to each strategy.
@@ -463,23 +443,6 @@ class ComponentNgElementStrategy {
  * @suppress {checkTypes} checked by tsc
  */
 /**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-/**
- * Prototype for a class constructor based on an Angular component
- * that can be used for custom element registration. Implemented and returned
- * by the {\@link createCustomElement createCustomElement() function}.
- *
- * \@experimental
- * @record
- * @template P
- */
-
-/**
  * Implements the functionality needed for a custom element.
  *
  * \@experimental
@@ -494,15 +457,6 @@ class NgElement extends HTMLElement {
         this.ngElementEventsSubscription = null;
     }
 }
-/**
- * A configuration that initializes an NgElementConstructor with the
- * dependencies and strategy it needs to transform a component into
- * a custom element class.
- *
- * \@experimental
- * @record
- */
-
 /**
  * \@description Creates a custom element class based on an Angular component.
  *
@@ -582,6 +536,8 @@ function createCustomElement(component, config) {
         }
     }
     NgElementImpl.observedAttributes = Object.keys(attributeToPropertyInputs);
+    // Add getters and setters to the prototype for each property input. If the config does not
+    // contain property inputs, use all inputs by default.
     inputs.map(({ propName }) => propName).forEach(property => {
         Object.defineProperty(NgElementImpl.prototype, property, {
             get: function () { return this.ngElementStrategy.getInputValue(property); },
@@ -598,46 +554,20 @@ function createCustomElement(component, config) {
  * @suppress {checkTypes} checked by tsc
  */
 /**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-/**
  * \@experimental
  */
-const VERSION = new Version('6.0.7+21.sha-0437598');
+const /** @type {?} */ VERSION = new Version('6.0.8+4.sha-48415ed');
 
 /**
  * @fileoverview added by tsickle
  * @suppress {checkTypes} checked by tsc
  */
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-
 // This file only reexports content of the `src` folder. Keep it that way.
 
 /**
  * @fileoverview added by tsickle
  * @suppress {checkTypes} checked by tsc
  */
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-// This file is not used to build this module. It is only used during editing
-// by the TypeScript language service and during build for verification. `ngc`
-// replaces this file with production index.ts when it rewrites private symbol
-// names.
 
 /**
  * Generated bundle index. Do not edit.
