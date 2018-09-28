@@ -1,5 +1,5 @@
 /**
- * @license Angular v7.0.0-beta.7+48.sha-f455518
+ * @license Angular v7.0.0-beta.7+52.sha-794c359
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -73,7 +73,7 @@ function createCustomEvent(doc, name, detail) {
  * Check whether the input is an `Element`.
  */
 function isElement(node) {
-    return node.nodeType === Node.ELEMENT_NODE;
+    return !!node && node.nodeType === Node.ELEMENT_NODE;
 }
 /**
  * Check whether the input is a function.
@@ -464,7 +464,7 @@ function createCustomElement(component, config) {
 /**
  * @experimental
  */
-const VERSION = new Version('7.0.0-beta.7+48.sha-f455518');
+const VERSION = new Version('7.0.0-beta.7+52.sha-794c359');
 
 /**
  * @license

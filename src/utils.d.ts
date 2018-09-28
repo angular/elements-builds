@@ -35,7 +35,7 @@ export declare function createCustomEvent(doc: Document, name: string, detail: a
 /**
  * Check whether the input is an `Element`.
  */
-export declare function isElement(node: Node): node is Element;
+export declare function isElement(node: Node | null): node is Element;
 /**
  * Check whether the input is a function.
  */
