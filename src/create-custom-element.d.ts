@@ -13,7 +13,7 @@ import { NgElementStrategy, NgElementStrategyFactory } from './element-strategy'
  * that can be used for custom element registration. Implemented and returned
  * by the {@link createCustomElement createCustomElement() function}.
  *
- * @experimental
+ * @publicApi
  */
 export interface NgElementConstructor<P> {
     /**
@@ -30,7 +30,7 @@ export interface NgElementConstructor<P> {
 /**
  * Implements the functionality needed for a custom element.
  *
- * @experimental
+ * @publicApi
  */
 export declare abstract class NgElement extends HTMLElement {
     /**
@@ -66,7 +66,7 @@ export declare abstract class NgElement extends HTMLElement {
  * for properties that are added based
  * on the inputs and methods of the underlying component.
  *
- * @experimental
+ * @publicApi
  */
 export declare type WithProperties<P> = {
     [property in keyof P]: P[property];
@@ -76,7 +76,7 @@ export declare type WithProperties<P> = {
  * dependencies and strategy it needs to transform a component into
  * a custom element class.
  *
- * @experimental
+ * @publicApi
  */
 export interface NgElementConfig {
     /**
@@ -107,6 +107,6 @@ export interface NgElementConfig {
  * @returns The custom-element construction class, which can be registered with
  * a browser's `CustomElementRegistry`.
  *
- * @experimental
+ * @publicApi
  */
 export declare function createCustomElement<P>(component: Type<any>, config: NgElementConfig): NgElementConstructor<P>;

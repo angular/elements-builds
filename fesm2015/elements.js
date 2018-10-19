@@ -1,5 +1,5 @@
 /**
- * @license Angular v7.0.0-rc.1+118.sha-31022cb
+ * @license Angular v7.0.0-rc.1+137.sha-4c2ce4e
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -217,7 +217,7 @@ const DESTROY_DELAY = 10;
  * Factory that creates new ComponentNgElementStrategy instance. Gets the component factory with the
  * constructor's injector's factory resolver and passes that factory to each strategy.
  *
- * \@experimental
+ * \@publicApi
  */
 class ComponentNgElementStrategyFactory {
     /**
@@ -242,7 +242,7 @@ class ComponentNgElementStrategyFactory {
  * Creates and destroys a component ref using a component factory and handles change detection
  * in response to input changes.
  *
- * \@experimental
+ * \@publicApi
  */
 class ComponentNgElementStrategy {
     /**
@@ -471,7 +471,7 @@ class ComponentNgElementStrategy {
 /**
  * Implements the functionality needed for a custom element.
  *
- * \@experimental
+ * \@publicApi
  * @abstract
  */
 class NgElement extends HTMLElement {
@@ -496,7 +496,7 @@ class NgElement extends HTMLElement {
  * static property to affect all newly created instances, or as a constructor argument for
  * one-off creations.
  *
- * \@experimental
+ * \@publicApi
  * @template P
  * @param {?} component The component to transform.
  * @param {?} config A configuration that provides initialization information to the created class.
@@ -587,9 +587,9 @@ function createCustomElement(component, config) {
  * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
 /** *
- * \@experimental
+ * \@publicApi
   @type {?} */
-const VERSION = new Version('7.0.0-rc.1+118.sha-31022cb');
+const VERSION = new Version('7.0.0-rc.1+137.sha-4c2ce4e');
 
 /**
  * @fileoverview added by tsickle
