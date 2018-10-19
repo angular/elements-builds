@@ -7,6 +7,6 @@
  */
 import { Version } from '@angular/core';
 /**
- * @experimental
+ * @publicApi
  */
 export declare const VERSION: Version;
