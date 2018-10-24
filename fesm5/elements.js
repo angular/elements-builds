@@ -1,5 +1,5 @@
 /**
- * @license Angular v7.0.0-rc.1+111.sha-5b4cf38
+ * @license Angular v7.0.0-rc.1+178.sha-ee0b857.with-local-changes
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -167,7 +167,7 @@ var DESTROY_DELAY = 10;
  * Factory that creates new ComponentNgElementStrategy instance. Gets the component factory with the
  * constructor's injector's factory resolver and passes that factory to each strategy.
  *
- * @experimental
+ * @publicApi
  */
 var ComponentNgElementStrategyFactory = /** @class */ (function () {
     function ComponentNgElementStrategyFactory(component, injector) {
@@ -185,7 +185,7 @@ var ComponentNgElementStrategyFactory = /** @class */ (function () {
  * Creates and destroys a component ref using a component factory and handles change detection
  * in response to input changes.
  *
- * @experimental
+ * @publicApi
  */
 var ComponentNgElementStrategy = /** @class */ (function () {
     function ComponentNgElementStrategy(componentFactory, injector) {
@@ -376,7 +376,7 @@ var ComponentNgElementStrategy = /** @class */ (function () {
 /**
  * Implements the functionality needed for a custom element.
  *
- * @experimental
+ * @publicApi
  */
 var NgElement = /** @class */ (function (_super) {
     __extends(NgElement, _super);
@@ -408,7 +408,7 @@ var NgElement = /** @class */ (function (_super) {
  * @returns The custom-element construction class, which can be registered with
  * a browser's `CustomElementRegistry`.
  *
- * @experimental
+ * @publicApi
  */
 function createCustomElement(component, config) {
     var inputs = getComponentInputs(component, config.injector);
@@ -482,9 +482,9 @@ function createCustomElement(component, config) {
  * found in the LICENSE file at https://angular.io/license
  */
 /**
- * @experimental
+ * @publicApi
  */
-var VERSION = new Version('7.0.0-rc.1+111.sha-5b4cf38');
+var VERSION = new Version('7.0.0-rc.1+178.sha-ee0b857.with-local-changes');
 
 /**
  * @license
