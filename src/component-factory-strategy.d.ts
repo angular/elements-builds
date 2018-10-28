@@ -12,7 +12,7 @@ import { NgElementStrategy, NgElementStrategyEvent, NgElementStrategyFactory } f
  * Factory that creates new ComponentNgElementStrategy instance. Gets the component factory with the
  * constructor's injector's factory resolver and passes that factory to each strategy.
  *
- * @experimental
+ * @publicApi
  */
 export declare class ComponentNgElementStrategyFactory implements NgElementStrategyFactory {
     private component;
@@ -25,7 +25,7 @@ export declare class ComponentNgElementStrategyFactory implements NgElementStrat
  * Creates and destroys a component ref using a component factory and handles change detection
  * in response to input changes.
  *
- * @experimental
+ * @publicApi
  */
 export declare class ComponentNgElementStrategy implements NgElementStrategy {
     private componentFactory;
