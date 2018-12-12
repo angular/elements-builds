@@ -1,5 +1,5 @@
 /**
- * @license Angular v7.2.0-beta.2+8.sha-9c7fb0d
+ * @license Angular v7.2.0-beta.2+6.sha-28ceca0
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -10,17 +10,16 @@ import { map } from 'rxjs/operators';
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
 /** @type {?} */
-const elProto = (/** @type {?} */ (Element.prototype));
+const elProto = /** @type {?} */ (Element.prototype);
 /** @type {?} */
 const matches = elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
     elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
-/**
+/** *
  * Provide methods for scheduling the execution of a callback.
- * @type {?}
- */
+  @type {?} */
 const scheduler = {
     /**
      * Schedule a callback to be called after some delay.
@@ -30,8 +29,11 @@ const scheduler = {
      * @param {?} delay
      * @return {?}
      */
-    schedule(taskFn, delay) { /** @type {?} */
-    const id = setTimeout(taskFn, delay); return () => clearTimeout(id); },
+    schedule(taskFn, delay) {
+        /** @type {?} */
+        const id = setTimeout(taskFn, delay);
+        return () => clearTimeout(id);
+    },
     /**
      * Schedule a callback to be called before the next render.
      * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
@@ -150,7 +152,7 @@ function getComponentInputs(component, injector) {
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
 /**
  * @param {?} host
@@ -205,12 +207,11 @@ function findMatchingIndex(node, selectors, defaultIndex) {
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
-/**
+/** *
  * Time in milliseconds to wait before destroying the component ref when disconnected.
- * @type {?}
- */
+  @type {?} */
 const DESTROY_DELAY = 10;
 /**
  * Factory that creates new ComponentNgElementStrategy instance. Gets the component factory with the
@@ -307,7 +308,7 @@ class ComponentNgElementStrategy {
         // moved elsewhere in the DOM
         this.scheduledDestroyFn = scheduler.schedule(() => {
             if (this.componentRef) {
-                (/** @type {?} */ (this.componentRef)).destroy();
+                /** @type {?} */ ((this.componentRef)).destroy();
                 this.componentRef = null;
             }
         }, DESTROY_DELAY);
@@ -322,7 +323,7 @@ class ComponentNgElementStrategy {
         if (!this.componentRef) {
             return this.initialInputValues.get(property);
         }
-        return ((/** @type {?} */ (this.componentRef.instance)))[property];
+        return (/** @type {?} */ (this.componentRef.instance))[property];
     }
     /**
      * Sets the input value for the property. If the component has not yet been created, the value is
@@ -340,7 +341,7 @@ class ComponentNgElementStrategy {
             return;
         }
         this.recordInputChange(property, value);
-        ((/** @type {?} */ (this.componentRef.instance)))[property] = value;
+        (/** @type {?} */ (this.componentRef.instance))[property] = value;
         this.scheduleDetectChanges();
     }
     /**
@@ -356,7 +357,7 @@ class ComponentNgElementStrategy {
         const projectableNodes = extractProjectableNodes(element, this.componentFactory.ngContentSelectors);
         this.componentRef = this.componentFactory.create(childInjector, projectableNodes, element);
         this.implementsOnChanges =
-            isFunction(((/** @type {?} */ ((/** @type {?} */ (this.componentRef.instance))))).ngOnChanges);
+            isFunction((/** @type {?} */ ((this.componentRef.instance))).ngOnChanges);
         this.initializeInputs();
         this.initializeOutputs();
         this.detectChanges();
@@ -391,7 +392,7 @@ class ComponentNgElementStrategy {
         /** @type {?} */
         const eventEmitters = this.componentFactory.outputs.map(({ propName, templateName }) => {
             /** @type {?} */
-            const emitter = (/** @type {?} */ (((/** @type {?} */ ((/** @type {?} */ (this.componentRef)).instance)))[propName]));
+            const emitter = /** @type {?} */ ((/** @type {?} */ (((this.componentRef)).instance))[propName]);
             return emitter.pipe(map((value) => ({ name: templateName, value })));
         });
         this.events = merge(...eventEmitters);
@@ -404,12 +405,10 @@ class ComponentNgElementStrategy {
         if (!this.implementsOnChanges || this.inputChanges === null) {
             return;
         }
-        // Cache the changes and set inputChanges to null to capture any changes that might occur
-        // during ngOnChanges.
         /** @type {?} */
         const inputChanges = this.inputChanges;
         this.inputChanges = null;
-        ((/** @type {?} */ ((/** @type {?} */ ((/** @type {?} */ (this.componentRef)).instance))))).ngOnChanges(inputChanges);
+        (/** @type {?} */ ((((this.componentRef)).instance))).ngOnChanges(inputChanges);
     }
     /**
      * Schedules change detection to run on the component.
@@ -439,8 +438,6 @@ class ComponentNgElementStrategy {
         if (this.inputChanges === null) {
             this.inputChanges = {};
         }
-        // If there already is a change, modify the current value to match but leave the values for
-        // previousValue and isFirstChange.
         /** @type {?} */
         const pendingChange = this.inputChanges[property];
         if (pendingChange) {
@@ -462,14 +459,14 @@ class ComponentNgElementStrategy {
         if (!this.componentRef) {
             return;
         }
-        this.callNgOnChanges();
-        (/** @type {?} */ (this.componentRef)).changeDetectorRef.detectChanges();
+        this.callNgOnChanges(); /** @type {?} */
+        ((this.componentRef)).changeDetectorRef.detectChanges();
     }
 }
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
 /**
  * Implements the functionality needed for a custom element.
@@ -538,7 +535,7 @@ function createCustomElement(component, config) {
                 this.ngElementStrategy = strategyFactory.create(config.injector);
             }
             /** @type {?} */
-            const propName = (/** @type {?} */ (attributeToPropertyInputs[attrName]));
+            const propName = /** @type {?} */ ((attributeToPropertyInputs[attrName]));
             this.ngElementStrategy.setInputValue(propName, newValue);
         }
         /**
@@ -552,7 +549,7 @@ function createCustomElement(component, config) {
             // Listen for events from the strategy and dispatch them as custom events
             this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(e => {
                 /** @type {?} */
-                const customEvent = createCustomEvent((/** @type {?} */ (this.ownerDocument)), e.name, e.value);
+                const customEvent = createCustomEvent(/** @type {?} */ ((this.ownerDocument)), e.name, e.value);
                 this.dispatchEvent(customEvent);
             });
         }
@@ -582,27 +579,27 @@ function createCustomElement(component, config) {
             enumerable: true,
         });
     });
-    return (/** @type {?} */ (((/** @type {?} */ (NgElementImpl)))));
+    return /** @type {?} */ ((/** @type {?} */ (NgElementImpl)));
 }
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
-/**
+/** *
  * \@publicApi
- * @type {?}
- */
-const VERSION = new Version('7.2.0-beta.2+8.sha-9c7fb0d');
+  @type {?} */
+const VERSION = new Version('7.2.0-beta.2+6.sha-28ceca0');
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
+// This file only reexports content of the `src` folder. Keep it that way.
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,uselessCode} checked by tsc
  */
 
 /**
