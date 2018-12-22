@@ -1,5 +1,5 @@
 /**
- * @license Angular v7.2.0-beta.2+78.sha-01a5c74
+ * @license Angular v7.2.0-rc.0+28.sha-3be276c
  * (c) 2010-2018 Google, Inc. https://angular.io/
  * License: MIT
  */
@@ -10,7 +10,7 @@ import { map } from 'rxjs/operators';
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /** @type {?} */
 const elProto = (/** @type {?} */ (Element.prototype));
@@ -150,7 +150,7 @@ function getComponentInputs(component, injector) {
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
  * @param {?} host
@@ -205,7 +205,7 @@ function findMatchingIndex(node, selectors, defaultIndex) {
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
  * Time in milliseconds to wait before destroying the component ref when disconnected.
@@ -346,6 +346,7 @@ class ComponentNgElementStrategy {
     /**
      * Creates a new component through the component factory with the provided element host and
      * sets up its initial inputs, listens for outputs changes, and runs an initial change detection.
+     * @protected
      * @param {?} element
      * @return {?}
      */
@@ -366,6 +367,7 @@ class ComponentNgElementStrategy {
     }
     /**
      * Set any stored initial inputs on the component's properties.
+     * @protected
      * @return {?}
      */
     initializeInputs() {
@@ -385,6 +387,7 @@ class ComponentNgElementStrategy {
     }
     /**
      * Sets up listeners for the component's outputs so that the events stream emits the events.
+     * @protected
      * @return {?}
      */
     initializeOutputs() {
@@ -398,6 +401,7 @@ class ComponentNgElementStrategy {
     }
     /**
      * Calls ngOnChanges with all the inputs that have changed since the last call.
+     * @protected
      * @return {?}
      */
     callNgOnChanges() {
@@ -414,6 +418,7 @@ class ComponentNgElementStrategy {
     /**
      * Schedules change detection to run on the component.
      * Ignores subsequent calls if already scheduled.
+     * @protected
      * @return {?}
      */
     scheduleDetectChanges() {
@@ -427,6 +432,7 @@ class ComponentNgElementStrategy {
     }
     /**
      * Records input changes so that the component receives SimpleChanges in its onChanges function.
+     * @protected
      * @param {?} property
      * @param {?} currentValue
      * @return {?}
@@ -456,6 +462,7 @@ class ComponentNgElementStrategy {
     }
     /**
      * Runs change detection on the component.
+     * @protected
      * @return {?}
      */
     detectChanges() {
@@ -469,7 +476,7 @@ class ComponentNgElementStrategy {
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
  * Implements the functionality needed for a custom element.
@@ -587,22 +594,22 @@ function createCustomElement(component, config) {
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('7.2.0-beta.2+78.sha-01a5c74');
+const VERSION = new Version('7.2.0-rc.0+28.sha-3be276c');
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 
 /**
