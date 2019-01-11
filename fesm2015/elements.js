@@ -1,10 +1,10 @@
 /**
- * @license Angular v7.2.0+101.sha-ad6569c
- * (c) 2010-2018 Google, Inc. https://angular.io/
+ * @license Angular v7.2.0+128.sha-091a8a6
+ * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
 
-import { ComponentFactoryResolver, ApplicationRef, Injector, SimpleChange, Version } from '@angular/core';
+import { ComponentFactoryResolver, Injector, ApplicationRef, SimpleChange, Version } from '@angular/core';
 import { merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -600,7 +600,7 @@ function createCustomElement(component, config) {
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('7.2.0+101.sha-ad6569c');
+const VERSION = new Version('7.2.0+128.sha-091a8a6');
 
 /**
  * @fileoverview added by tsickle
