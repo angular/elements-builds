@@ -4,7 +4,7 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define("angular/packages/elements/schematics/ng-add/index", ["require", "exports", "@angular-devkit/schematics", "@angular-devkit/schematics/tasks"], factory);
+        define("@angular/elements/schematics/ng-add", ["require", "exports", "@angular-devkit/schematics", "@angular-devkit/schematics/tasks"], factory);
     }
 })(function (require, exports) {
     "use strict";

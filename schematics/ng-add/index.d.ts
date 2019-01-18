@@ -1,4 +1,4 @@
-/// <amd-module name="angular/packages/elements/schematics/ng-add/index" />
+/// <amd-module name="@angular/elements/schematics/ng-add" />
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
