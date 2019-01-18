@@ -11,7 +11,7 @@
         if (v !== undefined) module.exports = v;
     }
     else if (typeof define === "function" && define.amd) {
-        define("angular/packages/elements/schematics/ng-add/schema", ["require", "exports"], factory);
+        define("@angular/elements/schematics/ng-add/schema", ["require", "exports"], factory);
     }
 })(function (require, exports) {
     "use strict";
