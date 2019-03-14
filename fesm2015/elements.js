@@ -1,5 +1,5 @@
 /**
- * @license Angular v8.0.0-beta.7+14.sha-8210bea.with-local-changes
+ * @license Angular v8.0.0-beta.8+18.sha-4b7ed54.with-local-changes
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -10,7 +10,7 @@ import { map } from 'rxjs/operators';
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /** @type {?} */
 const elProto = (/** @type {?} */ (Element.prototype));
@@ -31,7 +31,10 @@ const scheduler = {
      * @return {?}
      */
     schedule(taskFn, delay) { /** @type {?} */
-    const id = setTimeout(taskFn, delay); return () => clearTimeout(id); },
+    const id = setTimeout(taskFn, delay); return (/**
+     * @return {?}
+     */
+    () => clearTimeout(id)); },
     /**
      * Schedule a callback to be called before the next render.
      * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
@@ -54,7 +57,10 @@ const scheduler = {
         }
         /** @type {?} */
         const id = window.requestAnimationFrame(taskFn);
-        return () => window.cancelAnimationFrame(id);
+        return (/**
+         * @return {?}
+         */
+        () => window.cancelAnimationFrame(id));
     },
 };
 /**
@@ -63,7 +69,11 @@ const scheduler = {
  * @return {?}
  */
 function camelToDashCase(input) {
-    return input.replace(/[A-Z]/g, char => `-${char.toLowerCase()}`);
+    return input.replace(/[A-Z]/g, (/**
+     * @param {?} char
+     * @return {?}
+     */
+    char => `-${char.toLowerCase()}`));
 }
 /**
  * Create a `CustomEvent` (even on browsers where `CustomEvent` is not a constructor).
@@ -128,9 +138,13 @@ function strictEquals(value1, value2) {
 function getDefaultAttributeToPropertyInputs(inputs) {
     /** @type {?} */
     const attributeToPropertyInputs = {};
-    inputs.forEach(({ propName, templateName }) => {
+    inputs.forEach((/**
+     * @param {?} __0
+     * @return {?}
+     */
+    ({ propName, templateName }) => {
         attributeToPropertyInputs[camelToDashCase(templateName)] = propName;
-    });
+    }));
     return attributeToPropertyInputs;
 }
 /**
@@ -150,7 +164,7 @@ function getComponentInputs(component, injector) {
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
  * @param {?} host
@@ -161,16 +175,24 @@ function extractProjectableNodes(host, ngContentSelectors) {
     /** @type {?} */
     const nodes = host.childNodes;
     /** @type {?} */
-    const projectableNodes = ngContentSelectors.map(() => []);
+    const projectableNodes = ngContentSelectors.map((/**
+     * @return {?}
+     */
+    () => []));
     /** @type {?} */
     let wildcardIndex = -1;
-    ngContentSelectors.some((selector, i) => {
+    ngContentSelectors.some((/**
+     * @param {?} selector
+     * @param {?} i
+     * @return {?}
+     */
+    (selector, i) => {
         if (selector === '*') {
             wildcardIndex = i;
             return true;
         }
         return false;
-    });
+    }));
     for (let i = 0, ii = nodes.length; i < ii; ++i) {
         /** @type {?} */
         const node = nodes[i];
@@ -192,20 +214,25 @@ function findMatchingIndex(node, selectors, defaultIndex) {
     /** @type {?} */
     let matchingIndex = defaultIndex;
     if (isElement(node)) {
-        selectors.some((selector, i) => {
+        selectors.some((/**
+         * @param {?} selector
+         * @param {?} i
+         * @return {?}
+         */
+        (selector, i) => {
             if ((selector !== '*') && matchesSelector(node, selector)) {
                 matchingIndex = i;
                 return true;
             }
             return false;
-        });
+        }));
     }
     return matchingIndex;
 }
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
  * Time in milliseconds to wait before destroying the component ref when disconnected.
@@ -305,12 +332,15 @@ class ComponentNgElementStrategy {
         }
         // Schedule the component to be destroyed after a small timeout in case it is being
         // moved elsewhere in the DOM
-        this.scheduledDestroyFn = scheduler.schedule(() => {
+        this.scheduledDestroyFn = scheduler.schedule((/**
+         * @return {?}
+         */
+        () => {
             if (this.componentRef) {
                 (/** @type {?} */ (this.componentRef)).destroy();
                 this.componentRef = null;
             }
-        }, DESTROY_DELAY);
+        }), DESTROY_DELAY);
     }
     /**
      * Returns the component property value. If the component has not yet been created, the value is
@@ -371,7 +401,11 @@ class ComponentNgElementStrategy {
      * @return {?}
      */
     initializeInputs() {
-        this.componentFactory.inputs.forEach(({ propName }) => {
+        this.componentFactory.inputs.forEach((/**
+         * @param {?} __0
+         * @return {?}
+         */
+        ({ propName }) => {
             /** @type {?} */
             const initialValue = this.initialInputValues.get(propName);
             if (initialValue) {
@@ -382,7 +416,7 @@ class ComponentNgElementStrategy {
                 // calling ngOnChanges with SimpleChanges
                 this.uninitializedInputs.add(propName);
             }
-        });
+        }));
         this.initialInputValues.clear();
     }
     /**
@@ -392,11 +426,19 @@ class ComponentNgElementStrategy {
      */
     initializeOutputs() {
         /** @type {?} */
-        const eventEmitters = this.componentFactory.outputs.map(({ propName, templateName }) => {
+        const eventEmitters = this.componentFactory.outputs.map((/**
+         * @param {?} __0
+         * @return {?}
+         */
+        ({ propName, templateName }) => {
             /** @type {?} */
             const emitter = (/** @type {?} */ (((/** @type {?} */ ((/** @type {?} */ (this.componentRef)).instance)))[propName]));
-            return emitter.pipe(map((value) => ({ name: templateName, value })));
-        });
+            return emitter.pipe(map((/**
+             * @param {?} value
+             * @return {?}
+             */
+            (value) => ({ name: templateName, value }))));
+        }));
         this.events = merge(...eventEmitters);
     }
     /**
@@ -425,10 +467,13 @@ class ComponentNgElementStrategy {
         if (this.scheduledChangeDetectionFn) {
             return;
         }
-        this.scheduledChangeDetectionFn = scheduler.scheduleBeforeRender(() => {
+        this.scheduledChangeDetectionFn = scheduler.scheduleBeforeRender((/**
+         * @return {?}
+         */
+        () => {
             this.scheduledChangeDetectionFn = null;
             this.detectChanges();
-        });
+        }));
     }
     /**
      * Records input changes so that the component receives SimpleChanges in its onChanges function.
@@ -476,7 +521,7 @@ class ComponentNgElementStrategy {
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
  * Implements the functionality needed for a custom element.
@@ -557,11 +602,15 @@ function createCustomElement(component, config) {
             }
             this.ngElementStrategy.connect(this);
             // Listen for events from the strategy and dispatch them as custom events
-            this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(e => {
+            this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe((/**
+             * @param {?} e
+             * @return {?}
+             */
+            e => {
                 /** @type {?} */
                 const customEvent = createCustomEvent((/** @type {?} */ (this.ownerDocument)), e.name, e.value);
                 this.dispatchEvent(customEvent);
-            });
+            }));
         }
         /**
          * @return {?}
@@ -581,35 +630,50 @@ function createCustomElement(component, config) {
     NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
     // Add getters and setters to the prototype for each property input. If the config does not
     // contain property inputs, use all inputs by default.
-    inputs.map(({ propName }) => propName).forEach(property => {
+    inputs.map((/**
+     * @param {?} __0
+     * @return {?}
+     */
+    ({ propName }) => propName)).forEach((/**
+     * @param {?} property
+     * @return {?}
+     */
+    property => {
         Object.defineProperty(NgElementImpl.prototype, property, {
-            get: function () { return this.ngElementStrategy.getInputValue(property); },
-            set: function (newValue) { this.ngElementStrategy.setInputValue(property, newValue); },
+            get: (/**
+             * @return {?}
+             */
+            function () { return this.ngElementStrategy.getInputValue(property); }),
+            set: (/**
+             * @param {?} newValue
+             * @return {?}
+             */
+            function (newValue) { this.ngElementStrategy.setInputValue(property, newValue); }),
             configurable: true,
             enumerable: true,
         });
-    });
+    }));
     return (/** @type {?} */ (((/** @type {?} */ (NgElementImpl)))));
 }
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('8.0.0-beta.7+14.sha-8210bea.with-local-changes');
+const VERSION = new Version('8.0.0-beta.8+18.sha-4b7ed54.with-local-changes');
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 
 /**
  * @fileoverview added by tsickle
- * @suppress {checkTypes,extraRequire,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ * @suppress {checkTypes,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 
 /**
