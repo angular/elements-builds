@@ -1,5 +1,5 @@
 /**
- * @license Angular v8.0.0-rc.3+50.sha-db64b01.with-local-changes
+ * @license Angular v8.0.0-rc.3+52.sha-b12e76d.with-local-changes
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -12,11 +12,17 @@ import { map } from 'rxjs/operators';
  * @fileoverview added by tsickle
  * @suppress {checkTypes,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
+const ɵ0 = /**
+ * @return {?}
+ */
+() => {
+    /** @type {?} */
+    const elProto = (/** @type {?} */ (Element.prototype));
+    return elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
+        elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
+};
 /** @type {?} */
-const elProto = (/** @type {?} */ (Element.prototype));
-/** @type {?} */
-const matches = elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
-    elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
+const matches = ((ɵ0))();
 /**
  * Provide methods for scheduling the execution of a callback.
  * @type {?}
@@ -664,7 +670,7 @@ function createCustomElement(component, config) {
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('8.0.0-rc.3+50.sha-db64b01.with-local-changes');
+const VERSION = new Version('8.0.0-rc.3+52.sha-b12e76d.with-local-changes');
 
 /**
  * @fileoverview added by tsickle
