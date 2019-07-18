@@ -1,5 +1,5 @@
 /**
- * @license Angular v8.1.0+56.sha-f025fe6.with-local-changes
+ * @license Angular v8.1.2+9.sha-a56c1c4.with-local-changes
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -368,11 +368,11 @@ class ComponentNgElementStrategy {
      * @return {?}
      */
     setInputValue(property, value) {
-        if (strictEquals(value, this.getInputValue(property))) {
-            return;
-        }
         if (!this.componentRef) {
             this.initialInputValues.set(property, value);
+            return;
+        }
+        if (strictEquals(value, this.getInputValue(property))) {
             return;
         }
         this.recordInputChange(property, value);
@@ -412,10 +412,8 @@ class ComponentNgElementStrategy {
          * @return {?}
          */
         ({ propName }) => {
-            /** @type {?} */
-            const initialValue = this.initialInputValues.get(propName);
-            if (initialValue) {
-                this.setInputValue(propName, initialValue);
+            if (this.initialInputValues.has(propName)) {
+                this.setInputValue(propName, this.initialInputValues.get(propName));
             }
             else {
                 // Keep track of inputs that were not initialized in case we need to know this for
@@ -670,7 +668,7 @@ function createCustomElement(component, config) {
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('8.1.0+56.sha-f025fe6.with-local-changes');
+const VERSION = new Version('8.1.2+9.sha-a56c1c4.with-local-changes');
 
 /**
  * @fileoverview added by tsickle

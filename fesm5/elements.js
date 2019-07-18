@@ -1,5 +1,5 @@
 /**
- * @license Angular v8.1.0+56.sha-f025fe6.with-local-changes
+ * @license Angular v8.1.2+9.sha-a56c1c4.with-local-changes
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -256,11 +256,11 @@ var ComponentNgElementStrategy = /** @class */ (function () {
      * cached and set when the component is created.
      */
     ComponentNgElementStrategy.prototype.setInputValue = function (property, value) {
-        if (strictEquals(value, this.getInputValue(property))) {
-            return;
-        }
         if (!this.componentRef) {
             this.initialInputValues.set(property, value);
+            return;
+        }
+        if (strictEquals(value, this.getInputValue(property))) {
             return;
         }
         this.recordInputChange(property, value);
@@ -288,9 +288,8 @@ var ComponentNgElementStrategy = /** @class */ (function () {
         var _this = this;
         this.componentFactory.inputs.forEach(function (_a) {
             var propName = _a.propName;
-            var initialValue = _this.initialInputValues.get(propName);
-            if (initialValue) {
-                _this.setInputValue(propName, initialValue);
+            if (_this.initialInputValues.has(propName)) {
+                _this.setInputValue(propName, _this.initialInputValues.get(propName));
             }
             else {
                 // Keep track of inputs that were not initialized in case we need to know this for
@@ -487,7 +486,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-var VERSION = new Version('8.1.0+56.sha-f025fe6.with-local-changes');
+var VERSION = new Version('8.1.2+9.sha-a56c1c4.with-local-changes');
 
 /**
  * @license
