@@ -1,5 +1,5 @@
 /**
- * @license Angular v9.0.0-next.1+11.sha-0ddf0c4.with-local-changes
+ * @license Angular v9.0.0-next.1+13.sha-c198a27.with-local-changes
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -84,6 +84,12 @@ function isElement(node) {
  */
 function isFunction(value) {
     return typeof value === 'function';
+}
+/**
+ * Convert a kebab-cased string to camelCased.
+ */
+function kebabToCamelCase(input) {
+    return input.replace(/-([a-z\d])/g, function (_, char) { return char.toUpperCase(); });
 }
 /**
  * Check whether an `Element` matches a CSS selector.
@@ -486,7 +492,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-var VERSION = new Version('9.0.0-next.1+11.sha-0ddf0c4.with-local-changes');
+var VERSION = new Version('9.0.0-next.1+13.sha-c198a27.with-local-changes');
 
 /**
  * @license
