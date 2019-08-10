@@ -1,5 +1,5 @@
 /**
- * @license Angular v9.0.0-next.1+11.sha-0ddf0c4.with-local-changes
+ * @license Angular v9.0.0-next.1+18.sha-9a37e82.with-local-changes
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -117,6 +117,19 @@ function isElement(node) {
  */
 function isFunction(value) {
     return typeof value === 'function';
+}
+/**
+ * Convert a kebab-cased string to camelCased.
+ * @param {?} input
+ * @return {?}
+ */
+function kebabToCamelCase(input) {
+    return input.replace(/-([a-z\d])/g, (/**
+     * @param {?} _
+     * @param {?} char
+     * @return {?}
+     */
+    (_, char) => char.toUpperCase()));
 }
 /**
  * Check whether an `Element` matches a CSS selector.
@@ -269,6 +282,20 @@ class ComponentNgElementStrategyFactory {
     create(injector) {
         return new ComponentNgElementStrategy(this.componentFactory, injector);
     }
+}
+if (false) {
+    /** @type {?} */
+    ComponentNgElementStrategyFactory.prototype.componentFactory;
+    /**
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategyFactory.prototype.component;
+    /**
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategyFactory.prototype.injector;
 }
 /**
  * Creates and destroys a component ref using a component factory and handles change detection
@@ -522,11 +549,89 @@ class ComponentNgElementStrategy {
         (/** @type {?} */ (this.componentRef)).changeDetectorRef.detectChanges();
     }
 }
+if (false) {
+    /**
+     * Merged stream of the component's output events.
+     * @type {?}
+     */
+    ComponentNgElementStrategy.prototype.events;
+    /**
+     * Reference to the component that was created on connect.
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategy.prototype.componentRef;
+    /**
+     * Changes that have been made to the component ref since the last time onChanges was called.
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategy.prototype.inputChanges;
+    /**
+     * Whether the created component implements the onChanges function.
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategy.prototype.implementsOnChanges;
+    /**
+     * Whether a change detection has been scheduled to run on the component.
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategy.prototype.scheduledChangeDetectionFn;
+    /**
+     * Callback function that when called will cancel a scheduled destruction on the component.
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategy.prototype.scheduledDestroyFn;
+    /**
+     * Initial input values that were set before the component was created.
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategy.prototype.initialInputValues;
+    /**
+     * Set of inputs that were not initially set when the component was created.
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategy.prototype.uninitializedInputs;
+    /**
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategy.prototype.componentFactory;
+    /**
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategy.prototype.injector;
+}
 
 /**
  * @fileoverview added by tsickle
  * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
+/**
+ * Prototype for a class constructor based on an Angular component
+ * that can be used for custom element registration. Implemented and returned
+ * by the {\@link createCustomElement createCustomElement() function}.
+ *
+ * \@publicApi
+ * @record
+ * @template P
+ */
+function NgElementConstructor() { }
+if (false) {
+    /**
+     * An array of observed attribute names for the custom element,
+     * derived by transforming input property names from the source component.
+     * @type {?}
+     */
+    NgElementConstructor.prototype.observedAttributes;
+    /* Skipping unhandled member: new (injector: Injector): NgElement&WithProperties<P>;*/
+}
 /**
  * Implements the functionality needed for a custom element.
  *
@@ -541,6 +646,64 @@ class NgElement extends HTMLElement {
          */
         this.ngElementEventsSubscription = null;
     }
+}
+if (false) {
+    /**
+     * The strategy that controls how a component is transformed in a custom element.
+     * @type {?}
+     * @protected
+     */
+    NgElement.prototype.ngElementStrategy;
+    /**
+     * A subscription to change, connect, and disconnect events in the custom element.
+     * @type {?}
+     * @protected
+     */
+    NgElement.prototype.ngElementEventsSubscription;
+    /**
+     * Prototype for a handler that responds to a change in an observed attribute.
+     * @abstract
+     * @param {?} attrName The name of the attribute that has changed.
+     * @param {?} oldValue The previous value of the attribute.
+     * @param {?} newValue The new value of the attribute.
+     * @param {?=} namespace The namespace in which the attribute is defined.
+     * @return {?} Nothing.
+     */
+    NgElement.prototype.attributeChangedCallback = function (attrName, oldValue, newValue, namespace) { };
+    /**
+     * Prototype for a handler that responds to the insertion of the custom element in the DOM.
+     * @abstract
+     * @return {?} Nothing.
+     */
+    NgElement.prototype.connectedCallback = function () { };
+    /**
+     * Prototype for a handler that responds to the deletion of the custom element from the DOM.
+     * @abstract
+     * @return {?} Nothing.
+     */
+    NgElement.prototype.disconnectedCallback = function () { };
+}
+/**
+ * A configuration that initializes an NgElementConstructor with the
+ * dependencies and strategy it needs to transform a component into
+ * a custom element class.
+ *
+ * \@publicApi
+ * @record
+ */
+function NgElementConfig() { }
+if (false) {
+    /**
+     * The injector to use for retrieving the component's factory.
+     * @type {?}
+     */
+    NgElementConfig.prototype.injector;
+    /**
+     * An optional custom strategy factory to use instead of the default.
+     * The strategy controls how the transformation is performed.
+     * @type {?|undefined}
+     */
+    NgElementConfig.prototype.strategyFactory;
 }
 /**
  * \@description Creates a custom element class based on an Angular component.
@@ -632,6 +795,10 @@ function createCustomElement(component, config) {
     // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
     // field externs. So using quoted access to explicitly prevent renaming.
     NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
+    if (false) {
+        /* Skipping unnamed member:
+        static readonly['observedAttributes'] = Object.keys(attributeToPropertyInputs);*/
+    }
     // Add getters and setters to the prototype for each property input. If the config does not
     // contain property inputs, use all inputs by default.
     inputs.map((/**
@@ -668,7 +835,7 @@ function createCustomElement(component, config) {
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('9.0.0-next.1+11.sha-0ddf0c4.with-local-changes');
+const VERSION = new Version('9.0.0-next.1+18.sha-9a37e82.with-local-changes');
 
 /**
  * @fileoverview added by tsickle
