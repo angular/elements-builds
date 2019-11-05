@@ -1,5 +1,5 @@
 /**
- * @license Angular v9.0.0-rc.0+62.sha-d751ca7.with-local-changes
+ * @license Angular v9.0.0-rc.0+63.sha-3de72e4.with-local-changes
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -835,7 +835,7 @@ function createCustomElement(component, config) {
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('9.0.0-rc.0+62.sha-d751ca7.with-local-changes');
+const VERSION = new Version('9.0.0-rc.0+63.sha-3de72e4.with-local-changes');
 
 /**
  * @fileoverview added by tsickle
@@ -851,5 +851,5 @@ const VERSION = new Version('9.0.0-rc.0+62.sha-d751ca7.with-local-changes');
  * Generated bundle index. Do not edit.
  */
 
-export { NgElement, VERSION, createCustomElement };
+export { NgElement, createCustomElement, VERSION };
 //# sourceMappingURL=elements.js.map
