@@ -1,5 +1,5 @@
 /**
- * @license Angular v9.0.0-rc.3+35.sha-ad9b9a3.with-local-changes
+ * @license Angular v9.0.0-rc.3+42.sha-99e68d0.with-local-changes
  * (c) 2010-2019 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -10,6 +10,7 @@ import { map } from 'rxjs/operators';
 
 /**
  * @fileoverview added by tsickle
+ * Generated from: packages/elements/src/utils.ts
  * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 const ɵ0 = /**
@@ -183,6 +184,7 @@ function getComponentInputs(component, injector) {
 
 /**
  * @fileoverview added by tsickle
+ * Generated from: packages/elements/src/extract-projectable-nodes.ts
  * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
@@ -251,6 +253,7 @@ function findMatchingIndex(node, selectors, defaultIndex) {
 
 /**
  * @fileoverview added by tsickle
+ * Generated from: packages/elements/src/component-factory-strategy.ts
  * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
@@ -611,6 +614,7 @@ if (false) {
 
 /**
  * @fileoverview added by tsickle
+ * Generated from: packages/elements/src/create-custom-element.ts
  * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
@@ -829,21 +833,24 @@ function createCustomElement(component, config) {
 
 /**
  * @fileoverview added by tsickle
+ * Generated from: packages/elements/src/version.ts
  * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 /**
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('9.0.0-rc.3+35.sha-ad9b9a3.with-local-changes');
+const VERSION = new Version('9.0.0-rc.3+42.sha-99e68d0.with-local-changes');
 
 /**
  * @fileoverview added by tsickle
+ * Generated from: packages/elements/public_api.ts
  * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 
 /**
  * @fileoverview added by tsickle
+ * Generated from: packages/elements/index.ts
  * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
  */
 
