@@ -5,14 +5,15 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-/// <amd-module name="@angular/elements/schematics/ng-add/schema" />
+
 export interface Schema {
-    /**
-     * Skip package.json install.
-     */
-    skipPackageJson: boolean;
-    /**
-     * The project that needs the polyfill scripts
-     */
-    project: string;
+  /**
+   * Skip package.json install.
+   */
+  skipPackageJson: boolean;
+
+  /**
+   * The project that needs the polyfill scripts
+   */
+  project: string;
 }
