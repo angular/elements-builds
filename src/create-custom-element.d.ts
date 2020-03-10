@@ -23,9 +23,9 @@ export interface NgElementConstructor<P> {
     readonly observedAttributes: string[];
     /**
      * Initializes a constructor instance.
-     * @param injector The source component's injector.
+     * @param injector If provided, overrides the configured injector.
      */
-    new (injector: Injector): NgElement & WithProperties<P>;
+    new (injector?: Injector): NgElement & WithProperties<P>;
 }
 /**
  * Implements the functionality needed for a custom element.

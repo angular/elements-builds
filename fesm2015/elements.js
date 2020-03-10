@@ -1,5 +1,5 @@
 /**
- * @license Angular v9.1.0-next.2+128.sha-c98c6e8
+ * @license Angular v9.1.0-next.2+129.sha-95c729f
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -633,7 +633,7 @@ if (false) {
      * @type {?}
      */
     NgElementConstructor.prototype.observedAttributes;
-    /* Skipping unhandled member: new (injector: Injector): NgElement&WithProperties<P>;*/
+    /* Skipping unhandled member: new (injector?: Injector): NgElement&WithProperties<P>;*/
 }
 /**
  * Implements the functionality needed for a custom element.
@@ -839,7 +839,7 @@ function createCustomElement(component, config) {
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('9.1.0-next.2+128.sha-c98c6e8');
+const VERSION = new Version('9.1.0-next.2+129.sha-95c729f');
 
 /**
  * @fileoverview added by tsickle
