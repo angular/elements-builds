@@ -1,5 +1,5 @@
 /**
- * @license Angular v9.1.0-next.2+128.sha-c98c6e8
+ * @license Angular v9.1.0-next.2+129.sha-95c729f
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -101,9 +101,9 @@ export declare interface NgElementConstructor<P> {
     readonly observedAttributes: string[];
     /**
      * Initializes a constructor instance.
-     * @param injector The source component's injector.
+     * @param injector If provided, overrides the configured injector.
      */
-    new (injector: Injector): NgElement & WithProperties<P>;
+    new (injector?: Injector): NgElement & WithProperties<P>;
 }
 
 /**
