@@ -1,5 +1,5 @@
 /**
- * @license Angular v9.1.0-rc.1
+ * @license Angular v9.1.0-rc.1+10.sha-c9c2408
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -335,9 +335,10 @@ class ComponentNgElementStrategy {
          */
         this.initialInputValues = new Map();
         /**
-         * Set of inputs that were not initially set when the component was created.
+         * Set of component inputs that have not yet changed, i.e. for which `ngOnChanges()` has not
+         * fired. (This is used to determine the value of `fistChange` in `SimpleChange` instances.)
          */
-        this.uninitializedInputs = new Set();
+        this.unchangedInputs = new Set();
     }
     /**
      * Initializes a new component if one has not yet been created and cancels any scheduled
@@ -402,7 +403,11 @@ class ComponentNgElementStrategy {
             this.initialInputValues.set(property, value);
             return;
         }
-        if (strictEquals(value, this.getInputValue(property))) {
+        // Ignore the value if it is strictly equal to the current value, except if it is `undefined`
+        // and this is the first change to the value (because an explicit `undefined` _is_ strictly
+        // equal to not having a value set at all, but we still need to record this as a change).
+        if (strictEquals(value, this.getInputValue(property)) &&
+            !((value === undefined) && this.unchangedInputs.has(property))) {
             return;
         }
         this.recordInputChange(property, value);
@@ -442,13 +447,15 @@ class ComponentNgElementStrategy {
          * @return {?}
          */
         ({ propName }) => {
-            if (this.initialInputValues.has(propName)) {
-                this.setInputValue(propName, this.initialInputValues.get(propName));
+            if (this.implementsOnChanges) {
+                // If the component implements `ngOnChanges()`, keep track of which inputs have never
+                // changed so far.
+                this.unchangedInputs.add(propName);
             }
-            else {
-                // Keep track of inputs that were not initialized in case we need to know this for
-                // calling ngOnChanges with SimpleChanges
-                this.uninitializedInputs.add(propName);
+            if (this.initialInputValues.has(propName)) {
+                // Call `setInputValue()` now that the component has been instantiated to update its
+                // properties and fire `ngOnChanges()`.
+                this.setInputValue(propName, this.initialInputValues.get(propName));
             }
         }));
         this.initialInputValues.clear();
@@ -533,8 +540,8 @@ class ComponentNgElementStrategy {
             return;
         }
         /** @type {?} */
-        const isFirstChange = this.uninitializedInputs.has(property);
-        this.uninitializedInputs.delete(property);
+        const isFirstChange = this.unchangedInputs.has(property);
+        this.unchangedInputs.delete(property);
         /** @type {?} */
         const previousValue = isFirstChange ? undefined : this.getInputValue(property);
         this.inputChanges[property] = new SimpleChange(previousValue, currentValue, isFirstChange);
@@ -595,11 +602,12 @@ if (false) {
      */
     ComponentNgElementStrategy.prototype.initialInputValues;
     /**
-     * Set of inputs that were not initially set when the component was created.
+     * Set of component inputs that have not yet changed, i.e. for which `ngOnChanges()` has not
+     * fired. (This is used to determine the value of `fistChange` in `SimpleChange` instances.)
      * @type {?}
      * @private
      */
-    ComponentNgElementStrategy.prototype.uninitializedInputs;
+    ComponentNgElementStrategy.prototype.unchangedInputs;
     /**
      * @type {?}
      * @private
@@ -840,7 +848,7 @@ function createCustomElement(component, config) {
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('9.1.0-rc.1');
+const VERSION = new Version('9.1.0-rc.1+10.sha-c9c2408');
 
 /**
  * @fileoverview added by tsickle
