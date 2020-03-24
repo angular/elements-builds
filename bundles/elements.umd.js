@@ -1,5 +1,5 @@
 /**
- * @license Angular v9.1.0-rc.0+28.sha-55dac05
+ * @license Angular v9.1.0-rc.0+30.sha-9ba46d9
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -407,8 +407,11 @@
             this.scheduledDestroyFn = null;
             /** Initial input values that were set before the component was created. */
             this.initialInputValues = new Map();
-            /** Set of inputs that were not initially set when the component was created. */
-            this.uninitializedInputs = new Set();
+            /**
+             * Set of component inputs that have not yet changed, i.e. for which `ngOnChanges()` has not
+             * fired. (This is used to determine the value of `fistChange` in `SimpleChange` instances.)
+             */
+            this.unchangedInputs = new Set();
         }
         /**
          * Initializes a new component if one has not yet been created and cancels any scheduled
@@ -463,7 +466,11 @@
                 this.initialInputValues.set(property, value);
                 return;
             }
-            if (strictEquals(value, this.getInputValue(property))) {
+            // Ignore the value if it is strictly equal to the current value, except if it is `undefined`
+            // and this is the first change to the value (because an explicit `undefined` _is_ strictly
+            // equal to not having a value set at all, but we still need to record this as a change).
+            if (strictEquals(value, this.getInputValue(property)) &&
+                !((value === undefined) && this.unchangedInputs.has(property))) {
                 return;
             }
             this.recordInputChange(property, value);
@@ -491,13 +498,15 @@
             var _this = this;
             this.componentFactory.inputs.forEach(function (_a) {
                 var propName = _a.propName;
-                if (_this.initialInputValues.has(propName)) {
-                    _this.setInputValue(propName, _this.initialInputValues.get(propName));
+                if (_this.implementsOnChanges) {
+                    // If the component implements `ngOnChanges()`, keep track of which inputs have never
+                    // changed so far.
+                    _this.unchangedInputs.add(propName);
                 }
-                else {
-                    // Keep track of inputs that were not initialized in case we need to know this for
-                    // calling ngOnChanges with SimpleChanges
-                    _this.uninitializedInputs.add(propName);
+                if (_this.initialInputValues.has(propName)) {
+                    // Call `setInputValue()` now that the component has been instantiated to update its
+                    // properties and fire `ngOnChanges()`.
+                    _this.setInputValue(propName, _this.initialInputValues.get(propName));
                 }
             });
             this.initialInputValues.clear();
@@ -555,8 +564,8 @@
                 pendingChange.currentValue = currentValue;
                 return;
             }
-            var isFirstChange = this.uninitializedInputs.has(property);
-            this.uninitializedInputs.delete(property);
+            var isFirstChange = this.unchangedInputs.has(property);
+            this.unchangedInputs.delete(property);
             var previousValue = isFirstChange ? undefined : this.getInputValue(property);
             this.inputChanges[property] = new core.SimpleChange(previousValue, currentValue, isFirstChange);
         };
@@ -689,7 +698,7 @@
     /**
      * @publicApi
      */
-    var VERSION = new core.Version('9.1.0-rc.0+28.sha-55dac05');
+    var VERSION = new core.Version('9.1.0-rc.0+30.sha-9ba46d9');
 
     /**
      * @license

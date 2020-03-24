@@ -44,8 +44,11 @@ export declare class ComponentNgElementStrategy implements NgElementStrategy {
     private scheduledDestroyFn;
     /** Initial input values that were set before the component was created. */
     private readonly initialInputValues;
-    /** Set of inputs that were not initially set when the component was created. */
-    private readonly uninitializedInputs;
+    /**
+     * Set of component inputs that have not yet changed, i.e. for which `ngOnChanges()` has not
+     * fired. (This is used to determine the value of `fistChange` in `SimpleChange` instances.)
+     */
+    private readonly unchangedInputs;
     constructor(componentFactory: ComponentFactory<any>, injector: Injector);
     /**
      * Initializes a new component if one has not yet been created and cancels any scheduled
