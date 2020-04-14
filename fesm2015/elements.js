@@ -1,5 +1,5 @@
 /**
- * @license Angular v10.0.0-next.1+32.sha-5e80e7e
+ * @license Angular v10.0.0-next.1+33.sha-698b028
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -37,11 +37,14 @@ const scheduler = {
      * @param {?} delay
      * @return {?}
      */
-    schedule(taskFn, delay) { /** @type {?} */
-    const id = setTimeout(taskFn, delay); return (/**
-     * @return {?}
-     */
-    () => clearTimeout(id)); },
+    schedule(taskFn, delay) {
+        /** @type {?} */
+        const id = setTimeout(taskFn, delay);
+        return (/**
+         * @return {?}
+         */
+        () => clearTimeout(id));
+    },
     /**
      * Schedule a callback to be called before the next render.
      * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
@@ -642,7 +645,7 @@ if (false) {
      * @type {?}
      */
     NgElementConstructor.prototype.observedAttributes;
-    /* Skipping unhandled member: new (injector?: Injector): NgElement&WithProperties<P>;*/
+    /* Skipping unhandled member: new(injector?: Injector): NgElement&WithProperties<P>;*/
 }
 /**
  * Implements the functionality needed for a custom element.
@@ -826,12 +829,16 @@ function createCustomElement(component, config) {
             get: (/**
              * @return {?}
              */
-            function () { return this.ngElementStrategy.getInputValue(property); }),
+            function () {
+                return this.ngElementStrategy.getInputValue(property);
+            }),
             set: (/**
              * @param {?} newValue
              * @return {?}
              */
-            function (newValue) { this.ngElementStrategy.setInputValue(property, newValue); }),
+            function (newValue) {
+                this.ngElementStrategy.setInputValue(property, newValue);
+            }),
             configurable: true,
             enumerable: true,
         });
@@ -848,7 +855,7 @@ function createCustomElement(component, config) {
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('10.0.0-next.1+32.sha-5e80e7e');
+const VERSION = new Version('10.0.0-next.1+33.sha-698b028');
 
 /**
  * @fileoverview added by tsickle
