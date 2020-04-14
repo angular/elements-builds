@@ -1,5 +1,5 @@
 /**
- * @license Angular v9.1.1+36.sha-c8f2ca2
+ * @license Angular v9.1.1+40.sha-26f4915
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -31,7 +31,10 @@ var scheduler = {
      *
      * Returns a function that when executed will cancel the scheduled function.
      */
-    schedule: function (taskFn, delay) { var id = setTimeout(taskFn, delay); return function () { return clearTimeout(id); }; },
+    schedule: function (taskFn, delay) {
+        var id = setTimeout(taskFn, delay);
+        return function () { return clearTimeout(id); };
+    },
     /**
      * Schedule a callback to be called before the next render.
      * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
@@ -482,8 +485,12 @@ function createCustomElement(component, config) {
         return propName;
     }).forEach(function (property) {
         Object.defineProperty(NgElementImpl.prototype, property, {
-            get: function () { return this.ngElementStrategy.getInputValue(property); },
-            set: function (newValue) { this.ngElementStrategy.setInputValue(property, newValue); },
+            get: function () {
+                return this.ngElementStrategy.getInputValue(property);
+            },
+            set: function (newValue) {
+                this.ngElementStrategy.setInputValue(property, newValue);
+            },
             configurable: true,
             enumerable: true,
         });
@@ -501,7 +508,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-var VERSION = new Version('9.1.1+36.sha-c8f2ca2');
+var VERSION = new Version('9.1.1+40.sha-26f4915');
 
 /**
  * @license
