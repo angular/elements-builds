@@ -10,6 +10,6 @@
  * @description
  * Entry point for all public APIs of the `elements` package.
  */
-export { NgElement, NgElementConfig, NgElementConstructor, WithProperties, createCustomElement } from './src/create-custom-element';
+export { createCustomElement, NgElement, NgElementConfig, NgElementConstructor, WithProperties } from './src/create-custom-element';
 export { NgElementStrategy, NgElementStrategyEvent, NgElementStrategyFactory } from './src/element-strategy';
 export { VERSION } from './src/version';

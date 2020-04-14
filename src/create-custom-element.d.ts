@@ -42,13 +42,13 @@ export declare abstract class NgElement extends HTMLElement {
      */
     protected ngElementEventsSubscription: Subscription | null;
     /**
-      * Prototype for a handler that responds to a change in an observed attribute.
-      * @param attrName The name of the attribute that has changed.
-      * @param oldValue The previous value of the attribute.
-      * @param newValue The new value of the attribute.
-      * @param namespace The namespace in which the attribute is defined.
-      * @returns Nothing.
-      */
+     * Prototype for a handler that responds to a change in an observed attribute.
+     * @param attrName The name of the attribute that has changed.
+     * @param oldValue The previous value of the attribute.
+     * @param newValue The new value of the attribute.
+     * @param namespace The namespace in which the attribute is defined.
+     * @returns Nothing.
+     */
     abstract attributeChangedCallback(attrName: string, oldValue: string | null, newValue: string, namespace?: string): void;
     /**
      * Prototype for a handler that responds to the insertion of the custom element in the DOM.
