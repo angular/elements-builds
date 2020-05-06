@@ -1,20 +1,12 @@
 {
   "name": "@angular/elements",
-  "version": "10.0.0-next.5+45.sha-fafa50d",
+  "version": "10.0.0-next.5+53.sha-3c6c00d",
   "description": "Angular - library for using Angular Components as Custom Elements",
-  "main": "./bundles/elements.umd.js",
-  "module": "./fesm5/elements.js",
-  "es2015": "./fesm2015/elements.js",
-  "esm5": "./esm5/elements.js",
-  "esm2015": "./esm2015/elements.js",
-  "fesm5": "./fesm5/elements.js",
-  "fesm2015": "./fesm2015/elements.js",
-  "typings": "./elements.d.ts",
   "author": "angular",
   "license": "MIT",
   "peerDependencies": {
-    "@angular/core": "10.0.0-next.5+45.sha-fafa50d",
-    "@angular/platform-browser": "10.0.0-next.5+45.sha-fafa50d",
+    "@angular/core": "10.0.0-next.5+53.sha-3c6c00d",
+    "@angular/platform-browser": "10.0.0-next.5+53.sha-3c6c00d",
     "rxjs": "^6.5.3",
     "tslib": "^1.10.0"
   },
@@ -49,5 +41,11 @@
   "schematics": "./schematics/collection.json",
   "publishConfig": {
     "registry": "https://wombat-dressing-room.appspot.com"
-  }
+  },
+  "main": "./bundles/elements.umd.js",
+  "fesm2015": "./fesm2015/elements.js",
+  "esm2015": "./esm2015/elements.js",
+  "typings": "./elements.d.ts",
+  "module": "./fesm2015/elements.js",
+  "es2015": "./fesm2015/elements.js"
 }
