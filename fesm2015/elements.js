@@ -1,5 +1,5 @@
 /**
- * @license Angular v10.0.0-next.7+17.sha-2418c6a
+ * @license Angular v10.0.0-next.7+43.sha-f16ca1c
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -747,68 +747,71 @@ function createCustomElement(component, config) {
     const strategyFactory = config.strategyFactory || new ComponentNgElementStrategyFactory(component, config.injector);
     /** @type {?} */
     const attributeToPropertyInputs = getDefaultAttributeToPropertyInputs(inputs);
-    class NgElementImpl extends NgElement {
-        /**
-         * @param {?=} injector
-         */
-        constructor(injector) {
-            super();
-            // Note that some polyfills (e.g. document-register-element) do not call the constructor.
-            // Do not assume this strategy has been created.
-            // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
-            // now this is tested using a Google internal test suite.
-            this.ngElementStrategy = strategyFactory.create(injector || config.injector);
-        }
-        /**
-         * @param {?} attrName
-         * @param {?} oldValue
-         * @param {?} newValue
-         * @param {?=} namespace
-         * @return {?}
-         */
-        attributeChangedCallback(attrName, oldValue, newValue, namespace) {
-            if (!this.ngElementStrategy) {
-                this.ngElementStrategy = strategyFactory.create(config.injector);
+    let NgElementImpl = /** @class */ (() => {
+        class NgElementImpl extends NgElement {
+            /**
+             * @param {?=} injector
+             */
+            constructor(injector) {
+                super();
+                // Note that some polyfills (e.g. document-register-element) do not call the constructor.
+                // Do not assume this strategy has been created.
+                // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
+                // now this is tested using a Google internal test suite.
+                this.ngElementStrategy = strategyFactory.create(injector || config.injector);
             }
-            /** @type {?} */
-            const propName = (/** @type {?} */ (attributeToPropertyInputs[attrName]));
-            this.ngElementStrategy.setInputValue(propName, newValue);
-        }
-        /**
-         * @return {?}
-         */
-        connectedCallback() {
-            if (!this.ngElementStrategy) {
-                this.ngElementStrategy = strategyFactory.create(config.injector);
-            }
-            this.ngElementStrategy.connect(this);
-            // Listen for events from the strategy and dispatch them as custom events
-            this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe((/**
-             * @param {?} e
+            /**
+             * @param {?} attrName
+             * @param {?} oldValue
+             * @param {?} newValue
+             * @param {?=} namespace
              * @return {?}
              */
-            e => {
+            attributeChangedCallback(attrName, oldValue, newValue, namespace) {
+                if (!this.ngElementStrategy) {
+                    this.ngElementStrategy = strategyFactory.create(config.injector);
+                }
                 /** @type {?} */
-                const customEvent = createCustomEvent((/** @type {?} */ (this.ownerDocument)), e.name, e.value);
-                this.dispatchEvent(customEvent);
-            }));
-        }
-        /**
-         * @return {?}
-         */
-        disconnectedCallback() {
-            if (this.ngElementStrategy) {
-                this.ngElementStrategy.disconnect();
+                const propName = (/** @type {?} */ (attributeToPropertyInputs[attrName]));
+                this.ngElementStrategy.setInputValue(propName, newValue);
             }
-            if (this.ngElementEventsSubscription) {
-                this.ngElementEventsSubscription.unsubscribe();
-                this.ngElementEventsSubscription = null;
+            /**
+             * @return {?}
+             */
+            connectedCallback() {
+                if (!this.ngElementStrategy) {
+                    this.ngElementStrategy = strategyFactory.create(config.injector);
+                }
+                this.ngElementStrategy.connect(this);
+                // Listen for events from the strategy and dispatch them as custom events
+                this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe((/**
+                 * @param {?} e
+                 * @return {?}
+                 */
+                e => {
+                    /** @type {?} */
+                    const customEvent = createCustomEvent((/** @type {?} */ (this.ownerDocument)), e.name, e.value);
+                    this.dispatchEvent(customEvent);
+                }));
+            }
+            /**
+             * @return {?}
+             */
+            disconnectedCallback() {
+                if (this.ngElementStrategy) {
+                    this.ngElementStrategy.disconnect();
+                }
+                if (this.ngElementEventsSubscription) {
+                    this.ngElementEventsSubscription.unsubscribe();
+                    this.ngElementEventsSubscription = null;
+                }
             }
         }
-    }
-    // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
-    // field externs. So using quoted access to explicitly prevent renaming.
-    NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
+        // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
+        // field externs. So using quoted access to explicitly prevent renaming.
+        NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
+        return NgElementImpl;
+    })();
     if (false) {
         /* Skipping unnamed member:
         static readonly['observedAttributes'] = Object.keys(attributeToPropertyInputs);*/
@@ -854,7 +857,7 @@ function createCustomElement(component, config) {
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('10.0.0-next.7+17.sha-2418c6a');
+const VERSION = new Version('10.0.0-next.7+43.sha-f16ca1c');
 
 /**
  * @fileoverview added by tsickle
