@@ -1,10 +1,10 @@
 /**
- * @license Angular v9.1.8+12.sha-3eee536
+ * @license Angular v9.1.8+19.sha-1465372
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
 
-import { __spread, __extends } from 'tslib';
+import { __spread, __extends, __read } from 'tslib';
 import { ComponentFactoryResolver, Injector, ApplicationRef, SimpleChange, Version } from '@angular/core';
 import { merge } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -183,8 +183,6 @@ var DESTROY_DELAY = 10;
  */
 var ComponentNgElementStrategyFactory = /** @class */ (function () {
     function ComponentNgElementStrategyFactory(component, injector) {
-        this.component = component;
-        this.injector = injector;
         this.componentFactory =
             injector.get(ComponentFactoryResolver).resolveComponentFactory(component);
     }
@@ -438,25 +436,63 @@ function createCustomElement(component, config) {
         __extends(NgElementImpl, _super);
         function NgElementImpl(injector) {
             var _this = _super.call(this) || this;
-            // Note that some polyfills (e.g. document-register-element) do not call the constructor.
-            // Do not assume this strategy has been created.
-            // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
-            // now this is tested using a Google internal test suite.
-            _this.ngElementStrategy = strategyFactory.create(injector || config.injector);
+            _this.injector = injector;
             return _this;
         }
+        Object.defineProperty(NgElementImpl.prototype, "ngElementStrategy", {
+            get: function () {
+                var _this = this;
+                // NOTE:
+                // Some polyfills (e.g. `document-register-element`) do not call the constructor, therefore
+                // it is not safe to set `ngElementStrategy` in the constructor and assume it will be
+                // available inside the methods.
+                //
+                // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
+                // now this is tested using a Google internal test suite.
+                if (!this._ngElementStrategy) {
+                    var strategy_1 = this._ngElementStrategy =
+                        strategyFactory.create(this.injector || config.injector);
+                    // Collect pre-existing values on the element to re-apply through the strategy.
+                    var preExistingValues = inputs.filter(function (_a) {
+                        var propName = _a.propName;
+                        return _this.hasOwnProperty(propName);
+                    }).map(function (_a) {
+                        var propName = _a.propName;
+                        return [propName, _this[propName]];
+                    });
+                    // In some browsers (e.g. IE10), `Object.setPrototypeOf()` (which is required by some Custom
+                    // Elements polyfills) is not defined and is thus polyfilled in a way that does not preserve
+                    // the prototype chain. In such cases, `this` will not be an instance of `NgElementImpl` and
+                    // thus not have the component input getters/setters defined on `NgElementImpl.prototype`.
+                    if (!(this instanceof NgElementImpl)) {
+                        // Add getters and setters to the instance itself for each property input.
+                        defineInputGettersSetters(inputs, this);
+                    }
+                    else {
+                        // Delete the property from the instance, so that it can go through the getters/setters
+                        // set on `NgElementImpl.prototype`.
+                        preExistingValues.forEach(function (_a) {
+                            var _b = __read(_a, 1), propName = _b[0];
+                            return delete _this[propName];
+                        });
+                    }
+                    // Re-apply pre-existing values through the strategy.
+                    preExistingValues.forEach(function (_a) {
+                        var _b = __read(_a, 2), propName = _b[0], value = _b[1];
+                        return strategy_1.setInputValue(propName, value);
+                    });
+                }
+                return this._ngElementStrategy;
+            },
+            enumerable: true,
+            configurable: true
+        });
         NgElementImpl.prototype.attributeChangedCallback = function (attrName, oldValue, newValue, namespace) {
-            if (!this.ngElementStrategy) {
-                this.ngElementStrategy = strategyFactory.create(config.injector);
-            }
             var propName = attributeToPropertyInputs[attrName];
             this.ngElementStrategy.setInputValue(propName, newValue);
         };
         NgElementImpl.prototype.connectedCallback = function () {
             var _this = this;
-            if (!this.ngElementStrategy) {
-                this.ngElementStrategy = strategyFactory.create(config.injector);
-            }
             this.ngElementStrategy.connect(this);
             // Listen for events from the strategy and dispatch them as custom events
             this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(function (e) {
@@ -465,8 +501,9 @@ function createCustomElement(component, config) {
             });
         };
         NgElementImpl.prototype.disconnectedCallback = function () {
-            if (this.ngElementStrategy) {
-                this.ngElementStrategy.disconnect();
+            // Not using `this.ngElementStrategy` to avoid unnecessarily creating the `NgElementStrategy`.
+            if (this._ngElementStrategy) {
+                this._ngElementStrategy.disconnect();
             }
             if (this.ngElementEventsSubscription) {
                 this.ngElementEventsSubscription.unsubscribe();
@@ -478,24 +515,26 @@ function createCustomElement(component, config) {
         NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
         return NgElementImpl;
     }(NgElement));
-    // Add getters and setters to the prototype for each property input. If the config does not
-    // contain property inputs, use all inputs by default.
-    inputs.map(function (_a) {
+    // Add getters and setters to the prototype for each property input.
+    defineInputGettersSetters(inputs, NgElementImpl.prototype);
+    return NgElementImpl;
+}
+// Helpers
+function defineInputGettersSetters(inputs, target) {
+    // Add getters and setters for each property input.
+    inputs.forEach(function (_a) {
         var propName = _a.propName;
-        return propName;
-    }).forEach(function (property) {
-        Object.defineProperty(NgElementImpl.prototype, property, {
+        Object.defineProperty(target, propName, {
             get: function () {
-                return this.ngElementStrategy.getInputValue(property);
+                return this.ngElementStrategy.getInputValue(propName);
             },
             set: function (newValue) {
-                this.ngElementStrategy.setInputValue(property, newValue);
+                this.ngElementStrategy.setInputValue(propName, newValue);
             },
             configurable: true,
             enumerable: true,
         });
     });
-    return NgElementImpl;
 }
 
 /**
@@ -508,7 +547,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-var VERSION = new Version('9.1.8+12.sha-3eee536');
+var VERSION = new Version('9.1.8+19.sha-1465372');
 
 /**
  * @license
