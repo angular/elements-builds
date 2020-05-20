@@ -1,5 +1,5 @@
 /**
- * @license Angular v10.0.0-next.9+4.sha-4c30aa8
+ * @license Angular v10.0.0-next.9+11.sha-89b44d1
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -412,8 +412,6 @@
      */
     var ComponentNgElementStrategyFactory = /** @class */ (function () {
         function ComponentNgElementStrategyFactory(component, injector) {
-            this.component = component;
-            this.injector = injector;
             this.componentFactory =
                 injector.get(core.ComponentFactoryResolver).resolveComponentFactory(component);
         }
@@ -667,25 +665,63 @@
             __extends(NgElementImpl, _super);
             function NgElementImpl(injector) {
                 var _this = _super.call(this) || this;
-                // Note that some polyfills (e.g. document-register-element) do not call the constructor.
-                // Do not assume this strategy has been created.
-                // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
-                // now this is tested using a Google internal test suite.
-                _this.ngElementStrategy = strategyFactory.create(injector || config.injector);
+                _this.injector = injector;
                 return _this;
             }
+            Object.defineProperty(NgElementImpl.prototype, "ngElementStrategy", {
+                get: function () {
+                    var _this = this;
+                    // NOTE:
+                    // Some polyfills (e.g. `document-register-element`) do not call the constructor, therefore
+                    // it is not safe to set `ngElementStrategy` in the constructor and assume it will be
+                    // available inside the methods.
+                    //
+                    // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
+                    // now this is tested using a Google internal test suite.
+                    if (!this._ngElementStrategy) {
+                        var strategy_1 = this._ngElementStrategy =
+                            strategyFactory.create(this.injector || config.injector);
+                        // Collect pre-existing values on the element to re-apply through the strategy.
+                        var preExistingValues = inputs.filter(function (_a) {
+                            var propName = _a.propName;
+                            return _this.hasOwnProperty(propName);
+                        }).map(function (_a) {
+                            var propName = _a.propName;
+                            return [propName, _this[propName]];
+                        });
+                        // In some browsers (e.g. IE10), `Object.setPrototypeOf()` (which is required by some Custom
+                        // Elements polyfills) is not defined and is thus polyfilled in a way that does not preserve
+                        // the prototype chain. In such cases, `this` will not be an instance of `NgElementImpl` and
+                        // thus not have the component input getters/setters defined on `NgElementImpl.prototype`.
+                        if (!(this instanceof NgElementImpl)) {
+                            // Add getters and setters to the instance itself for each property input.
+                            defineInputGettersSetters(inputs, this);
+                        }
+                        else {
+                            // Delete the property from the instance, so that it can go through the getters/setters
+                            // set on `NgElementImpl.prototype`.
+                            preExistingValues.forEach(function (_a) {
+                                var _b = __read(_a, 1), propName = _b[0];
+                                return delete _this[propName];
+                            });
+                        }
+                        // Re-apply pre-existing values through the strategy.
+                        preExistingValues.forEach(function (_a) {
+                            var _b = __read(_a, 2), propName = _b[0], value = _b[1];
+                            return strategy_1.setInputValue(propName, value);
+                        });
+                    }
+                    return this._ngElementStrategy;
+                },
+                enumerable: false,
+                configurable: true
+            });
             NgElementImpl.prototype.attributeChangedCallback = function (attrName, oldValue, newValue, namespace) {
-                if (!this.ngElementStrategy) {
-                    this.ngElementStrategy = strategyFactory.create(config.injector);
-                }
                 var propName = attributeToPropertyInputs[attrName];
                 this.ngElementStrategy.setInputValue(propName, newValue);
             };
             NgElementImpl.prototype.connectedCallback = function () {
                 var _this = this;
-                if (!this.ngElementStrategy) {
-                    this.ngElementStrategy = strategyFactory.create(config.injector);
-                }
                 this.ngElementStrategy.connect(this);
                 // Listen for events from the strategy and dispatch them as custom events
                 this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(function (e) {
@@ -694,8 +730,9 @@
                 });
             };
             NgElementImpl.prototype.disconnectedCallback = function () {
-                if (this.ngElementStrategy) {
-                    this.ngElementStrategy.disconnect();
+                // Not using `this.ngElementStrategy` to avoid unnecessarily creating the `NgElementStrategy`.
+                if (this._ngElementStrategy) {
+                    this._ngElementStrategy.disconnect();
                 }
                 if (this.ngElementEventsSubscription) {
                     this.ngElementEventsSubscription.unsubscribe();
@@ -707,24 +744,31 @@
             NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
             return NgElementImpl;
         }(NgElement));
-        // Add getters and setters to the prototype for each property input. If the config does not
-        // contain property inputs, use all inputs by default.
-        inputs.map(function (_a) {
+        // TypeScript 3.9+ defines getters/setters as configurable but non-enumerable properties (in
+        // compliance with the spec). This breaks emulated inheritance in ES5 on environments that do not
+        // natively support `Object.setPrototypeOf()` (such as IE 9-10).
+        // Update the property descriptor of `NgElementImpl#ngElementStrategy` to make it enumerable.
+        Object.defineProperty(NgElementImpl.prototype, 'ngElementStrategy', { enumerable: true });
+        // Add getters and setters to the prototype for each property input.
+        defineInputGettersSetters(inputs, NgElementImpl.prototype);
+        return NgElementImpl;
+    }
+    // Helpers
+    function defineInputGettersSetters(inputs, target) {
+        // Add getters and setters for each property input.
+        inputs.forEach(function (_a) {
             var propName = _a.propName;
-            return propName;
-        }).forEach(function (property) {
-            Object.defineProperty(NgElementImpl.prototype, property, {
+            Object.defineProperty(target, propName, {
                 get: function () {
-                    return this.ngElementStrategy.getInputValue(property);
+                    return this.ngElementStrategy.getInputValue(propName);
                 },
                 set: function (newValue) {
-                    this.ngElementStrategy.setInputValue(property, newValue);
+                    this.ngElementStrategy.setInputValue(propName, newValue);
                 },
                 configurable: true,
                 enumerable: true,
             });
         });
-        return NgElementImpl;
     }
 
     /**
@@ -737,7 +781,7 @@
     /**
      * @publicApi
      */
-    var VERSION = new core.Version('10.0.0-next.9+4.sha-4c30aa8');
+    var VERSION = new core.Version('10.0.0-next.9+11.sha-89b44d1');
 
     /**
      * @license
