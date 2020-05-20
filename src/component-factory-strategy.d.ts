@@ -15,8 +15,6 @@ import { NgElementStrategy, NgElementStrategyEvent, NgElementStrategyFactory } f
  * @publicApi
  */
 export declare class ComponentNgElementStrategyFactory implements NgElementStrategyFactory {
-    private component;
-    private injector;
     componentFactory: ComponentFactory<any>;
     constructor(component: Type<any>, injector: Injector);
     create(injector: Injector): ComponentNgElementStrategy;
