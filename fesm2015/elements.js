@@ -1,5 +1,5 @@
 /**
- * @license Angular v10.0.0-rc.0+17.sha-d1ea1f4
+ * @license Angular v10.0.0-rc.0+15.sha-ecce994
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -10,7 +10,7 @@ import { map } from 'rxjs/operators';
 
 /**
  * @license
- * Copyright Google LLC All Rights Reserved.
+ * Copyright Google Inc. All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
@@ -125,7 +125,7 @@ function getComponentInputs(component, injector) {
 
 /**
  * @license
- * Copyright Google LLC All Rights Reserved.
+ * Copyright Google Inc. All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
@@ -166,7 +166,7 @@ function findMatchingIndex(node, selectors, defaultIndex) {
 
 /**
  * @license
- * Copyright Google LLC All Rights Reserved.
+ * Copyright Google Inc. All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
@@ -376,7 +376,7 @@ class ComponentNgElementStrategy {
 
 /**
  * @license
- * Copyright Google LLC All Rights Reserved.
+ * Copyright Google Inc. All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
@@ -512,7 +512,7 @@ function defineInputGettersSetters(inputs, target) {
 
 /**
  * @license
- * Copyright Google LLC All Rights Reserved.
+ * Copyright Google Inc. All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
@@ -520,11 +520,11 @@ function defineInputGettersSetters(inputs, target) {
 /**
  * @publicApi
  */
-const VERSION = new Version('10.0.0-rc.0+17.sha-d1ea1f4');
+const VERSION = new Version('10.0.0-rc.0+15.sha-ecce994');
 
 /**
  * @license
- * Copyright Google LLC All Rights Reserved.
+ * Copyright Google Inc. All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
@@ -533,7 +533,7 @@ const VERSION = new Version('10.0.0-rc.0+17.sha-d1ea1f4');
 
 /**
  * @license
- * Copyright Google LLC All Rights Reserved.
+ * Copyright Google Inc. All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
