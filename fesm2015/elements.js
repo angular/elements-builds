@@ -1,12 +1,12 @@
 /**
- * @license Angular v9.1.9+14.sha-6855396
+ * @license Angular v9.1.9+17.sha-f0f319b
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
 
 import { ComponentFactoryResolver, Injector, ApplicationRef, SimpleChange, Version } from '@angular/core';
-import { merge } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { ReplaySubject, merge } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 
 /**
  * @fileoverview added by tsickle
@@ -305,6 +305,20 @@ class ComponentNgElementStrategy {
     constructor(componentFactory, injector) {
         this.componentFactory = componentFactory;
         this.injector = injector;
+        // Subject of `NgElementStrategyEvent` observables corresponding to the component's outputs.
+        this.eventEmitters = new ReplaySubject(1);
+        /**
+         * Merged stream of the component's output events.
+         */
+        this.events = this.eventEmitters.pipe(switchMap((/**
+         * @param {?} emitters
+         * @return {?}
+         */
+        emitters => merge(...emitters))));
+        /**
+         * Reference to the component that was created on connect.
+         */
+        this.componentRef = null;
         /**
          * Changes that have been made to the component ref since the last time onChanges was called.
          */
@@ -344,7 +358,7 @@ class ComponentNgElementStrategy {
             this.scheduledDestroyFn = null;
             return;
         }
-        if (!this.componentRef) {
+        if (this.componentRef === null) {
             this.initializeComponent(element);
         }
     }
@@ -355,7 +369,7 @@ class ComponentNgElementStrategy {
      */
     disconnect() {
         // Return if there is no componentRef or the component is already scheduled for destruction
-        if (!this.componentRef || this.scheduledDestroyFn !== null) {
+        if (this.componentRef === null || this.scheduledDestroyFn !== null) {
             return;
         }
         // Schedule the component to be destroyed after a small timeout in case it is being
@@ -364,8 +378,8 @@ class ComponentNgElementStrategy {
          * @return {?}
          */
         () => {
-            if (this.componentRef) {
-                (/** @type {?} */ (this.componentRef)).destroy();
+            if (this.componentRef !== null) {
+                this.componentRef.destroy();
                 this.componentRef = null;
             }
         }), DESTROY_DELAY);
@@ -377,10 +391,10 @@ class ComponentNgElementStrategy {
      * @return {?}
      */
     getInputValue(property) {
-        if (!this.componentRef) {
+        if (this.componentRef === null) {
             return this.initialInputValues.get(property);
         }
-        return ((/** @type {?} */ (this.componentRef.instance)))[property];
+        return this.componentRef.instance[property];
     }
     /**
      * Sets the input value for the property. If the component has not yet been created, the value is
@@ -390,7 +404,7 @@ class ComponentNgElementStrategy {
      * @return {?}
      */
     setInputValue(property, value) {
-        if (!this.componentRef) {
+        if (this.componentRef === null) {
             this.initialInputValues.set(property, value);
             return;
         }
@@ -402,7 +416,7 @@ class ComponentNgElementStrategy {
             return;
         }
         this.recordInputChange(property, value);
-        ((/** @type {?} */ (this.componentRef.instance)))[property] = value;
+        this.componentRef.instance[property] = value;
         this.scheduleDetectChanges();
     }
     /**
@@ -418,10 +432,9 @@ class ComponentNgElementStrategy {
         /** @type {?} */
         const projectableNodes = extractProjectableNodes(element, this.componentFactory.ngContentSelectors);
         this.componentRef = this.componentFactory.create(childInjector, projectableNodes, element);
-        this.implementsOnChanges =
-            isFunction(((/** @type {?} */ ((/** @type {?} */ (this.componentRef.instance))))).ngOnChanges);
+        this.implementsOnChanges = isFunction(((/** @type {?} */ (this.componentRef.instance))).ngOnChanges);
         this.initializeInputs();
-        this.initializeOutputs();
+        this.initializeOutputs(this.componentRef);
         this.detectChanges();
         /** @type {?} */
         const applicationRef = this.injector.get(ApplicationRef);
@@ -454,9 +467,10 @@ class ComponentNgElementStrategy {
     /**
      * Sets up listeners for the component's outputs so that the events stream emits the events.
      * @protected
+     * @param {?} componentRef
      * @return {?}
      */
-    initializeOutputs() {
+    initializeOutputs(componentRef) {
         /** @type {?} */
         const eventEmitters = this.componentFactory.outputs.map((/**
          * @param {?} __0
@@ -464,21 +478,22 @@ class ComponentNgElementStrategy {
          */
         ({ propName, templateName }) => {
             /** @type {?} */
-            const emitter = (/** @type {?} */ (((/** @type {?} */ ((/** @type {?} */ (this.componentRef)).instance)))[propName]));
+            const emitter = componentRef.instance[propName];
             return emitter.pipe(map((/**
              * @param {?} value
              * @return {?}
              */
-            (value) => ({ name: templateName, value }))));
+            value => ({ name: templateName, value }))));
         }));
-        this.events = merge(...eventEmitters);
+        this.eventEmitters.next(eventEmitters);
     }
     /**
      * Calls ngOnChanges with all the inputs that have changed since the last call.
      * @protected
+     * @param {?} componentRef
      * @return {?}
      */
-    callNgOnChanges() {
+    callNgOnChanges(componentRef) {
         if (!this.implementsOnChanges || this.inputChanges === null) {
             return;
         }
@@ -487,7 +502,7 @@ class ComponentNgElementStrategy {
         /** @type {?} */
         const inputChanges = this.inputChanges;
         this.inputChanges = null;
-        ((/** @type {?} */ ((/** @type {?} */ ((/** @type {?} */ (this.componentRef)).instance))))).ngOnChanges(inputChanges);
+        ((/** @type {?} */ (componentRef.instance))).ngOnChanges(inputChanges);
     }
     /**
      * Schedules change detection to run on the component.
@@ -516,7 +531,8 @@ class ComponentNgElementStrategy {
      */
     recordInputChange(property, currentValue) {
         // Do not record the change if the component does not implement `OnChanges`.
-        if (this.componentRef && !this.implementsOnChanges) {
+        // (We can only determine that after the component has been instantiated.)
+        if (this.componentRef !== null && !this.implementsOnChanges) {
             return;
         }
         if (this.inputChanges === null) {
@@ -543,14 +559,19 @@ class ComponentNgElementStrategy {
      * @return {?}
      */
     detectChanges() {
-        if (!this.componentRef) {
+        if (this.componentRef === null) {
             return;
         }
-        this.callNgOnChanges();
-        (/** @type {?} */ (this.componentRef)).changeDetectorRef.detectChanges();
+        this.callNgOnChanges(this.componentRef);
+        this.componentRef.changeDetectorRef.detectChanges();
     }
 }
 if (false) {
+    /**
+     * @type {?}
+     * @private
+     */
+    ComponentNgElementStrategy.prototype.eventEmitters;
     /**
      * Merged stream of the component's output events.
      * @type {?}
@@ -813,7 +834,6 @@ function createCustomElement(component, config) {
          * @return {?}
          */
         connectedCallback() {
-            this.ngElementStrategy.connect(this);
             // Listen for events from the strategy and dispatch them as custom events
             this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe((/**
              * @param {?} e
@@ -824,6 +844,7 @@ function createCustomElement(component, config) {
                 const customEvent = createCustomEvent((/** @type {?} */ (this.ownerDocument)), e.name, e.value);
                 this.dispatchEvent(customEvent);
             }));
+            this.ngElementStrategy.connect(this);
         }
         /**
          * @return {?}
@@ -902,7 +923,7 @@ function defineInputGettersSetters(inputs, target) {
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('9.1.9+14.sha-6855396');
+const VERSION = new Version('9.1.9+17.sha-f0f319b');
 
 /**
  * @fileoverview added by tsickle
