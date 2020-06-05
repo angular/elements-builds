@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ComponentFactory, Injector, Type } from '@angular/core';
+import { ComponentFactory, ComponentRef, Injector, Type } from '@angular/core';
 import { Observable } from 'rxjs';
 import { NgElementStrategy, NgElementStrategyEvent, NgElementStrategyFactory } from './element-strategy';
 /**
@@ -28,8 +28,9 @@ export declare class ComponentNgElementStrategyFactory implements NgElementStrat
 export declare class ComponentNgElementStrategy implements NgElementStrategy {
     private componentFactory;
     private injector;
+    private eventEmitters;
     /** Merged stream of the component's output events. */
-    events: Observable<NgElementStrategyEvent>;
+    readonly events: Observable<NgElementStrategyEvent>;
     /** Reference to the component that was created on connect. */
     private componentRef;
     /** Changes that have been made to the component ref since the last time onChanges was called. */
@@ -76,9 +77,9 @@ export declare class ComponentNgElementStrategy implements NgElementStrategy {
     /** Set any stored initial inputs on the component's properties. */
     protected initializeInputs(): void;
     /** Sets up listeners for the component's outputs so that the events stream emits the events. */
-    protected initializeOutputs(): void;
+    protected initializeOutputs(componentRef: ComponentRef<any>): void;
     /** Calls ngOnChanges with all the inputs that have changed since the last call. */
-    protected callNgOnChanges(): void;
+    protected callNgOnChanges(componentRef: ComponentRef<any>): void;
     /**
      * Schedules change detection to run on the component.
      * Ignores subsequent calls if already scheduled.
