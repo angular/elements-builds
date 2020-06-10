@@ -28,9 +28,8 @@ export declare class ComponentNgElementStrategyFactory implements NgElementStrat
 export declare class ComponentNgElementStrategy implements NgElementStrategy {
     private componentFactory;
     private injector;
-    private eventEmitters;
     /** Merged stream of the component's output events. */
-    readonly events: Observable<NgElementStrategyEvent>;
+    events: Observable<NgElementStrategyEvent>;
     /** Reference to the component that was created on connect. */
     private componentRef;
     /** Changes that have been made to the component ref since the last time onChanges was called. */
