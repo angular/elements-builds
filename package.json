@@ -1,6 +1,6 @@
 {
   "name": "@angular/elements",
-  "version": "10.0.0-rc.0+112.sha-35502c7",
+  "version": "10.0.0-rc.0+113.sha-0a1d078",
   "description": "Angular - library for using Angular Components as Custom Elements",
   "author": "angular",
   "license": "MIT",
@@ -8,8 +8,8 @@
     "tslib": "^2.0.0"
   },
   "peerDependencies": {
-    "@angular/core": "10.0.0-rc.0+112.sha-35502c7",
-    "@angular/platform-browser": "10.0.0-rc.0+112.sha-35502c7",
+    "@angular/core": "10.0.0-rc.0+113.sha-0a1d078",
+    "@angular/platform-browser": "10.0.0-rc.0+113.sha-0a1d078",
     "rxjs": "^6.5.3"
   },
   "repository": {
@@ -41,6 +41,9 @@
   },
   "sideEffects": false,
   "schematics": "./schematics/collection.json",
+  "publishConfig": {
+    "registry": "https://wombat-dressing-room.appspot.com"
+  },
   "main": "./bundles/elements.umd.js",
   "fesm2015": "./fesm2015/elements.js",
   "esm2015": "./esm2015/elements.js",
