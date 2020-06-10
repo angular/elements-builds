@@ -1,12 +1,12 @@
 /**
- * @license Angular v10.0.0-rc.0+114.sha-401ef71
+ * @license Angular v10.0.0-rc.0+115.sha-7b005bb
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
 
 import { ComponentFactoryResolver, Injector, ApplicationRef, SimpleChange, Version } from '@angular/core';
-import { ReplaySubject, merge } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { merge } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 /**
  * @license
@@ -198,10 +198,6 @@ class ComponentNgElementStrategy {
     constructor(componentFactory, injector) {
         this.componentFactory = componentFactory;
         this.injector = injector;
-        // Subject of `NgElementStrategyEvent` observables corresponding to the component's outputs.
-        this.eventEmitters = new ReplaySubject(1);
-        /** Merged stream of the component's output events. */
-        this.events = this.eventEmitters.pipe(switchMap(emitters => merge(...emitters)));
         /** Reference to the component that was created on connect. */
         this.componentRef = null;
         /** Changes that have been made to the component ref since the last time onChanges was called. */
@@ -320,7 +316,7 @@ class ComponentNgElementStrategy {
             const emitter = componentRef.instance[propName];
             return emitter.pipe(map(value => ({ name: templateName, value })));
         });
-        this.eventEmitters.next(eventEmitters);
+        this.events = merge(...eventEmitters);
     }
     /** Calls ngOnChanges with all the inputs that have changed since the last call. */
     callNgOnChanges(componentRef) {
@@ -467,12 +463,12 @@ function createCustomElement(component, config) {
                 this.ngElementStrategy.setInputValue(propName, newValue);
             }
             connectedCallback() {
+                this.ngElementStrategy.connect(this);
                 // Listen for events from the strategy and dispatch them as custom events
                 this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(e => {
                     const customEvent = createCustomEvent(this.ownerDocument, e.name, e.value);
                     this.dispatchEvent(customEvent);
                 });
-                this.ngElementStrategy.connect(this);
             }
             disconnectedCallback() {
                 // Not using `this.ngElementStrategy` to avoid unnecessarily creating the `NgElementStrategy`.
@@ -526,7 +522,7 @@ function defineInputGettersSetters(inputs, target) {
 /**
  * @publicApi
  */
-const VERSION = new Version('10.0.0-rc.0+114.sha-401ef71');
+const VERSION = new Version('10.0.0-rc.0+115.sha-7b005bb');
 
 /**
  * @license
