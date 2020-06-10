@@ -1,12 +1,12 @@
 /**
- * @license Angular v9.1.10
+ * @license Angular v9.1.10+1.sha-dc9da17
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
 
 import { ComponentFactoryResolver, Injector, ApplicationRef, SimpleChange, Version } from '@angular/core';
-import { ReplaySubject, merge } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { merge } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 /**
  * @fileoverview added by tsickle
@@ -305,16 +305,6 @@ class ComponentNgElementStrategy {
     constructor(componentFactory, injector) {
         this.componentFactory = componentFactory;
         this.injector = injector;
-        // Subject of `NgElementStrategyEvent` observables corresponding to the component's outputs.
-        this.eventEmitters = new ReplaySubject(1);
-        /**
-         * Merged stream of the component's output events.
-         */
-        this.events = this.eventEmitters.pipe(switchMap((/**
-         * @param {?} emitters
-         * @return {?}
-         */
-        emitters => merge(...emitters))));
         /**
          * Reference to the component that was created on connect.
          */
@@ -485,7 +475,7 @@ class ComponentNgElementStrategy {
              */
             value => ({ name: templateName, value }))));
         }));
-        this.eventEmitters.next(eventEmitters);
+        this.events = merge(...eventEmitters);
     }
     /**
      * Calls ngOnChanges with all the inputs that have changed since the last call.
@@ -567,11 +557,6 @@ class ComponentNgElementStrategy {
     }
 }
 if (false) {
-    /**
-     * @type {?}
-     * @private
-     */
-    ComponentNgElementStrategy.prototype.eventEmitters;
     /**
      * Merged stream of the component's output events.
      * @type {?}
@@ -834,6 +819,7 @@ function createCustomElement(component, config) {
          * @return {?}
          */
         connectedCallback() {
+            this.ngElementStrategy.connect(this);
             // Listen for events from the strategy and dispatch them as custom events
             this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe((/**
              * @param {?} e
@@ -844,7 +830,6 @@ function createCustomElement(component, config) {
                 const customEvent = createCustomEvent((/** @type {?} */ (this.ownerDocument)), e.name, e.value);
                 this.dispatchEvent(customEvent);
             }));
-            this.ngElementStrategy.connect(this);
         }
         /**
          * @return {?}
@@ -923,7 +908,7 @@ function defineInputGettersSetters(inputs, target) {
  * \@publicApi
  * @type {?}
  */
-const VERSION = new Version('9.1.10');
+const VERSION = new Version('9.1.10+1.sha-dc9da17');
 
 /**
  * @fileoverview added by tsickle
