@@ -1,5 +1,5 @@
 /**
- * @license Angular v10.0.0-rc.4+6.sha-c2f4a9b
+ * @license Angular v10.0.0-rc.4+14.sha-38c48be
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -421,76 +421,77 @@ function createCustomElement(component, config) {
     const inputs = getComponentInputs(component, config.injector);
     const strategyFactory = config.strategyFactory || new ComponentNgElementStrategyFactory(component, config.injector);
     const attributeToPropertyInputs = getDefaultAttributeToPropertyInputs(inputs);
-    let NgElementImpl = /** @class */ (() => {
-        class NgElementImpl extends NgElement {
-            constructor(injector) {
-                super();
-                this.injector = injector;
-            }
-            get ngElementStrategy() {
-                // NOTE:
-                // Some polyfills (e.g. `document-register-element`) do not call the constructor, therefore
-                // it is not safe to set `ngElementStrategy` in the constructor and assume it will be
-                // available inside the methods.
-                //
-                // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
-                // now this is tested using a Google internal test suite.
-                if (!this._ngElementStrategy) {
-                    const strategy = this._ngElementStrategy =
-                        strategyFactory.create(this.injector || config.injector);
-                    // Collect pre-existing values on the element to re-apply through the strategy.
-                    const preExistingValues = inputs.filter(({ propName }) => this.hasOwnProperty(propName)).map(({ propName }) => [propName, this[propName]]);
-                    // In some browsers (e.g. IE10), `Object.setPrototypeOf()` (which is required by some Custom
-                    // Elements polyfills) is not defined and is thus polyfilled in a way that does not preserve
-                    // the prototype chain. In such cases, `this` will not be an instance of `NgElementImpl` and
-                    // thus not have the component input getters/setters defined on `NgElementImpl.prototype`.
-                    if (!(this instanceof NgElementImpl)) {
-                        // Add getters and setters to the instance itself for each property input.
-                        defineInputGettersSetters(inputs, this);
-                    }
-                    else {
-                        // Delete the property from the instance, so that it can go through the getters/setters
-                        // set on `NgElementImpl.prototype`.
-                        preExistingValues.forEach(([propName]) => delete this[propName]);
-                    }
-                    // Re-apply pre-existing values through the strategy.
-                    preExistingValues.forEach(([propName, value]) => strategy.setInputValue(propName, value));
+    class NgElementImpl extends NgElement {
+        constructor(injector) {
+            super();
+            this.injector = injector;
+        }
+        get ngElementStrategy() {
+            // NOTE:
+            // Some polyfills (e.g. `document-register-element`) do not call the constructor, therefore
+            // it is not safe to set `ngElementStrategy` in the constructor and assume it will be
+            // available inside the methods.
+            //
+            // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
+            // now this is tested using a Google internal test suite.
+            if (!this._ngElementStrategy) {
+                const strategy = this._ngElementStrategy =
+                    strategyFactory.create(this.injector || config.injector);
+                // Collect pre-existing values on the element to re-apply through the strategy.
+                const preExistingValues = inputs.filter(({ propName }) => this.hasOwnProperty(propName)).map(({ propName }) => [propName, this[propName]]);
+                // In some browsers (e.g. IE10), `Object.setPrototypeOf()` (which is required by some Custom
+                // Elements polyfills) is not defined and is thus polyfilled in a way that does not preserve
+                // the prototype chain. In such cases, `this` will not be an instance of `NgElementImpl` and
+                // thus not have the component input getters/setters defined on `NgElementImpl.prototype`.
+                if (!(this instanceof NgElementImpl)) {
+                    // Add getters and setters to the instance itself for each property input.
+                    defineInputGettersSetters(inputs, this);
                 }
-                return this._ngElementStrategy;
-            }
-            attributeChangedCallback(attrName, oldValue, newValue, namespace) {
-                const propName = attributeToPropertyInputs[attrName];
-                this.ngElementStrategy.setInputValue(propName, newValue);
-            }
-            connectedCallback() {
-                this.ngElementStrategy.connect(this);
-                // Listen for events from the strategy and dispatch them as custom events
-                this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(e => {
-                    const customEvent = createCustomEvent(this.ownerDocument, e.name, e.value);
-                    this.dispatchEvent(customEvent);
-                });
-            }
-            disconnectedCallback() {
-                // Not using `this.ngElementStrategy` to avoid unnecessarily creating the `NgElementStrategy`.
-                if (this._ngElementStrategy) {
-                    this._ngElementStrategy.disconnect();
+                else {
+                    // Delete the property from the instance, so that it can go through the getters/setters
+                    // set on `NgElementImpl.prototype`.
+                    preExistingValues.forEach(([propName]) => delete this[propName]);
                 }
-                if (this.ngElementEventsSubscription) {
-                    this.ngElementEventsSubscription.unsubscribe();
-                    this.ngElementEventsSubscription = null;
-                }
+                // Re-apply pre-existing values through the strategy.
+                preExistingValues.forEach(([propName, value]) => strategy.setInputValue(propName, value));
+            }
+            return this._ngElementStrategy;
+        }
+        attributeChangedCallback(attrName, oldValue, newValue, namespace) {
+            const propName = attributeToPropertyInputs[attrName];
+            this.ngElementStrategy.setInputValue(propName, newValue);
+        }
+        connectedCallback() {
+            this.ngElementStrategy.connect(this);
+            // Listen for events from the strategy and dispatch them as custom events
+            this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(e => {
+                const customEvent = createCustomEvent(this.ownerDocument, e.name, e.value);
+                this.dispatchEvent(customEvent);
+            });
+        }
+        disconnectedCallback() {
+            // Not using `this.ngElementStrategy` to avoid unnecessarily creating the `NgElementStrategy`.
+            if (this._ngElementStrategy) {
+                this._ngElementStrategy.disconnect();
+            }
+            if (this.ngElementEventsSubscription) {
+                this.ngElementEventsSubscription.unsubscribe();
+                this.ngElementEventsSubscription = null;
             }
         }
-        // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
-        // field externs. So using quoted access to explicitly prevent renaming.
-        NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
-        return NgElementImpl;
-    })();
+    }
+    // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
+    // field externs. So using quoted access to explicitly prevent renaming.
+    NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
     // TypeScript 3.9+ defines getters/setters as configurable but non-enumerable properties (in
     // compliance with the spec). This breaks emulated inheritance in ES5 on environments that do not
     // natively support `Object.setPrototypeOf()` (such as IE 9-10).
     // Update the property descriptor of `NgElementImpl#ngElementStrategy` to make it enumerable.
-    Object.defineProperty(NgElementImpl.prototype, 'ngElementStrategy', { enumerable: true });
+    // The below 'const', shouldn't be needed but currently this breaks build-optimizer
+    // Build-optimizer currently uses TypeScript 3.6 which is unable to resolve an 'accessor'
+    // in 'getTypeOfVariableOrParameterOrPropertyWorker'.
+    const getterName = 'ngElementStrategy';
+    Object.defineProperty(NgElementImpl.prototype, getterName, { enumerable: true });
     // Add getters and setters to the prototype for each property input.
     defineInputGettersSetters(inputs, NgElementImpl.prototype);
     return NgElementImpl;
@@ -522,7 +523,7 @@ function defineInputGettersSetters(inputs, target) {
 /**
  * @publicApi
  */
-const VERSION = new Version('10.0.0-rc.4+6.sha-c2f4a9b');
+const VERSION = new Version('10.0.0-rc.4+14.sha-38c48be');
 
 /**
  * @license

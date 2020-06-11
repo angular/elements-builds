@@ -1,5 +1,5 @@
 /**
- * @license Angular v10.0.0-rc.4+6.sha-c2f4a9b
+ * @license Angular v10.0.0-rc.4+14.sha-38c48be
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -749,7 +749,11 @@
         // compliance with the spec). This breaks emulated inheritance in ES5 on environments that do not
         // natively support `Object.setPrototypeOf()` (such as IE 9-10).
         // Update the property descriptor of `NgElementImpl#ngElementStrategy` to make it enumerable.
-        Object.defineProperty(NgElementImpl.prototype, 'ngElementStrategy', { enumerable: true });
+        // The below 'const', shouldn't be needed but currently this breaks build-optimizer
+        // Build-optimizer currently uses TypeScript 3.6 which is unable to resolve an 'accessor'
+        // in 'getTypeOfVariableOrParameterOrPropertyWorker'.
+        var getterName = 'ngElementStrategy';
+        Object.defineProperty(NgElementImpl.prototype, getterName, { enumerable: true });
         // Add getters and setters to the prototype for each property input.
         defineInputGettersSetters(inputs, NgElementImpl.prototype);
         return NgElementImpl;
@@ -782,7 +786,7 @@
     /**
      * @publicApi
      */
-    var VERSION = new core.Version('10.0.0-rc.4+6.sha-c2f4a9b');
+    var VERSION = new core.Version('10.0.0-rc.4+14.sha-38c48be');
 
     /**
      * @license
