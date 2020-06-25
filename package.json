@@ -1,6 +1,6 @@
 {
   "name": "@angular/elements",
-  "version": "10.0.0+17.sha-2cbe53a",
+  "version": "10.0.0+20.sha-64f2ffa",
   "description": "Angular - library for using Angular Components as Custom Elements",
   "author": "angular",
   "license": "MIT",
@@ -8,8 +8,8 @@
     "tslib": "^2.0.0"
   },
   "peerDependencies": {
-    "@angular/core": "10.0.0+17.sha-2cbe53a",
-    "@angular/platform-browser": "10.0.0+17.sha-2cbe53a",
+    "@angular/core": "10.0.0+20.sha-64f2ffa",
+    "@angular/platform-browser": "10.0.0+20.sha-64f2ffa",
     "rxjs": "^6.5.3"
   },
   "repository": {
