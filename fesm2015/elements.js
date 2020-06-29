@@ -1,5 +1,5 @@
 /**
- * @license Angular v10.0.0-rc.0+303.sha-e84539f
+ * @license Angular v10.0.0-rc.0+301.sha-a177b1b
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -548,7 +548,7 @@ function defineInputGettersSetters(inputs, target) {
 /**
  * @publicApi
  */
-const VERSION = new Version('10.0.0-rc.0+303.sha-e84539f');
+const VERSION = new Version('10.0.0-rc.0+301.sha-a177b1b');
 
 /**
  * @license
