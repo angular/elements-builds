@@ -1,5 +1,5 @@
 /**
- * @license Angular v10.0.1+4.sha-78460c1
+ * @license Angular v10.0.1+10.sha-89e16ed
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -430,6 +430,10 @@
         function ComponentNgElementStrategy(componentFactory, injector) {
             this.componentFactory = componentFactory;
             this.injector = injector;
+            // Subject of `NgElementStrategyEvent` observables corresponding to the component's outputs.
+            this.eventEmitters = new rxjs.ReplaySubject(1);
+            /** Merged stream of the component's output events. */
+            this.events = this.eventEmitters.pipe(operators.switchMap(function (emitters) { return rxjs.merge.apply(void 0, __spread(emitters)); }));
             /** Reference to the component that was created on connect. */
             this.componentRef = null;
             /** Changes that have been made to the component ref since the last time onChanges was called. */
@@ -552,7 +556,7 @@
                 var emitter = componentRef.instance[propName];
                 return emitter.pipe(operators.map(function (value) { return ({ name: templateName, value: value }); }));
             });
-            this.events = rxjs.merge.apply(void 0, __spread(eventEmitters));
+            this.eventEmitters.next(eventEmitters);
         };
         /** Calls ngOnChanges with all the inputs that have changed since the last call. */
         ComponentNgElementStrategy.prototype.callNgOnChanges = function (componentRef) {
@@ -722,13 +726,26 @@
                 this.ngElementStrategy.setInputValue(propName, newValue);
             };
             NgElementImpl.prototype.connectedCallback = function () {
-                var _this = this;
+                // For historical reasons, some strategies may not have initialized the `events` property
+                // until after `connect()` is run. Subscribe to `events` if it is available before running
+                // `connect()` (in order to capture events emitted suring inittialization), otherwise
+                // subscribe afterwards.
+                //
+                // TODO: Consider deprecating/removing the post-connect subscription in a future major version
+                //       (e.g. v11).
+                var subscribedToEvents = false;
+                if (this.ngElementStrategy.events) {
+                    // `events` are already available: Subscribe to it asap.
+                    this.subscribeToEvents();
+                    subscribedToEvents = true;
+                }
                 this.ngElementStrategy.connect(this);
-                // Listen for events from the strategy and dispatch them as custom events
-                this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(function (e) {
-                    var customEvent = createCustomEvent(_this.ownerDocument, e.name, e.value);
-                    _this.dispatchEvent(customEvent);
-                });
+                if (!subscribedToEvents) {
+                    // `events` were not initialized before running `connect()`: Subscribe to them now.
+                    // The events emitted during the component initialization have been missed, but at least
+                    // future events will be captured.
+                    this.subscribeToEvents();
+                }
             };
             NgElementImpl.prototype.disconnectedCallback = function () {
                 // Not using `this.ngElementStrategy` to avoid unnecessarily creating the `NgElementStrategy`.
@@ -739,6 +756,14 @@
                     this.ngElementEventsSubscription.unsubscribe();
                     this.ngElementEventsSubscription = null;
                 }
+            };
+            NgElementImpl.prototype.subscribeToEvents = function () {
+                var _this = this;
+                // Listen for events from the strategy and dispatch them as custom events.
+                this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(function (e) {
+                    var customEvent = createCustomEvent(_this.ownerDocument, e.name, e.value);
+                    _this.dispatchEvent(customEvent);
+                });
             };
             // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
             // field externs. So using quoted access to explicitly prevent renaming.
@@ -786,7 +811,7 @@
     /**
      * @publicApi
      */
-    var VERSION = new core.Version('10.0.1+4.sha-78460c1');
+    var VERSION = new core.Version('10.0.1+10.sha-89e16ed');
 
     /**
      * @license
