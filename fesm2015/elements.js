@@ -1,12 +1,12 @@
 /**
- * @license Angular v10.0.0-rc.0+291.sha-78a4476
+ * @license Angular v10.0.0-rc.0+292.sha-eba9dd3
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
 
 import { ComponentFactoryResolver, Injector, ApplicationRef, SimpleChange, Version } from '@angular/core';
-import { merge } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { ReplaySubject, merge } from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 
 /**
  * @license
@@ -198,6 +198,10 @@ class ComponentNgElementStrategy {
     constructor(componentFactory, injector) {
         this.componentFactory = componentFactory;
         this.injector = injector;
+        // Subject of `NgElementStrategyEvent` observables corresponding to the component's outputs.
+        this.eventEmitters = new ReplaySubject(1);
+        /** Merged stream of the component's output events. */
+        this.events = this.eventEmitters.pipe(switchMap(emitters => merge(...emitters)));
         /** Reference to the component that was created on connect. */
         this.componentRef = null;
         /** Changes that have been made to the component ref since the last time onChanges was called. */
@@ -316,7 +320,7 @@ class ComponentNgElementStrategy {
             const emitter = componentRef.instance[propName];
             return emitter.pipe(map(value => ({ name: templateName, value })));
         });
-        this.events = merge(...eventEmitters);
+        this.eventEmitters.next(eventEmitters);
     }
     /** Calls ngOnChanges with all the inputs that have changed since the last call. */
     callNgOnChanges(componentRef) {
@@ -462,12 +466,26 @@ function createCustomElement(component, config) {
             this.ngElementStrategy.setInputValue(propName, newValue);
         }
         connectedCallback() {
+            // For historical reasons, some strategies may not have initialized the `events` property
+            // until after `connect()` is run. Subscribe to `events` if it is available before running
+            // `connect()` (in order to capture events emitted suring inittialization), otherwise
+            // subscribe afterwards.
+            //
+            // TODO: Consider deprecating/removing the post-connect subscription in a future major version
+            //       (e.g. v11).
+            let subscribedToEvents = false;
+            if (this.ngElementStrategy.events) {
+                // `events` are already available: Subscribe to it asap.
+                this.subscribeToEvents();
+                subscribedToEvents = true;
+            }
             this.ngElementStrategy.connect(this);
-            // Listen for events from the strategy and dispatch them as custom events
-            this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(e => {
-                const customEvent = createCustomEvent(this.ownerDocument, e.name, e.value);
-                this.dispatchEvent(customEvent);
-            });
+            if (!subscribedToEvents) {
+                // `events` were not initialized before running `connect()`: Subscribe to them now.
+                // The events emitted during the component initialization have been missed, but at least
+                // future events will be captured.
+                this.subscribeToEvents();
+            }
         }
         disconnectedCallback() {
             // Not using `this.ngElementStrategy` to avoid unnecessarily creating the `NgElementStrategy`.
@@ -478,6 +496,13 @@ function createCustomElement(component, config) {
                 this.ngElementEventsSubscription.unsubscribe();
                 this.ngElementEventsSubscription = null;
             }
+        }
+        subscribeToEvents() {
+            // Listen for events from the strategy and dispatch them as custom events.
+            this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(e => {
+                const customEvent = createCustomEvent(this.ownerDocument, e.name, e.value);
+                this.dispatchEvent(customEvent);
+            });
         }
     }
     // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
@@ -523,7 +548,7 @@ function defineInputGettersSetters(inputs, target) {
 /**
  * @publicApi
  */
-const VERSION = new Version('10.0.0-rc.0+291.sha-78a4476');
+const VERSION = new Version('10.0.0-rc.0+292.sha-eba9dd3');
 
 /**
  * @license
