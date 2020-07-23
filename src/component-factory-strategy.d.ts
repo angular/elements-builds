@@ -48,6 +48,10 @@ export declare class ComponentNgElementStrategy implements NgElementStrategy {
      * fired. (This is used to determine the value of `fistChange` in `SimpleChange` instances.)
      */
     private readonly unchangedInputs;
+    /** Service for setting zone context. */
+    private readonly ngZone;
+    /** The zone the element was created in or `null` if Zone.js is not loaded. */
+    private readonly elementZone;
     constructor(componentFactory: ComponentFactory<any>, injector: Injector);
     /**
      * Initializes a new component if one has not yet been created and cancels any scheduled
@@ -91,4 +95,6 @@ export declare class ComponentNgElementStrategy implements NgElementStrategy {
     protected recordInputChange(property: string, currentValue: any): void;
     /** Runs change detection on the component. */
     protected detectChanges(): void;
+    /** Runs in the angular zone, if present. */
+    private runInZone;
 }

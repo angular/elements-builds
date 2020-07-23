@@ -1,10 +1,10 @@
 /**
- * @license Angular v10.1.0-next.2+9.sha-778ad37
+ * @license Angular v10.1.0-next.2+10.sha-8df888d
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
 
-import { ComponentFactoryResolver, Injector, ApplicationRef, SimpleChange, Version } from '@angular/core';
+import { ComponentFactoryResolver, NgZone, Injector, ApplicationRef, SimpleChange, Version } from '@angular/core';
 import { ReplaySubject, merge } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 
@@ -218,69 +218,82 @@ class ComponentNgElementStrategy {
          * fired. (This is used to determine the value of `fistChange` in `SimpleChange` instances.)
          */
         this.unchangedInputs = new Set();
+        /** Service for setting zone context. */
+        this.ngZone = this.injector.get(NgZone);
+        /** The zone the element was created in or `null` if Zone.js is not loaded. */
+        this.elementZone = (typeof Zone === 'undefined') ? null : this.ngZone.run(() => Zone.current);
     }
     /**
      * Initializes a new component if one has not yet been created and cancels any scheduled
      * destruction.
      */
     connect(element) {
-        // If the element is marked to be destroyed, cancel the task since the component was reconnected
-        if (this.scheduledDestroyFn !== null) {
-            this.scheduledDestroyFn();
-            this.scheduledDestroyFn = null;
-            return;
-        }
-        if (this.componentRef === null) {
-            this.initializeComponent(element);
-        }
+        this.runInZone(() => {
+            // If the element is marked to be destroyed, cancel the task since the component was
+            // reconnected
+            if (this.scheduledDestroyFn !== null) {
+                this.scheduledDestroyFn();
+                this.scheduledDestroyFn = null;
+                return;
+            }
+            if (this.componentRef === null) {
+                this.initializeComponent(element);
+            }
+        });
     }
     /**
      * Schedules the component to be destroyed after some small delay in case the element is just
      * being moved across the DOM.
      */
     disconnect() {
-        // Return if there is no componentRef or the component is already scheduled for destruction
-        if (this.componentRef === null || this.scheduledDestroyFn !== null) {
-            return;
-        }
-        // Schedule the component to be destroyed after a small timeout in case it is being
-        // moved elsewhere in the DOM
-        this.scheduledDestroyFn = scheduler.schedule(() => {
-            if (this.componentRef !== null) {
-                this.componentRef.destroy();
-                this.componentRef = null;
+        this.runInZone(() => {
+            // Return if there is no componentRef or the component is already scheduled for destruction
+            if (this.componentRef === null || this.scheduledDestroyFn !== null) {
+                return;
             }
-        }, DESTROY_DELAY);
+            // Schedule the component to be destroyed after a small timeout in case it is being
+            // moved elsewhere in the DOM
+            this.scheduledDestroyFn = scheduler.schedule(() => {
+                if (this.componentRef !== null) {
+                    this.componentRef.destroy();
+                    this.componentRef = null;
+                }
+            }, DESTROY_DELAY);
+        });
     }
     /**
      * Returns the component property value. If the component has not yet been created, the value is
      * retrieved from the cached initialization values.
      */
     getInputValue(property) {
-        if (this.componentRef === null) {
-            return this.initialInputValues.get(property);
-        }
-        return this.componentRef.instance[property];
+        return this.runInZone(() => {
+            if (this.componentRef === null) {
+                return this.initialInputValues.get(property);
+            }
+            return this.componentRef.instance[property];
+        });
     }
     /**
      * Sets the input value for the property. If the component has not yet been created, the value is
      * cached and set when the component is created.
      */
     setInputValue(property, value) {
-        if (this.componentRef === null) {
-            this.initialInputValues.set(property, value);
-            return;
-        }
-        // Ignore the value if it is strictly equal to the current value, except if it is `undefined`
-        // and this is the first change to the value (because an explicit `undefined` _is_ strictly
-        // equal to not having a value set at all, but we still need to record this as a change).
-        if (strictEquals(value, this.getInputValue(property)) &&
-            !((value === undefined) && this.unchangedInputs.has(property))) {
-            return;
-        }
-        this.recordInputChange(property, value);
-        this.componentRef.instance[property] = value;
-        this.scheduleDetectChanges();
+        this.runInZone(() => {
+            if (this.componentRef === null) {
+                this.initialInputValues.set(property, value);
+                return;
+            }
+            // Ignore the value if it is strictly equal to the current value, except if it is `undefined`
+            // and this is the first change to the value (because an explicit `undefined` _is_ strictly
+            // equal to not having a value set at all, but we still need to record this as a change).
+            if (strictEquals(value, this.getInputValue(property)) &&
+                !((value === undefined) && this.unchangedInputs.has(property))) {
+                return;
+            }
+            this.recordInputChange(property, value);
+            this.componentRef.instance[property] = value;
+            this.scheduleDetectChanges();
+        });
     }
     /**
      * Creates a new component through the component factory with the provided element host and
@@ -376,6 +389,10 @@ class ComponentNgElementStrategy {
         }
         this.callNgOnChanges(this.componentRef);
         this.componentRef.changeDetectorRef.detectChanges();
+    }
+    /** Runs in the angular zone, if present. */
+    runInZone(fn) {
+        return (this.elementZone && Zone.current !== this.elementZone) ? this.ngZone.run(fn) : fn();
     }
 }
 
@@ -547,7 +564,7 @@ function defineInputGettersSetters(inputs, target) {
 /**
  * @publicApi
  */
-const VERSION = new Version('10.1.0-next.2+9.sha-778ad37');
+const VERSION = new Version('10.1.0-next.2+10.sha-8df888d');
 
 /**
  * @license
