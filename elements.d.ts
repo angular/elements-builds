@@ -1,5 +1,5 @@
 /**
- * @license Angular v10.0.5+38.sha-b1e7775
+ * @license Angular v10.0.5+51.sha-7570356
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -22,6 +22,8 @@ import { Version } from '@angular/core';
  * and used by default for each created instance.This behavior can be overridden with the
  * static property to affect all newly created instances, or as a constructor argument for
  * one-off creations.
+ *
+ * @see [Angular Elements Overview](guide/elements "Turning Angular components into custom elements")
  *
  * @param component The component to transform.
  * @param config A configuration that provides initialization information to the created class.
@@ -90,6 +92,8 @@ export declare interface NgElementConfig {
  * Prototype for a class constructor based on an Angular component
  * that can be used for custom element registration. Implemented and returned
  * by the {@link createCustomElement createCustomElement() function}.
+ *
+ * @see [Angular Elements Overview](guide/elements "Turning Angular components into custom elements")
  *
  * @publicApi
  */
