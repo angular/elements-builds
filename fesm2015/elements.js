@@ -1,5 +1,5 @@
 /**
- * @license Angular v10.1.0-next.2+45.sha-65cc0c8
+ * @license Angular v10.1.0-next.2+58.sha-2a45b93
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -430,6 +430,8 @@ class NgElement extends HTMLElement {
  * static property to affect all newly created instances, or as a constructor argument for
  * one-off creations.
  *
+ * @see [Angular Elements Overview](guide/elements "Turning Angular components into custom elements")
+ *
  * @param component The component to transform.
  * @param config A configuration that provides initialization information to the created class.
  * @returns The custom-element construction class, which can be registered with
@@ -564,7 +566,7 @@ function defineInputGettersSetters(inputs, target) {
 /**
  * @publicApi
  */
-const VERSION = new Version('10.1.0-next.2+45.sha-65cc0c8');
+const VERSION = new Version('10.1.0-next.2+58.sha-2a45b93');
 
 /**
  * @license
