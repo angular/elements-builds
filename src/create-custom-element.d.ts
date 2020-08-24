@@ -38,7 +38,7 @@ export declare abstract class NgElement extends HTMLElement {
     /**
      * The strategy that controls how a component is transformed in a custom element.
      */
-    protected ngElementStrategy: NgElementStrategy;
+    protected abstract ngElementStrategy: NgElementStrategy;
     /**
      * A subscription to change, connect, and disconnect events in the custom element.
      */
