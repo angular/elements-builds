@@ -1,6 +1,6 @@
 {
   "name": "@angular/elements",
-  "version": "11.0.0-next.3+76.sha-e2997ed",
+  "version": "11.0.0-next.3+80.sha-a6971ba",
   "description": "Angular - library for using Angular Components as Custom Elements",
   "author": "angular",
   "license": "MIT",
@@ -8,8 +8,8 @@
     "tslib": "^2.0.0"
   },
   "peerDependencies": {
-    "@angular/core": "11.0.0-next.3+76.sha-e2997ed",
-    "@angular/platform-browser": "11.0.0-next.3+76.sha-e2997ed",
+    "@angular/core": "11.0.0-next.3+80.sha-a6971ba",
+    "@angular/platform-browser": "11.0.0-next.3+80.sha-a6971ba",
     "rxjs": "^6.5.3"
   },
   "repository": {
@@ -30,8 +30,6 @@
       "@angular/platform-browser-dynamic",
       "@angular/forms",
       "@angular/platform-server",
-      "@angular/platform-webworker",
-      "@angular/platform-webworker-dynamic",
       "@angular/upgrade",
       "@angular/router",
       "@angular/language-service",
