@@ -1,5 +1,5 @@
 /**
- * @license Angular v11.0.0-next.5+16.sha-b2342d4
+ * @license Angular v11.0.0-next.5+18.sha-bf717b1
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -318,12 +318,6 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var ɵ0 = function () {
-        var elProto = Element.prototype;
-        return elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
-            elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
-    };
-    var matches = (ɵ0)();
     /**
      * Provide methods for scheduling the execution of a callback.
      */
@@ -396,11 +390,19 @@
     function kebabToCamelCase(input) {
         return input.replace(/-([a-z\d])/g, function (_, char) { return char.toUpperCase(); });
     }
+    var _matches;
     /**
      * Check whether an `Element` matches a CSS selector.
+     * NOTE: this is duplicated from @angular/upgrade, and can
+     * be consolidated in the future
      */
-    function matchesSelector(element, selector) {
-        return matches.call(element, selector);
+    function matchesSelector(el, selector) {
+        if (!_matches) {
+            var elProto = Element.prototype;
+            _matches = elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
+                elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
+        }
+        return el.nodeType === Node.ELEMENT_NODE ? _matches.call(el, selector) : false;
     }
     /**
      * Test two values for strict equality, accounting for the fact that `NaN !== NaN`.
@@ -892,7 +894,7 @@
     /**
      * @publicApi
      */
-    var VERSION = new core.Version('11.0.0-next.5+16.sha-b2342d4');
+    var VERSION = new core.Version('11.0.0-next.5+18.sha-bf717b1');
 
     /**
      * @license
