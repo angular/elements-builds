@@ -46,8 +46,10 @@ export declare function isFunction(value: any): value is Function;
 export declare function kebabToCamelCase(input: string): string;
 /**
  * Check whether an `Element` matches a CSS selector.
+ * NOTE: this is duplicated from @angular/upgrade, and can
+ * be consolidated in the future
  */
-export declare function matchesSelector(element: Element, selector: string): boolean;
+export declare function matchesSelector(el: any, selector: string): boolean;
 /**
  * Test two values for strict equality, accounting for the fact that `NaN !== NaN`.
  */
