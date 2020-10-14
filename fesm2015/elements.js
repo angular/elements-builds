@@ -1,5 +1,5 @@
 /**
- * @license Angular v11.0.0-next.6+5.sha-a83693d
+ * @license Angular v11.0.0-next.6+10.sha-822b838
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -462,13 +462,18 @@ function createCustomElement(component, config) {
             if (!this._ngElementStrategy) {
                 const strategy = this._ngElementStrategy =
                     strategyFactory.create(this.injector || config.injector);
-                // Collect pre-existing values on the element to re-apply through the strategy.
-                const preExistingValues = inputs.filter(({ propName }) => this.hasOwnProperty(propName)).map(({ propName }) => [propName, this[propName]]);
-                // Delete the property from the instance, so that it can go through the getters/setters
-                // set on `NgElementImpl.prototype`.
-                preExistingValues.forEach(([propName]) => delete this[propName]);
-                // Re-apply pre-existing values through the strategy.
-                preExistingValues.forEach(([propName, value]) => strategy.setInputValue(propName, value));
+                // Re-apply pre-existing input values (set as properties on the element) through the
+                // strategy.
+                inputs.forEach(({ propName }) => {
+                    if (!this.hasOwnProperty(propName)) {
+                        // No pre-existing value for `propName`.
+                        return;
+                    }
+                    // Delete the property from the instance and re-apply it through the strategy.
+                    const value = this[propName];
+                    delete this[propName];
+                    strategy.setInputValue(propName, value);
+                });
             }
             return this._ngElementStrategy;
         }
@@ -520,14 +525,8 @@ function createCustomElement(component, config) {
     // field externs. So using quoted access to explicitly prevent renaming.
     NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
     // Add getters and setters to the prototype for each property input.
-    defineInputGettersSetters(inputs, NgElementImpl.prototype);
-    return NgElementImpl;
-}
-// Helpers
-function defineInputGettersSetters(inputs, target) {
-    // Add getters and setters for each property input.
     inputs.forEach(({ propName }) => {
-        Object.defineProperty(target, propName, {
+        Object.defineProperty(NgElementImpl.prototype, propName, {
             get() {
                 return this.ngElementStrategy.getInputValue(propName);
             },
@@ -538,6 +537,7 @@ function defineInputGettersSetters(inputs, target) {
             enumerable: true,
         });
     });
+    return NgElementImpl;
 }
 
 /**
@@ -550,7 +550,7 @@ function defineInputGettersSetters(inputs, target) {
 /**
  * @publicApi
  */
-const VERSION = new Version('11.0.0-next.6+5.sha-a83693d');
+const VERSION = new Version('11.0.0-next.6+10.sha-822b838');
 
 /**
  * @license

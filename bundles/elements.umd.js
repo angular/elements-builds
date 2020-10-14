@@ -1,5 +1,5 @@
 /**
- * @license Angular v11.0.0-next.6+5.sha-a83693d
+ * @license Angular v11.0.0-next.6+10.sha-822b838
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -769,24 +769,18 @@
                     if (!this._ngElementStrategy) {
                         var strategy_1 = this._ngElementStrategy =
                             strategyFactory.create(this.injector || config.injector);
-                        // Collect pre-existing values on the element to re-apply through the strategy.
-                        var preExistingValues = inputs.filter(function (_a) {
+                        // Re-apply pre-existing input values (set as properties on the element) through the
+                        // strategy.
+                        inputs.forEach(function (_a) {
                             var propName = _a.propName;
-                            return _this.hasOwnProperty(propName);
-                        }).map(function (_a) {
-                            var propName = _a.propName;
-                            return [propName, _this[propName]];
-                        });
-                        // Delete the property from the instance, so that it can go through the getters/setters
-                        // set on `NgElementImpl.prototype`.
-                        preExistingValues.forEach(function (_a) {
-                            var _b = __read(_a, 1), propName = _b[0];
-                            return delete _this[propName];
-                        });
-                        // Re-apply pre-existing values through the strategy.
-                        preExistingValues.forEach(function (_a) {
-                            var _b = __read(_a, 2), propName = _b[0], value = _b[1];
-                            return strategy_1.setInputValue(propName, value);
+                            if (!_this.hasOwnProperty(propName)) {
+                                // No pre-existing value for `propName`.
+                                return;
+                            }
+                            // Delete the property from the instance and re-apply it through the strategy.
+                            var value = _this[propName];
+                            delete _this[propName];
+                            strategy_1.setInputValue(propName, value);
                         });
                     }
                     return this._ngElementStrategy;
@@ -844,15 +838,9 @@
         // field externs. So using quoted access to explicitly prevent renaming.
         NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
         // Add getters and setters to the prototype for each property input.
-        defineInputGettersSetters(inputs, NgElementImpl.prototype);
-        return NgElementImpl;
-    }
-    // Helpers
-    function defineInputGettersSetters(inputs, target) {
-        // Add getters and setters for each property input.
         inputs.forEach(function (_a) {
             var propName = _a.propName;
-            Object.defineProperty(target, propName, {
+            Object.defineProperty(NgElementImpl.prototype, propName, {
                 get: function () {
                     return this.ngElementStrategy.getInputValue(propName);
                 },
@@ -863,6 +851,7 @@
                 enumerable: true,
             });
         });
+        return NgElementImpl;
     }
 
     /**
@@ -875,7 +864,7 @@
     /**
      * @publicApi
      */
-    var VERSION = new core.Version('11.0.0-next.6+5.sha-a83693d');
+    var VERSION = new core.Version('11.0.0-next.6+10.sha-822b838');
 
     /**
      * @license
