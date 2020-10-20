@@ -1,5 +1,5 @@
 /**
- * @license Angular v11.0.0-next.5+2.sha-a8c0972
+ * @license Angular v11.0.0-next.6+52.sha-0f1a18e
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -15,12 +15,6 @@ import { switchMap, map } from 'rxjs/operators';
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-const ɵ0 = () => {
-    const elProto = Element.prototype;
-    return elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
-        elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
-};
-const matches = (ɵ0)();
 /**
  * Provide methods for scheduling the execution of a callback.
  */
@@ -67,7 +61,7 @@ function camelToDashCase(input) {
 function createCustomEvent(doc, name, detail) {
     const bubbles = false;
     const cancelable = false;
-    // On IE9-11, `CustomEvent` is not a constructor.
+    // On IE11, `CustomEvent` is not a constructor.
     if (typeof CustomEvent !== 'function') {
         const event = doc.createEvent('CustomEvent');
         event.initCustomEvent(name, bubbles, cancelable, detail);
@@ -93,11 +87,19 @@ function isFunction(value) {
 function kebabToCamelCase(input) {
     return input.replace(/-([a-z\d])/g, (_, char) => char.toUpperCase());
 }
+let _matches;
 /**
  * Check whether an `Element` matches a CSS selector.
+ * NOTE: this is duplicated from @angular/upgrade, and can
+ * be consolidated in the future
  */
-function matchesSelector(element, selector) {
-    return matches.call(element, selector);
+function matchesSelector(el, selector) {
+    if (!_matches) {
+        const elProto = Element.prototype;
+        _matches = elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
+            elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
+    }
+    return el.nodeType === Node.ELEMENT_NODE ? _matches.call(el, selector) : false;
 }
 /**
  * Test two values for strict equality, accounting for the fact that `NaN !== NaN`.
@@ -460,23 +462,18 @@ function createCustomElement(component, config) {
             if (!this._ngElementStrategy) {
                 const strategy = this._ngElementStrategy =
                     strategyFactory.create(this.injector || config.injector);
-                // Collect pre-existing values on the element to re-apply through the strategy.
-                const preExistingValues = inputs.filter(({ propName }) => this.hasOwnProperty(propName)).map(({ propName }) => [propName, this[propName]]);
-                // In some browsers (e.g. IE10), `Object.setPrototypeOf()` (which is required by some Custom
-                // Elements polyfills) is not defined and is thus polyfilled in a way that does not preserve
-                // the prototype chain. In such cases, `this` will not be an instance of `NgElementImpl` and
-                // thus not have the component input getters/setters defined on `NgElementImpl.prototype`.
-                if (!(this instanceof NgElementImpl)) {
-                    // Add getters and setters to the instance itself for each property input.
-                    defineInputGettersSetters(inputs, this);
-                }
-                else {
-                    // Delete the property from the instance, so that it can go through the getters/setters
-                    // set on `NgElementImpl.prototype`.
-                    preExistingValues.forEach(([propName]) => delete this[propName]);
-                }
-                // Re-apply pre-existing values through the strategy.
-                preExistingValues.forEach(([propName, value]) => strategy.setInputValue(propName, value));
+                // Re-apply pre-existing input values (set as properties on the element) through the
+                // strategy.
+                inputs.forEach(({ propName }) => {
+                    if (!this.hasOwnProperty(propName)) {
+                        // No pre-existing value for `propName`.
+                        return;
+                    }
+                    // Delete the property from the instance and re-apply it through the strategy.
+                    const value = this[propName];
+                    delete this[propName];
+                    strategy.setInputValue(propName, value);
+                });
             }
             return this._ngElementStrategy;
         }
@@ -527,24 +524,9 @@ function createCustomElement(component, config) {
     // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
     // field externs. So using quoted access to explicitly prevent renaming.
     NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
-    // TypeScript 3.9+ defines getters/setters as configurable but non-enumerable properties (in
-    // compliance with the spec). This breaks emulated inheritance in ES5 on environments that do not
-    // natively support `Object.setPrototypeOf()` (such as IE 9-10).
-    // Update the property descriptor of `NgElementImpl#ngElementStrategy` to make it enumerable.
-    // The below 'const', shouldn't be needed but currently this breaks build-optimizer
-    // Build-optimizer currently uses TypeScript 3.6 which is unable to resolve an 'accessor'
-    // in 'getTypeOfVariableOrParameterOrPropertyWorker'.
-    const getterName = 'ngElementStrategy';
-    Object.defineProperty(NgElementImpl.prototype, getterName, { enumerable: true });
     // Add getters and setters to the prototype for each property input.
-    defineInputGettersSetters(inputs, NgElementImpl.prototype);
-    return NgElementImpl;
-}
-// Helpers
-function defineInputGettersSetters(inputs, target) {
-    // Add getters and setters for each property input.
     inputs.forEach(({ propName }) => {
-        Object.defineProperty(target, propName, {
+        Object.defineProperty(NgElementImpl.prototype, propName, {
             get() {
                 return this.ngElementStrategy.getInputValue(propName);
             },
@@ -555,6 +537,7 @@ function defineInputGettersSetters(inputs, target) {
             enumerable: true,
         });
     });
+    return NgElementImpl;
 }
 
 /**
@@ -567,7 +550,7 @@ function defineInputGettersSetters(inputs, target) {
 /**
  * @publicApi
  */
-const VERSION = new Version('11.0.0-next.5+2.sha-a8c0972');
+const VERSION = new Version('11.0.0-next.6+52.sha-0f1a18e');
 
 /**
  * @license

@@ -1,5 +1,5 @@
 /**
- * @license Angular v11.0.0-next.5+2.sha-a8c0972
+ * @license Angular v11.0.0-next.6+52.sha-0f1a18e
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -318,12 +318,6 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var ɵ0 = function () {
-        var elProto = Element.prototype;
-        return elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
-            elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
-    };
-    var matches = (ɵ0)();
     /**
      * Provide methods for scheduling the execution of a callback.
      */
@@ -370,7 +364,7 @@
     function createCustomEvent(doc, name, detail) {
         var bubbles = false;
         var cancelable = false;
-        // On IE9-11, `CustomEvent` is not a constructor.
+        // On IE11, `CustomEvent` is not a constructor.
         if (typeof CustomEvent !== 'function') {
             var event = doc.createEvent('CustomEvent');
             event.initCustomEvent(name, bubbles, cancelable, detail);
@@ -396,11 +390,19 @@
     function kebabToCamelCase(input) {
         return input.replace(/-([a-z\d])/g, function (_, char) { return char.toUpperCase(); });
     }
+    var _matches;
     /**
      * Check whether an `Element` matches a CSS selector.
+     * NOTE: this is duplicated from @angular/upgrade, and can
+     * be consolidated in the future
      */
-    function matchesSelector(element, selector) {
-        return matches.call(element, selector);
+    function matchesSelector(el, selector) {
+        if (!_matches) {
+            var elProto = Element.prototype;
+            _matches = elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
+                elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
+        }
+        return el.nodeType === Node.ELEMENT_NODE ? _matches.call(el, selector) : false;
     }
     /**
      * Test two values for strict equality, accounting for the fact that `NaN !== NaN`.
@@ -767,34 +769,18 @@
                     if (!this._ngElementStrategy) {
                         var strategy_1 = this._ngElementStrategy =
                             strategyFactory.create(this.injector || config.injector);
-                        // Collect pre-existing values on the element to re-apply through the strategy.
-                        var preExistingValues = inputs.filter(function (_a) {
+                        // Re-apply pre-existing input values (set as properties on the element) through the
+                        // strategy.
+                        inputs.forEach(function (_a) {
                             var propName = _a.propName;
-                            return _this.hasOwnProperty(propName);
-                        }).map(function (_a) {
-                            var propName = _a.propName;
-                            return [propName, _this[propName]];
-                        });
-                        // In some browsers (e.g. IE10), `Object.setPrototypeOf()` (which is required by some Custom
-                        // Elements polyfills) is not defined and is thus polyfilled in a way that does not preserve
-                        // the prototype chain. In such cases, `this` will not be an instance of `NgElementImpl` and
-                        // thus not have the component input getters/setters defined on `NgElementImpl.prototype`.
-                        if (!(this instanceof NgElementImpl)) {
-                            // Add getters and setters to the instance itself for each property input.
-                            defineInputGettersSetters(inputs, this);
-                        }
-                        else {
-                            // Delete the property from the instance, so that it can go through the getters/setters
-                            // set on `NgElementImpl.prototype`.
-                            preExistingValues.forEach(function (_a) {
-                                var _b = __read(_a, 1), propName = _b[0];
-                                return delete _this[propName];
-                            });
-                        }
-                        // Re-apply pre-existing values through the strategy.
-                        preExistingValues.forEach(function (_a) {
-                            var _b = __read(_a, 2), propName = _b[0], value = _b[1];
-                            return strategy_1.setInputValue(propName, value);
+                            if (!_this.hasOwnProperty(propName)) {
+                                // No pre-existing value for `propName`.
+                                return;
+                            }
+                            // Delete the property from the instance and re-apply it through the strategy.
+                            var value = _this[propName];
+                            delete _this[propName];
+                            strategy_1.setInputValue(propName, value);
                         });
                     }
                     return this._ngElementStrategy;
@@ -851,25 +837,10 @@
         // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
         // field externs. So using quoted access to explicitly prevent renaming.
         NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
-        // TypeScript 3.9+ defines getters/setters as configurable but non-enumerable properties (in
-        // compliance with the spec). This breaks emulated inheritance in ES5 on environments that do not
-        // natively support `Object.setPrototypeOf()` (such as IE 9-10).
-        // Update the property descriptor of `NgElementImpl#ngElementStrategy` to make it enumerable.
-        // The below 'const', shouldn't be needed but currently this breaks build-optimizer
-        // Build-optimizer currently uses TypeScript 3.6 which is unable to resolve an 'accessor'
-        // in 'getTypeOfVariableOrParameterOrPropertyWorker'.
-        var getterName = 'ngElementStrategy';
-        Object.defineProperty(NgElementImpl.prototype, getterName, { enumerable: true });
         // Add getters and setters to the prototype for each property input.
-        defineInputGettersSetters(inputs, NgElementImpl.prototype);
-        return NgElementImpl;
-    }
-    // Helpers
-    function defineInputGettersSetters(inputs, target) {
-        // Add getters and setters for each property input.
         inputs.forEach(function (_a) {
             var propName = _a.propName;
-            Object.defineProperty(target, propName, {
+            Object.defineProperty(NgElementImpl.prototype, propName, {
                 get: function () {
                     return this.ngElementStrategy.getInputValue(propName);
                 },
@@ -880,6 +851,7 @@
                 enumerable: true,
             });
         });
+        return NgElementImpl;
     }
 
     /**
@@ -892,7 +864,7 @@
     /**
      * @publicApi
      */
-    var VERSION = new core.Version('11.0.0-next.5+2.sha-a8c0972');
+    var VERSION = new core.Version('11.0.0-next.6+52.sha-0f1a18e');
 
     /**
      * @license
