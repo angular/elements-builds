@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import { ComponentFactory, ComponentRef, Injector, Type } from '@angular/core';
+import { ChangeDetectorRef, ComponentFactory, ComponentRef, Injector, Type } from '@angular/core';
 import { Observable } from 'rxjs';
 import { NgElementStrategy, NgElementStrategyEvent, NgElementStrategyFactory } from './element-strategy';
 /**
@@ -33,9 +33,16 @@ export declare class ComponentNgElementStrategy implements NgElementStrategy {
     readonly events: Observable<NgElementStrategyEvent>;
     /** Reference to the component that was created on connect. */
     private componentRef;
-    /** Changes that have been made to the component ref since the last time onChanges was called. */
+    /** Reference to the component view's `ChangeDetectorRef`. */
+    private viewChangeDetectorRef;
+    /**
+     * Changes that have been made to component inputs since the last change detection run.
+     * (NOTE: These are only recorded if the component implements the `OnChanges` interface.)
+     */
     private inputChanges;
-    /** Whether the created component implements the onChanges function. */
+    /** Whether changes have been made to component inputs since the last change detection run. */
+    private hasInputChanges;
+    /** Whether the created component implements the `OnChanges` interface. */
     private implementsOnChanges;
     /** Whether a change detection has been scheduled to run on the component. */
     private scheduledChangeDetectionFn;
@@ -44,8 +51,9 @@ export declare class ComponentNgElementStrategy implements NgElementStrategy {
     /** Initial input values that were set before the component was created. */
     private readonly initialInputValues;
     /**
-     * Set of component inputs that have not yet changed, i.e. for which `ngOnChanges()` has not
-     * fired. (This is used to determine the value of `fistChange` in `SimpleChange` instances.)
+     * Set of component inputs that have not yet changed, i.e. for which `recordInputChange()` has not
+     * fired.
+     * (This helps detect the first change of an input, even if it is explicitly set to `undefined`.)
      */
     private readonly unchangedInputs;
     /** Service for setting zone context. */
@@ -84,6 +92,11 @@ export declare class ComponentNgElementStrategy implements NgElementStrategy {
     protected initializeOutputs(componentRef: ComponentRef<any>): void;
     /** Calls ngOnChanges with all the inputs that have changed since the last call. */
     protected callNgOnChanges(componentRef: ComponentRef<any>): void;
+    /**
+     * Marks the component view for check, if necessary.
+     * (NOTE: This is required when the `ChangeDetectionStrategy` is set to `OnPush`.)
+     */
+    protected markViewForCheck(viewChangeDetectorRef: ChangeDetectorRef): void;
     /**
      * Schedules change detection to run on the component.
      * Ignores subsequent calls if already scheduled.
