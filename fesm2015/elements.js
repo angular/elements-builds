@@ -1,10 +1,10 @@
 /**
- * @license Angular v11.0.0-next.6+218.sha-290ea57
+ * @license Angular v11.0.0-next.6+223.sha-bdce769
  * (c) 2010-2020 Google LLC. https://angular.io/
  * License: MIT
  */
 
-import { ComponentFactoryResolver, NgZone, Injector, ApplicationRef, SimpleChange, Version } from '@angular/core';
+import { ComponentFactoryResolver, NgZone, Injector, ChangeDetectorRef, ApplicationRef, SimpleChange, Version } from '@angular/core';
 import { ReplaySubject, merge } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 
@@ -206,9 +206,16 @@ class ComponentNgElementStrategy {
         this.events = this.eventEmitters.pipe(switchMap(emitters => merge(...emitters)));
         /** Reference to the component that was created on connect. */
         this.componentRef = null;
-        /** Changes that have been made to the component ref since the last time onChanges was called. */
+        /** Reference to the component view's `ChangeDetectorRef`. */
+        this.viewChangeDetectorRef = null;
+        /**
+         * Changes that have been made to component inputs since the last change detection run.
+         * (NOTE: These are only recorded if the component implements the `OnChanges` interface.)
+         */
         this.inputChanges = null;
-        /** Whether the created component implements the onChanges function. */
+        /** Whether changes have been made to component inputs since the last change detection run. */
+        this.hasInputChanges = false;
+        /** Whether the created component implements the `OnChanges` interface. */
         this.implementsOnChanges = false;
         /** Whether a change detection has been scheduled to run on the component. */
         this.scheduledChangeDetectionFn = null;
@@ -217,10 +224,11 @@ class ComponentNgElementStrategy {
         /** Initial input values that were set before the component was created. */
         this.initialInputValues = new Map();
         /**
-         * Set of component inputs that have not yet changed, i.e. for which `ngOnChanges()` has not
-         * fired. (This is used to determine the value of `fistChange` in `SimpleChange` instances.)
+         * Set of component inputs that have not yet changed, i.e. for which `recordInputChange()` has not
+         * fired.
+         * (This helps detect the first change of an input, even if it is explicitly set to `undefined`.)
          */
-        this.unchangedInputs = new Set();
+        this.unchangedInputs = new Set(this.componentFactory.inputs.map(({ propName }) => propName));
         /** Service for setting zone context. */
         this.ngZone = this.injector.get(NgZone);
         /** The zone the element was created in or `null` if Zone.js is not loaded. */
@@ -260,6 +268,7 @@ class ComponentNgElementStrategy {
                 if (this.componentRef !== null) {
                     this.componentRef.destroy();
                     this.componentRef = null;
+                    this.viewChangeDetectorRef = null;
                 }
             }, DESTROY_DELAY);
         });
@@ -293,7 +302,12 @@ class ComponentNgElementStrategy {
                 !((value === undefined) && this.unchangedInputs.has(property))) {
                 return;
             }
+            // Record the changed value and update internal state to reflect the fact that this input has
+            // changed.
             this.recordInputChange(property, value);
+            this.unchangedInputs.delete(property);
+            this.hasInputChanges = true;
+            // Update the component instance and schedule change detection.
             this.componentRef.instance[property] = value;
             this.scheduleDetectChanges();
         });
@@ -306,6 +320,7 @@ class ComponentNgElementStrategy {
         const childInjector = Injector.create({ providers: [], parent: this.injector });
         const projectableNodes = extractProjectableNodes(element, this.componentFactory.ngContentSelectors);
         this.componentRef = this.componentFactory.create(childInjector, projectableNodes, element);
+        this.viewChangeDetectorRef = this.componentRef.injector.get(ChangeDetectorRef);
         this.implementsOnChanges = isFunction(this.componentRef.instance.ngOnChanges);
         this.initializeInputs();
         this.initializeOutputs(this.componentRef);
@@ -316,11 +331,6 @@ class ComponentNgElementStrategy {
     /** Set any stored initial inputs on the component's properties. */
     initializeInputs() {
         this.componentFactory.inputs.forEach(({ propName }) => {
-            if (this.implementsOnChanges) {
-                // If the component implements `ngOnChanges()`, keep track of which inputs have never
-                // changed so far.
-                this.unchangedInputs.add(propName);
-            }
             if (this.initialInputValues.has(propName)) {
                 // Call `setInputValue()` now that the component has been instantiated to update its
                 // properties and fire `ngOnChanges()`.
@@ -349,6 +359,16 @@ class ComponentNgElementStrategy {
         componentRef.instance.ngOnChanges(inputChanges);
     }
     /**
+     * Marks the component view for check, if necessary.
+     * (NOTE: This is required when the `ChangeDetectionStrategy` is set to `OnPush`.)
+     */
+    markViewForCheck(viewChangeDetectorRef) {
+        if (this.hasInputChanges) {
+            this.hasInputChanges = false;
+            viewChangeDetectorRef.markForCheck();
+        }
+    }
+    /**
      * Schedules change detection to run on the component.
      * Ignores subsequent calls if already scheduled.
      */
@@ -366,22 +386,20 @@ class ComponentNgElementStrategy {
      */
     recordInputChange(property, currentValue) {
         // Do not record the change if the component does not implement `OnChanges`.
-        // (We can only determine that after the component has been instantiated.)
-        if (this.componentRef !== null && !this.implementsOnChanges) {
+        if (!this.implementsOnChanges) {
             return;
         }
         if (this.inputChanges === null) {
             this.inputChanges = {};
         }
         // If there already is a change, modify the current value to match but leave the values for
-        // previousValue and isFirstChange.
+        // `previousValue` and `isFirstChange`.
         const pendingChange = this.inputChanges[property];
         if (pendingChange) {
             pendingChange.currentValue = currentValue;
             return;
         }
         const isFirstChange = this.unchangedInputs.has(property);
-        this.unchangedInputs.delete(property);
         const previousValue = isFirstChange ? undefined : this.getInputValue(property);
         this.inputChanges[property] = new SimpleChange(previousValue, currentValue, isFirstChange);
     }
@@ -391,6 +409,7 @@ class ComponentNgElementStrategy {
             return;
         }
         this.callNgOnChanges(this.componentRef);
+        this.markViewForCheck(this.viewChangeDetectorRef);
         this.componentRef.changeDetectorRef.detectChanges();
     }
     /** Runs in the angular zone, if present. */
@@ -550,7 +569,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('11.0.0-next.6+218.sha-290ea57');
+const VERSION = new Version('11.0.0-next.6+223.sha-bdce769');
 
 /**
  * @license
