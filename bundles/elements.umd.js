@@ -1,6 +1,6 @@
 /**
- * @license Angular v10.1.0-next.4+26.sha-6248d6c
- * (c) 2010-2020 Google LLC. https://angular.io/
+ * @license Angular v12.0.0-next.5+9.sha-bff0d8f
+ * (c) 2010-2021 Google LLC. https://angular.io/
  * License: MIT
  */
 
@@ -29,11 +29,13 @@
         extendStatics = Object.setPrototypeOf ||
             ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
             function (d, b) { for (var p in b)
-                if (b.hasOwnProperty(p))
+                if (Object.prototype.hasOwnProperty.call(b, p))
                     d[p] = b[p]; };
         return extendStatics(d, b);
     };
     function __extends(d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
         extendStatics(d, b);
         function __() { this.constructor = d; }
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
@@ -176,10 +178,10 @@
             k2 = k;
         o[k2] = m[k];
     });
-    function __exportStar(m, exports) {
+    function __exportStar(m, o) {
         for (var p in m)
-            if (p !== "default" && !exports.hasOwnProperty(p))
-                __createBinding(exports, m, p);
+            if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p))
+                __createBinding(o, m, p);
     }
     function __values(o) {
         var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
@@ -219,11 +221,13 @@
         }
         return ar;
     }
+    /** @deprecated */
     function __spread() {
         for (var ar = [], i = 0; i < arguments.length; i++)
             ar = ar.concat(__read(arguments[i]));
         return ar;
     }
+    /** @deprecated */
     function __spreadArrays() {
         for (var s = 0, i = 0, il = arguments.length; i < il; i++)
             s += arguments[i].length;
@@ -232,7 +236,11 @@
                 r[k] = a[j];
         return r;
     }
-    ;
+    function __spreadArray(to, from) {
+        for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+            to[j] = from[i];
+        return to;
+    }
     function __await(v) {
         return this instanceof __await ? (this.v = v, this) : new __await(v);
     }
@@ -289,7 +297,7 @@
         var result = {};
         if (mod != null)
             for (var k in mod)
-                if (Object.hasOwnProperty.call(mod, k))
+                if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k))
                     __createBinding(result, mod, k);
         __setModuleDefault(result, mod);
         return result;
@@ -318,12 +326,6 @@
      * Use of this source code is governed by an MIT-style license that can be
      * found in the LICENSE file at https://angular.io/license
      */
-    var ɵ0 = function () {
-        var elProto = Element.prototype;
-        return elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
-            elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
-    };
-    var matches = (ɵ0)();
     /**
      * Provide methods for scheduling the execution of a callback.
      */
@@ -370,7 +372,7 @@
     function createCustomEvent(doc, name, detail) {
         var bubbles = false;
         var cancelable = false;
-        // On IE9-11, `CustomEvent` is not a constructor.
+        // On IE11, `CustomEvent` is not a constructor.
         if (typeof CustomEvent !== 'function') {
             var event = doc.createEvent('CustomEvent');
             event.initCustomEvent(name, bubbles, cancelable, detail);
@@ -396,11 +398,19 @@
     function kebabToCamelCase(input) {
         return input.replace(/-([a-z\d])/g, function (_, char) { return char.toUpperCase(); });
     }
+    var _matches;
     /**
      * Check whether an `Element` matches a CSS selector.
+     * NOTE: this is duplicated from @angular/upgrade, and can
+     * be consolidated in the future
      */
-    function matchesSelector(element, selector) {
-        return matches.call(element, selector);
+    function matchesSelector(el, selector) {
+        if (!_matches) {
+            var elProto = Element.prototype;
+            _matches = elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
+                elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
+        }
+        return el.nodeType === Node.ELEMENT_NODE ? _matches.call(el, selector) : false;
     }
     /**
      * Test two values for strict equality, accounting for the fact that `NaN !== NaN`.
@@ -499,12 +509,19 @@
             // Subject of `NgElementStrategyEvent` observables corresponding to the component's outputs.
             this.eventEmitters = new rxjs.ReplaySubject(1);
             /** Merged stream of the component's output events. */
-            this.events = this.eventEmitters.pipe(operators.switchMap(function (emitters) { return rxjs.merge.apply(void 0, __spread(emitters)); }));
+            this.events = this.eventEmitters.pipe(operators.switchMap(function (emitters) { return rxjs.merge.apply(void 0, __spreadArray([], __read(emitters))); }));
             /** Reference to the component that was created on connect. */
             this.componentRef = null;
-            /** Changes that have been made to the component ref since the last time onChanges was called. */
+            /** Reference to the component view's `ChangeDetectorRef`. */
+            this.viewChangeDetectorRef = null;
+            /**
+             * Changes that have been made to component inputs since the last change detection run.
+             * (NOTE: These are only recorded if the component implements the `OnChanges` interface.)
+             */
             this.inputChanges = null;
-            /** Whether the created component implements the onChanges function. */
+            /** Whether changes have been made to component inputs since the last change detection run. */
+            this.hasInputChanges = false;
+            /** Whether the created component implements the `OnChanges` interface. */
             this.implementsOnChanges = false;
             /** Whether a change detection has been scheduled to run on the component. */
             this.scheduledChangeDetectionFn = null;
@@ -513,10 +530,14 @@
             /** Initial input values that were set before the component was created. */
             this.initialInputValues = new Map();
             /**
-             * Set of component inputs that have not yet changed, i.e. for which `ngOnChanges()` has not
-             * fired. (This is used to determine the value of `fistChange` in `SimpleChange` instances.)
+             * Set of component inputs that have not yet changed, i.e. for which `recordInputChange()` has not
+             * fired.
+             * (This helps detect the first change of an input, even if it is explicitly set to `undefined`.)
              */
-            this.unchangedInputs = new Set();
+            this.unchangedInputs = new Set(this.componentFactory.inputs.map(function (_a) {
+                var propName = _a.propName;
+                return propName;
+            }));
             /** Service for setting zone context. */
             this.ngZone = this.injector.get(core.NgZone);
             /** The zone the element was created in or `null` if Zone.js is not loaded. */
@@ -558,6 +579,7 @@
                     if (_this.componentRef !== null) {
                         _this.componentRef.destroy();
                         _this.componentRef = null;
+                        _this.viewChangeDetectorRef = null;
                     }
                 }, DESTROY_DELAY);
             });
@@ -593,7 +615,12 @@
                     !((value === undefined) && _this.unchangedInputs.has(property))) {
                     return;
                 }
+                // Record the changed value and update internal state to reflect the fact that this input has
+                // changed.
                 _this.recordInputChange(property, value);
+                _this.unchangedInputs.delete(property);
+                _this.hasInputChanges = true;
+                // Update the component instance and schedule change detection.
                 _this.componentRef.instance[property] = value;
                 _this.scheduleDetectChanges();
             });
@@ -606,6 +633,7 @@
             var childInjector = core.Injector.create({ providers: [], parent: this.injector });
             var projectableNodes = extractProjectableNodes(element, this.componentFactory.ngContentSelectors);
             this.componentRef = this.componentFactory.create(childInjector, projectableNodes, element);
+            this.viewChangeDetectorRef = this.componentRef.injector.get(core.ChangeDetectorRef);
             this.implementsOnChanges = isFunction(this.componentRef.instance.ngOnChanges);
             this.initializeInputs();
             this.initializeOutputs(this.componentRef);
@@ -618,11 +646,6 @@
             var _this = this;
             this.componentFactory.inputs.forEach(function (_a) {
                 var propName = _a.propName;
-                if (_this.implementsOnChanges) {
-                    // If the component implements `ngOnChanges()`, keep track of which inputs have never
-                    // changed so far.
-                    _this.unchangedInputs.add(propName);
-                }
                 if (_this.initialInputValues.has(propName)) {
                     // Call `setInputValue()` now that the component has been instantiated to update its
                     // properties and fire `ngOnChanges()`.
@@ -652,6 +675,16 @@
             componentRef.instance.ngOnChanges(inputChanges);
         };
         /**
+         * Marks the component view for check, if necessary.
+         * (NOTE: This is required when the `ChangeDetectionStrategy` is set to `OnPush`.)
+         */
+        ComponentNgElementStrategy.prototype.markViewForCheck = function (viewChangeDetectorRef) {
+            if (this.hasInputChanges) {
+                this.hasInputChanges = false;
+                viewChangeDetectorRef.markForCheck();
+            }
+        };
+        /**
          * Schedules change detection to run on the component.
          * Ignores subsequent calls if already scheduled.
          */
@@ -670,22 +703,20 @@
          */
         ComponentNgElementStrategy.prototype.recordInputChange = function (property, currentValue) {
             // Do not record the change if the component does not implement `OnChanges`.
-            // (We can only determine that after the component has been instantiated.)
-            if (this.componentRef !== null && !this.implementsOnChanges) {
+            if (!this.implementsOnChanges) {
                 return;
             }
             if (this.inputChanges === null) {
                 this.inputChanges = {};
             }
             // If there already is a change, modify the current value to match but leave the values for
-            // previousValue and isFirstChange.
+            // `previousValue` and `isFirstChange`.
             var pendingChange = this.inputChanges[property];
             if (pendingChange) {
                 pendingChange.currentValue = currentValue;
                 return;
             }
             var isFirstChange = this.unchangedInputs.has(property);
-            this.unchangedInputs.delete(property);
             var previousValue = isFirstChange ? undefined : this.getInputValue(property);
             this.inputChanges[property] = new core.SimpleChange(previousValue, currentValue, isFirstChange);
         };
@@ -695,6 +726,7 @@
                 return;
             }
             this.callNgOnChanges(this.componentRef);
+            this.markViewForCheck(this.viewChangeDetectorRef);
             this.componentRef.changeDetectorRef.detectChanges();
         };
         /** Runs in the angular zone, if present. */
@@ -712,7 +744,7 @@
     var NgElement = /** @class */ (function (_super) {
         __extends(NgElement, _super);
         function NgElement() {
-            var _this = _super.apply(this, __spread(arguments)) || this;
+            var _this = _super.apply(this, __spreadArray([], __read(arguments))) || this;
             /**
              * A subscription to change, connect, and disconnect events in the custom element.
              */
@@ -767,34 +799,18 @@
                     if (!this._ngElementStrategy) {
                         var strategy_1 = this._ngElementStrategy =
                             strategyFactory.create(this.injector || config.injector);
-                        // Collect pre-existing values on the element to re-apply through the strategy.
-                        var preExistingValues = inputs.filter(function (_a) {
+                        // Re-apply pre-existing input values (set as properties on the element) through the
+                        // strategy.
+                        inputs.forEach(function (_a) {
                             var propName = _a.propName;
-                            return _this.hasOwnProperty(propName);
-                        }).map(function (_a) {
-                            var propName = _a.propName;
-                            return [propName, _this[propName]];
-                        });
-                        // In some browsers (e.g. IE10), `Object.setPrototypeOf()` (which is required by some Custom
-                        // Elements polyfills) is not defined and is thus polyfilled in a way that does not preserve
-                        // the prototype chain. In such cases, `this` will not be an instance of `NgElementImpl` and
-                        // thus not have the component input getters/setters defined on `NgElementImpl.prototype`.
-                        if (!(this instanceof NgElementImpl)) {
-                            // Add getters and setters to the instance itself for each property input.
-                            defineInputGettersSetters(inputs, this);
-                        }
-                        else {
-                            // Delete the property from the instance, so that it can go through the getters/setters
-                            // set on `NgElementImpl.prototype`.
-                            preExistingValues.forEach(function (_a) {
-                                var _b = __read(_a, 1), propName = _b[0];
-                                return delete _this[propName];
-                            });
-                        }
-                        // Re-apply pre-existing values through the strategy.
-                        preExistingValues.forEach(function (_a) {
-                            var _b = __read(_a, 2), propName = _b[0], value = _b[1];
-                            return strategy_1.setInputValue(propName, value);
+                            if (!_this.hasOwnProperty(propName)) {
+                                // No pre-existing value for `propName`.
+                                return;
+                            }
+                            // Delete the property from the instance and re-apply it through the strategy.
+                            var value = _this[propName];
+                            delete _this[propName];
+                            strategy_1.setInputValue(propName, value);
                         });
                     }
                     return this._ngElementStrategy;
@@ -851,25 +867,10 @@
         // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
         // field externs. So using quoted access to explicitly prevent renaming.
         NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
-        // TypeScript 3.9+ defines getters/setters as configurable but non-enumerable properties (in
-        // compliance with the spec). This breaks emulated inheritance in ES5 on environments that do not
-        // natively support `Object.setPrototypeOf()` (such as IE 9-10).
-        // Update the property descriptor of `NgElementImpl#ngElementStrategy` to make it enumerable.
-        // The below 'const', shouldn't be needed but currently this breaks build-optimizer
-        // Build-optimizer currently uses TypeScript 3.6 which is unable to resolve an 'accessor'
-        // in 'getTypeOfVariableOrParameterOrPropertyWorker'.
-        var getterName = 'ngElementStrategy';
-        Object.defineProperty(NgElementImpl.prototype, getterName, { enumerable: true });
         // Add getters and setters to the prototype for each property input.
-        defineInputGettersSetters(inputs, NgElementImpl.prototype);
-        return NgElementImpl;
-    }
-    // Helpers
-    function defineInputGettersSetters(inputs, target) {
-        // Add getters and setters for each property input.
         inputs.forEach(function (_a) {
             var propName = _a.propName;
-            Object.defineProperty(target, propName, {
+            Object.defineProperty(NgElementImpl.prototype, propName, {
                 get: function () {
                     return this.ngElementStrategy.getInputValue(propName);
                 },
@@ -880,6 +881,7 @@
                 enumerable: true,
             });
         });
+        return NgElementImpl;
     }
 
     /**
@@ -892,7 +894,7 @@
     /**
      * @publicApi
      */
-    var VERSION = new core.Version('10.1.0-next.4+26.sha-6248d6c');
+    var VERSION = new core.Version('12.0.0-next.5+9.sha-bff0d8f');
 
     /**
      * @license
