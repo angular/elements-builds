@@ -1,6 +1,6 @@
 /**
- * @license Angular v9.0.0-rc.1+246.sha-d3cfad7.with-local-changes
- * (c) 2010-2019 Google LLC. https://angular.io/
+ * @license Angular v12.0.0-next.8+77.sha-917664e
+ * (c) 2010-2021 Google LLC. https://angular.io/
  * License: MIT
  */
 
@@ -23,6 +23,8 @@ import { Version } from '@angular/core';
  * static property to affect all newly created instances, or as a constructor argument for
  * one-off creations.
  *
+ * @see [Angular Elements Overview](guide/elements "Turning Angular components into custom elements")
+ *
  * @param component The component to transform.
  * @param config A configuration that provides initialization information to the created class.
  * @returns The custom-element construction class, which can be registered with
@@ -41,19 +43,19 @@ export declare abstract class NgElement extends HTMLElement {
     /**
      * The strategy that controls how a component is transformed in a custom element.
      */
-    protected ngElementStrategy: NgElementStrategy;
+    protected abstract ngElementStrategy: NgElementStrategy;
     /**
      * A subscription to change, connect, and disconnect events in the custom element.
      */
     protected ngElementEventsSubscription: Subscription | null;
     /**
-      * Prototype for a handler that responds to a change in an observed attribute.
-      * @param attrName The name of the attribute that has changed.
-      * @param oldValue The previous value of the attribute.
-      * @param newValue The new value of the attribute.
-      * @param namespace The namespace in which the attribute is defined.
-      * @returns Nothing.
-      */
+     * Prototype for a handler that responds to a change in an observed attribute.
+     * @param attrName The name of the attribute that has changed.
+     * @param oldValue The previous value of the attribute.
+     * @param newValue The new value of the attribute.
+     * @param namespace The namespace in which the attribute is defined.
+     * @returns Nothing.
+     */
     abstract attributeChangedCallback(attrName: string, oldValue: string | null, newValue: string, namespace?: string): void;
     /**
      * Prototype for a handler that responds to the insertion of the custom element in the DOM.
@@ -91,6 +93,8 @@ export declare interface NgElementConfig {
  * that can be used for custom element registration. Implemented and returned
  * by the {@link createCustomElement createCustomElement() function}.
  *
+ * @see [Angular Elements Overview](guide/elements "Turning Angular components into custom elements")
+ *
  * @publicApi
  */
 export declare interface NgElementConstructor<P> {
@@ -101,9 +105,9 @@ export declare interface NgElementConstructor<P> {
     readonly observedAttributes: string[];
     /**
      * Initializes a constructor instance.
-     * @param injector The source component's injector.
+     * @param injector If provided, overrides the configured injector.
      */
-    new (injector: Injector): NgElement & WithProperties<P>;
+    new (injector?: Injector): NgElement & WithProperties<P>;
 }
 
 /**
