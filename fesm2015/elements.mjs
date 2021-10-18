@@ -1,5 +1,5 @@
 /**
- * @license Angular v13.0.0-rc.0+20.sha-db57e39.with-local-changes
+ * @license Angular v13.0.0-rc.0+25.sha-fc6519c.with-local-changes
  * (c) 2010-2021 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -503,8 +503,8 @@ function createCustomElement(component, config) {
         connectedCallback() {
             // For historical reasons, some strategies may not have initialized the `events` property
             // until after `connect()` is run. Subscribe to `events` if it is available before running
-            // `connect()` (in order to capture events emitted suring inittialization), otherwise
-            // subscribe afterwards.
+            // `connect()` (in order to capture events emitted during initialization), otherwise subscribe
+            // afterwards.
             //
             // TODO: Consider deprecating/removing the post-connect subscription in a future major version
             //       (e.g. v11).
@@ -569,7 +569,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('13.0.0-rc.0+20.sha-db57e39.with-local-changes');
+const VERSION = new Version('13.0.0-rc.0+25.sha-fc6519c.with-local-changes');
 
 /**
  * @license
