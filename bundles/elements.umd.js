@@ -1,5 +1,5 @@
 /**
- * @license Angular v12.2.9+17.sha-c7c285c.with-local-changes
+ * @license Angular v12.2.10+15.sha-9f350a8.with-local-changes
  * (c) 2010-2021 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -834,8 +834,8 @@
             NgElementImpl.prototype.connectedCallback = function () {
                 // For historical reasons, some strategies may not have initialized the `events` property
                 // until after `connect()` is run. Subscribe to `events` if it is available before running
-                // `connect()` (in order to capture events emitted suring inittialization), otherwise
-                // subscribe afterwards.
+                // `connect()` (in order to capture events emitted during initialization), otherwise subscribe
+                // afterwards.
                 //
                 // TODO: Consider deprecating/removing the post-connect subscription in a future major version
                 //       (e.g. v11).
@@ -903,7 +903,7 @@
     /**
      * @publicApi
      */
-    var VERSION = new core.Version('12.2.9+17.sha-c7c285c.with-local-changes');
+    var VERSION = new core.Version('12.2.10+15.sha-9f350a8.with-local-changes');
 
     /**
      * @license
