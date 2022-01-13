@@ -1,5 +1,5 @@
 /**
- * @license Angular v13.1.2+4.sha-ec95631.with-local-changes
+ * @license Angular v13.1.2+10.sha-44ff4fb.with-local-changes
  * (c) 2010-2022 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -54,20 +54,6 @@ const scheduler = {
  */
 function camelToDashCase(input) {
     return input.replace(/[A-Z]/g, char => `-${char.toLowerCase()}`);
-}
-/**
- * Create a `CustomEvent` (even on browsers where `CustomEvent` is not a constructor).
- */
-function createCustomEvent(doc, name, detail) {
-    const bubbles = false;
-    const cancelable = false;
-    // On IE11, `CustomEvent` is not a constructor.
-    if (typeof CustomEvent !== 'function') {
-        const event = doc.createEvent('CustomEvent');
-        event.initCustomEvent(name, bubbles, cancelable, detail);
-        return event;
-    }
-    return new CustomEvent(name, { bubbles, cancelable, detail });
 }
 /**
  * Check whether the input is an `Element`.
@@ -535,7 +521,7 @@ function createCustomElement(component, config) {
         subscribeToEvents() {
             // Listen for events from the strategy and dispatch them as custom events.
             this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(e => {
-                const customEvent = createCustomEvent(this.ownerDocument, e.name, e.value);
+                const customEvent = new CustomEvent(e.name, { detail: e.value });
                 this.dispatchEvent(customEvent);
             });
         }
@@ -569,7 +555,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('13.1.2+4.sha-ec95631.with-local-changes');
+const VERSION = new Version('13.1.2+10.sha-44ff4fb.with-local-changes');
 
 /**
  * @license
