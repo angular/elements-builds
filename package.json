@@ -1,6 +1,6 @@
 {
   "name": "@angular/elements",
-  "version": "14.0.0-next.14+9.sha-3dee3d1",
+  "version": "14.0.0-next.14+16.sha-612d6e0",
   "description": "Angular - library for using Angular Components as Custom Elements",
   "author": "angular",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "tslib": "^2.3.0"
   },
   "peerDependencies": {
-    "@angular/core": "14.0.0-next.14+9.sha-3dee3d1",
+    "@angular/core": "14.0.0-next.14+16.sha-612d6e0",
     "rxjs": "^6.5.3 || ^7.4.0"
   },
   "repository": {
@@ -43,7 +43,7 @@
   "fesm2020": "./fesm2020/elements.mjs",
   "fesm2015": "./fesm2015/elements.mjs",
   "esm2020": "./esm2020/elements.mjs",
-  "typings": "./elements.d.ts",
+  "typings": "./index.d.ts",
   "module": "./fesm2015/elements.mjs",
   "es2020": "./fesm2020/elements.mjs",
   "type": "module",
@@ -52,7 +52,7 @@
       "default": "./package.json"
     },
     ".": {
-      "types": "./elements.d.ts",
+      "types": "./index.d.ts",
       "esm2020": "./esm2020/elements.mjs",
       "es2020": "./fesm2020/elements.mjs",
       "es2015": "./fesm2015/elements.mjs",
