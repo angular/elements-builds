@@ -1,5 +1,5 @@
 /**
- * @license Angular v15.1.0-next.1+sha-8656ac0
+ * @license Angular v15.1.0-next.1+sha-dd42974
  * (c) 2010-2022 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -452,10 +452,6 @@ function createCustomElement(component, config) {
     const strategyFactory = config.strategyFactory || new ComponentNgElementStrategyFactory(component, config.injector);
     const attributeToPropertyInputs = getDefaultAttributeToPropertyInputs(inputs);
     class NgElementImpl extends NgElement {
-        constructor(injector) {
-            super();
-            this.injector = injector;
-        }
         get ngElementStrategy() {
             // NOTE:
             // Some polyfills (e.g. `document-register-element`) do not call the constructor, therefore
@@ -481,6 +477,10 @@ function createCustomElement(component, config) {
                 });
             }
             return this._ngElementStrategy;
+        }
+        constructor(injector) {
+            super();
+            this.injector = injector;
         }
         attributeChangedCallback(attrName, oldValue, newValue, namespace) {
             const propName = attributeToPropertyInputs[attrName];
@@ -555,7 +555,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('15.1.0-next.1+sha-8656ac0');
+const VERSION = new Version('15.1.0-next.1+sha-dd42974');
 
 /**
  * @license
