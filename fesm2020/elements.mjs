@@ -1,5 +1,5 @@
 /**
- * @license Angular v15.1.0-next.3+sha-cc284af
+ * @license Angular v15.1.0-next.3+sha-2d539e1
  * (c) 2010-2022 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -8,13 +8,6 @@ import { ComponentFactoryResolver, NgZone, Injector, ChangeDetectorRef, Applicat
 import { ReplaySubject, merge } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 
-/**
- * @license
- * Copyright Google LLC All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
 /**
  * Provide methods for scheduling the execution of a callback.
  */
@@ -111,13 +104,7 @@ function getComponentInputs(component, injector) {
     return componentFactory.inputs;
 }
 
-/**
- * @license
- * Copyright Google LLC All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
+// NOTE: This is a (slightly improved) version of what is used in ngUpgrade's
 function extractProjectableNodes(host, ngContentSelectors) {
     const nodes = host.childNodes;
     const projectableNodes = ngContentSelectors.map(() => []);
@@ -152,13 +139,6 @@ function findMatchingIndex(node, selectors, defaultIndex) {
     return matchingIndex;
 }
 
-/**
- * @license
- * Copyright Google LLC All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
 /** Time in milliseconds to wait before destroying the component ref when disconnected. */
 const DESTROY_DELAY = 10;
 /**
@@ -405,13 +385,6 @@ class ComponentNgElementStrategy {
 }
 
 /**
- * @license
- * Copyright Google LLC All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-/**
  * Implements the functionality needed for a custom element.
  *
  * @publicApi
@@ -546,33 +519,18 @@ function createCustomElement(component, config) {
 }
 
 /**
- * @license
- * Copyright Google LLC All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-/**
  * @publicApi
  */
-const VERSION = new Version('15.1.0-next.3+sha-cc284af');
+const VERSION = new Version('15.1.0-next.3+sha-2d539e1');
 
 /**
- * @license
- * Copyright Google LLC All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
+ * @module
+ * @description
+ * Entry point for all public APIs of the `elements` package.
  */
 // This file only reexports content of the `src` folder. Keep it that way.
 
-/**
- * @license
- * Copyright Google LLC All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
+// This file is not used to build this module. It is only used during editing
 
 /**
  * Generated bundle index. Do not edit.
