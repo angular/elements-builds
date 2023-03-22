@@ -1,5 +1,5 @@
 /**
- * @license Angular v16.0.0-next.4+sha-0dd5c47
+ * @license Angular v16.0.0-next.4+sha-132c00c
  * (c) 2010-2022 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -189,15 +189,9 @@ class ComponentNgElementStrategy {
         this.scheduledDestroyFn = null;
         /** Initial input values that were set before the component was created. */
         this.initialInputValues = new Map();
-        /**
-         * Set of component inputs that have not yet changed, i.e. for which `recordInputChange()` has not
-         * fired.
-         * (This helps detect the first change of an input, even if it is explicitly set to `undefined`.)
-         */
-        this.unchangedInputs = new Set(this.componentFactory.inputs.map(({ propName }) => propName));
-        /** Service for setting zone context. */
+        this.unchangedInputs =
+            new Set(this.componentFactory.inputs.map(({ propName }) => propName));
         this.ngZone = this.injector.get(NgZone);
-        /** The zone the element was created in or `null` if Zone.js is not loaded. */
         this.elementZone = (typeof Zone === 'undefined') ? null : this.ngZone.run(() => Zone.current);
     }
     /**
@@ -425,6 +419,9 @@ function createCustomElement(component, config) {
     const strategyFactory = config.strategyFactory || new ComponentNgElementStrategyFactory(component, config.injector);
     const attributeToPropertyInputs = getDefaultAttributeToPropertyInputs(inputs);
     class NgElementImpl extends NgElement {
+        // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
+        // field externs. So using quoted access to explicitly prevent renaming.
+        static { this['observedAttributes'] = Object.keys(attributeToPropertyInputs); }
         get ngElementStrategy() {
             // NOTE:
             // Some polyfills (e.g. `document-register-element`) do not call the constructor, therefore
@@ -499,9 +496,6 @@ function createCustomElement(component, config) {
             });
         }
     }
-    // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
-    // field externs. So using quoted access to explicitly prevent renaming.
-    NgElementImpl['observedAttributes'] = Object.keys(attributeToPropertyInputs);
     // Add getters and setters to the prototype for each property input.
     inputs.forEach(({ propName }) => {
         Object.defineProperty(NgElementImpl.prototype, propName, {
@@ -521,7 +515,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('16.0.0-next.4+sha-0dd5c47');
+const VERSION = new Version('16.0.0-next.4+sha-132c00c');
 
 /**
  * @module
