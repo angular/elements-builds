@@ -1,5 +1,5 @@
 /**
- * @license Angular v16.0.0-next.5+sha-d7d6514
+ * @license Angular v16.0.0-next.5+sha-fda3f67
  * (c) 2010-2022 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -144,8 +144,6 @@ const DESTROY_DELAY = 10;
 /**
  * Factory that creates new ComponentNgElementStrategy instance. Gets the component factory with the
  * constructor's injector's factory resolver and passes that factory to each strategy.
- *
- * @publicApi
  */
 class ComponentNgElementStrategyFactory {
     constructor(component, injector) {
@@ -159,8 +157,6 @@ class ComponentNgElementStrategyFactory {
 /**
  * Creates and destroys a component ref using a component factory and handles change detection
  * in response to input changes.
- *
- * @publicApi
  */
 class ComponentNgElementStrategy {
     constructor(componentFactory, injector) {
@@ -515,7 +511,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('16.0.0-next.5+sha-d7d6514');
+const VERSION = new Version('16.0.0-next.5+sha-fda3f67');
 
 /**
  * @module
