@@ -1,5 +1,5 @@
 /**
- * @license Angular v16.1.0-next.0+sha-5db170c
+ * @license Angular v16.1.0-next.0+sha-8e821ca
  * (c) 2010-2022 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -419,11 +419,6 @@ function createCustomElement(component, config) {
         // field externs. So using quoted access to explicitly prevent renaming.
         static { this['observedAttributes'] = Object.keys(attributeToPropertyInputs); }
         get ngElementStrategy() {
-            // NOTE:
-            // Some polyfills (e.g. `document-register-element`) do not call the constructor, therefore
-            // it is not safe to set `ngElementStrategy` in the constructor and assume it will be
-            // available inside the methods.
-            //
             // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
             // now this is tested using a Google internal test suite.
             if (!this._ngElementStrategy) {
@@ -511,7 +506,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('16.1.0-next.0+sha-5db170c');
+const VERSION = new Version('16.1.0-next.0+sha-8e821ca');
 
 /**
  * @module
