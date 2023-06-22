@@ -1,5 +1,5 @@
 /**
- * @license Angular v16.2.0-next.0+sha-30154ae
+ * @license Angular v16.2.0-next.0+sha-d64864e
  * (c) 2010-2022 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -122,7 +122,7 @@ export declare interface NgElementStrategy {
     connect(element: HTMLElement): void;
     disconnect(): void;
     getInputValue(propName: string): any;
-    setInputValue(propName: string, value: string): void;
+    setInputValue(propName: string, value: string, transform?: (value: any) => any): void;
 }
 
 /**
