@@ -1,5 +1,5 @@
 /**
- * @license Angular v16.1.2+sha-174f669
+ * @license Angular v16.1.2+sha-e1bbe47
  * (c) 2010-2022 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -89,8 +89,8 @@ function strictEquals(value1, value2) {
 /** Gets a map of default set of attributes to observe and the properties they affect. */
 function getDefaultAttributeToPropertyInputs(inputs) {
     const attributeToPropertyInputs = {};
-    inputs.forEach(({ propName, templateName }) => {
-        attributeToPropertyInputs[camelToDashCase(templateName)] = propName;
+    inputs.forEach(({ propName, templateName, transform }) => {
+        attributeToPropertyInputs[camelToDashCase(templateName)] = [propName, transform];
     });
     return attributeToPropertyInputs;
 }
@@ -245,8 +245,11 @@ class ComponentNgElementStrategy {
      * Sets the input value for the property. If the component has not yet been created, the value is
      * cached and set when the component is created.
      */
-    setInputValue(property, value) {
+    setInputValue(property, value, transform) {
         this.runInZone(() => {
+            if (transform) {
+                value = transform.call(this.componentRef?.instance, value);
+            }
             if (this.componentRef === null) {
                 this.initialInputValues.set(property, value);
                 return;
@@ -286,11 +289,11 @@ class ComponentNgElementStrategy {
     }
     /** Set any stored initial inputs on the component's properties. */
     initializeInputs() {
-        this.componentFactory.inputs.forEach(({ propName }) => {
+        this.componentFactory.inputs.forEach(({ propName, transform }) => {
             if (this.initialInputValues.has(propName)) {
                 // Call `setInputValue()` now that the component has been instantiated to update its
                 // properties and fire `ngOnChanges()`.
-                this.setInputValue(propName, this.initialInputValues.get(propName));
+                this.setInputValue(propName, this.initialInputValues.get(propName), transform);
             }
         });
         this.initialInputValues.clear();
@@ -426,7 +429,7 @@ function createCustomElement(component, config) {
                     strategyFactory.create(this.injector || config.injector);
                 // Re-apply pre-existing input values (set as properties on the element) through the
                 // strategy.
-                inputs.forEach(({ propName }) => {
+                inputs.forEach(({ propName, transform }) => {
                     if (!this.hasOwnProperty(propName)) {
                         // No pre-existing value for `propName`.
                         return;
@@ -434,7 +437,7 @@ function createCustomElement(component, config) {
                     // Delete the property from the instance and re-apply it through the strategy.
                     const value = this[propName];
                     delete this[propName];
-                    strategy.setInputValue(propName, value);
+                    strategy.setInputValue(propName, value, transform);
                 });
             }
             return this._ngElementStrategy;
@@ -444,8 +447,8 @@ function createCustomElement(component, config) {
             this.injector = injector;
         }
         attributeChangedCallback(attrName, oldValue, newValue, namespace) {
-            const propName = attributeToPropertyInputs[attrName];
-            this.ngElementStrategy.setInputValue(propName, newValue);
+            const [propName, transform] = attributeToPropertyInputs[attrName];
+            this.ngElementStrategy.setInputValue(propName, newValue, transform);
         }
         connectedCallback() {
             // For historical reasons, some strategies may not have initialized the `events` property
@@ -488,13 +491,13 @@ function createCustomElement(component, config) {
         }
     }
     // Add getters and setters to the prototype for each property input.
-    inputs.forEach(({ propName }) => {
+    inputs.forEach(({ propName, transform }) => {
         Object.defineProperty(NgElementImpl.prototype, propName, {
             get() {
                 return this.ngElementStrategy.getInputValue(propName);
             },
             set(newValue) {
-                this.ngElementStrategy.setInputValue(propName, newValue);
+                this.ngElementStrategy.setInputValue(propName, newValue, transform);
             },
             configurable: true,
             enumerable: true,
@@ -506,7 +509,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('16.1.2+sha-174f669');
+const VERSION = new Version('16.1.2+sha-e1bbe47');
 
 /**
  * @module
