@@ -1,5 +1,5 @@
 /**
- * @license Angular v17.2.0-next.0+sha-bbbe477
+ * @license Angular v17.2.0-next.0+sha-ec03e46
  * (c) 2010-2022 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -46,7 +46,7 @@ const scheduler = {
  * Convert a camelCased string to kebab-cased.
  */
 function camelToDashCase(input) {
-    return input.replace(/[A-Z]/g, char => `-${char.toLowerCase()}`);
+    return input.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`);
 }
 /**
  * Check whether the input is an `Element`.
@@ -75,8 +75,13 @@ let _matches;
 function matchesSelector(el, selector) {
     if (!_matches) {
         const elProto = Element.prototype;
-        _matches = elProto.matches || elProto.matchesSelector || elProto.mozMatchesSelector ||
-            elProto.msMatchesSelector || elProto.oMatchesSelector || elProto.webkitMatchesSelector;
+        _matches =
+            elProto.matches ||
+                elProto.matchesSelector ||
+                elProto.mozMatchesSelector ||
+                elProto.msMatchesSelector ||
+                elProto.oMatchesSelector ||
+                elProto.webkitMatchesSelector;
     }
     return el.nodeType === Node.ELEMENT_NODE ? _matches.call(el, selector) : false;
 }
@@ -129,7 +134,7 @@ function findMatchingIndex(node, selectors, defaultIndex) {
     let matchingIndex = defaultIndex;
     if (isElement(node)) {
         selectors.some((selector, i) => {
-            if ((selector !== '*') && matchesSelector(node, selector)) {
+            if (selector !== '*' && matchesSelector(node, selector)) {
                 matchingIndex = i;
                 return true;
             }
@@ -147,8 +152,9 @@ const DESTROY_DELAY = 10;
  */
 class ComponentNgElementStrategyFactory {
     constructor(component, injector) {
-        this.componentFactory =
-            injector.get(ComponentFactoryResolver).resolveComponentFactory(component);
+        this.componentFactory = injector
+            .get(ComponentFactoryResolver)
+            .resolveComponentFactory(component);
     }
     create(injector) {
         return new ComponentNgElementStrategy(this.componentFactory, injector);
@@ -165,7 +171,7 @@ class ComponentNgElementStrategy {
         // Subject of `NgElementStrategyEvent` observables corresponding to the component's outputs.
         this.eventEmitters = new ReplaySubject(1);
         /** Merged stream of the component's output events. */
-        this.events = this.eventEmitters.pipe(switchMap(emitters => merge(...emitters)));
+        this.events = this.eventEmitters.pipe(switchMap((emitters) => merge(...emitters)));
         /** Reference to the component that was created on connect. */
         this.componentRef = null;
         /** Reference to the component view's `ChangeDetectorRef`. */
@@ -185,10 +191,9 @@ class ComponentNgElementStrategy {
         this.scheduledDestroyFn = null;
         /** Initial input values that were set before the component was created. */
         this.initialInputValues = new Map();
-        this.unchangedInputs =
-            new Set(this.componentFactory.inputs.map(({ propName }) => propName));
+        this.unchangedInputs = new Set(this.componentFactory.inputs.map(({ propName }) => propName));
         this.ngZone = this.injector.get(NgZone);
-        this.elementZone = (typeof Zone === 'undefined') ? null : this.ngZone.run(() => Zone.current);
+        this.elementZone = typeof Zone === 'undefined' ? null : this.ngZone.run(() => Zone.current);
     }
     /**
      * Initializes a new component if one has not yet been created and cancels any scheduled
@@ -258,7 +263,7 @@ class ComponentNgElementStrategy {
             // and this is the first change to the value (because an explicit `undefined` _is_ strictly
             // equal to not having a value set at all, but we still need to record this as a change).
             if (strictEquals(value, this.getInputValue(property)) &&
-                !((value === undefined) && this.unchangedInputs.has(property))) {
+                !(value === undefined && this.unchangedInputs.has(property))) {
                 return;
             }
             // Record the changed value and update internal state to reflect the fact that this input has
@@ -302,7 +307,7 @@ class ComponentNgElementStrategy {
     initializeOutputs(componentRef) {
         const eventEmitters = this.componentFactory.outputs.map(({ propName, templateName }) => {
             const emitter = componentRef.instance[propName];
-            return emitter.pipe(map(value => ({ name: templateName, value })));
+            return emitter.pipe(map((value) => ({ name: templateName, value })));
         });
         this.eventEmitters.next(eventEmitters);
     }
@@ -373,7 +378,7 @@ class ComponentNgElementStrategy {
     }
     /** Runs in the angular zone, if present. */
     runInZone(fn) {
-        return (this.elementZone && Zone.current !== this.elementZone) ? this.ngZone.run(fn) : fn();
+        return this.elementZone && Zone.current !== this.elementZone ? this.ngZone.run(fn) : fn();
     }
 }
 
@@ -425,8 +430,7 @@ function createCustomElement(component, config) {
             // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
             // now this is tested using a Google internal test suite.
             if (!this._ngElementStrategy) {
-                const strategy = this._ngElementStrategy =
-                    strategyFactory.create(this.injector || config.injector);
+                const strategy = (this._ngElementStrategy = strategyFactory.create(this.injector || config.injector));
                 // Re-apply pre-existing input values (set as properties on the element) through the
                 // strategy.
                 inputs.forEach(({ propName, transform }) => {
@@ -484,7 +488,7 @@ function createCustomElement(component, config) {
         }
         subscribeToEvents() {
             // Listen for events from the strategy and dispatch them as custom events.
-            this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe(e => {
+            this.ngElementEventsSubscription = this.ngElementStrategy.events.subscribe((e) => {
                 const customEvent = new CustomEvent(e.name, { detail: e.value });
                 this.dispatchEvent(customEvent);
             });
@@ -509,7 +513,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('17.2.0-next.0+sha-bbbe477');
+const VERSION = new Version('17.2.0-next.0+sha-ec03e46');
 
 /**
  * @module
