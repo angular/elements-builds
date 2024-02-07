@@ -1,5 +1,5 @@
 /**
- * @license Angular v17.1.2+sha-eeaec92
+ * @license Angular v17.1.2+sha-2e3fa28
  * (c) 2010-2022 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -513,7 +513,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('17.1.2+sha-eeaec92');
+const VERSION = new Version('17.1.2+sha-2e3fa28');
 
 /**
  * @module
