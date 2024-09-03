@@ -1,12 +1,12 @@
 /**
- * @license Angular v19.0.0-next.2+sha-36d8d19
+ * @license Angular v19.0.0-next.2+sha-c2892fe
  * (c) 2010-2024 Google LLC. https://angular.io/
  * License: MIT
  */
 
 import { ComponentFactoryResolver, NgZone, ApplicationRef, ɵChangeDetectionScheduler, Injector, Version } from '@angular/core';
-import { ReplaySubject, merge } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { ReplaySubject, merge, Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 /**
  * Provide methods for scheduling the execution of a callback.
@@ -266,7 +266,10 @@ class ComponentNgElementStrategy {
     initializeOutputs(componentRef) {
         const eventEmitters = this.componentFactory.outputs.map(({ propName, templateName }) => {
             const emitter = componentRef.instance[propName];
-            return emitter.pipe(map((value) => ({ name: templateName, value })));
+            return new Observable((observer) => {
+                const sub = emitter.subscribe((value) => observer.next({ name: templateName, value }));
+                return () => sub.unsubscribe();
+            });
         });
         this.eventEmitters.next(eventEmitters);
     }
@@ -408,7 +411,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('19.0.0-next.2+sha-36d8d19');
+const VERSION = new Version('19.0.0-next.2+sha-c2892fe');
 
 /**
  * @module
