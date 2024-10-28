@@ -1,5 +1,5 @@
 /**
- * @license Angular v19.1.0-next.0+sha-0f2f7ec
+ * @license Angular v19.1.0-next.0+sha-db467e1
  * (c) 2010-2024 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -131,8 +131,9 @@ const DESTROY_DELAY = 10;
  * constructor's injector's factory resolver and passes that factory to each strategy.
  */
 class ComponentNgElementStrategyFactory {
+    componentFactory;
+    inputMap = new Map();
     constructor(component, injector) {
-        this.inputMap = new Map();
         this.componentFactory = injector
             .get(ComponentFactoryResolver)
             .resolveComponentFactory(component);
@@ -149,20 +150,35 @@ class ComponentNgElementStrategyFactory {
  * in response to input changes.
  */
 class ComponentNgElementStrategy {
+    componentFactory;
+    injector;
+    inputMap;
+    // Subject of `NgElementStrategyEvent` observables corresponding to the component's outputs.
+    eventEmitters = new ReplaySubject(1);
+    /** Merged stream of the component's output events. */
+    events = this.eventEmitters.pipe(switchMap((emitters) => merge(...emitters)));
+    /** Reference to the component that was created on connect. */
+    componentRef = null;
+    /** Callback function that when called will cancel a scheduled destruction on the component. */
+    scheduledDestroyFn = null;
+    /** Initial input values that were set before the component was created. */
+    initialInputValues = new Map();
+    /** Service for setting zone context. */
+    ngZone;
+    /** The zone the element was created in or `null` if Zone.js is not loaded. */
+    elementZone;
+    /**
+     * The `ApplicationRef` shared by all instances of this custom element (and potentially others).
+     */
+    appRef;
+    /**
+     * Angular's change detection scheduler, which works independently of zone.js.
+     */
+    cdScheduler;
     constructor(componentFactory, injector, inputMap) {
         this.componentFactory = componentFactory;
         this.injector = injector;
         this.inputMap = inputMap;
-        // Subject of `NgElementStrategyEvent` observables corresponding to the component's outputs.
-        this.eventEmitters = new ReplaySubject(1);
-        /** Merged stream of the component's output events. */
-        this.events = this.eventEmitters.pipe(switchMap((emitters) => merge(...emitters)));
-        /** Reference to the component that was created on connect. */
-        this.componentRef = null;
-        /** Callback function that when called will cancel a scheduled destruction on the component. */
-        this.scheduledDestroyFn = null;
-        /** Initial input values that were set before the component was created. */
-        this.initialInputValues = new Map();
         this.ngZone = this.injector.get(NgZone);
         this.appRef = this.injector.get(ApplicationRef);
         this.cdScheduler = injector.get(ɵChangeDetectionScheduler);
@@ -285,13 +301,10 @@ class ComponentNgElementStrategy {
  * @publicApi
  */
 class NgElement extends HTMLElement {
-    constructor() {
-        super(...arguments);
-        /**
-         * A subscription to change, connect, and disconnect events in the custom element.
-         */
-        this.ngElementEventsSubscription = null;
-    }
+    /**
+     * A subscription to change, connect, and disconnect events in the custom element.
+     */
+    ngElementEventsSubscription = null;
 }
 /**
  *  @description Creates a custom element class based on an Angular component.
@@ -320,9 +333,10 @@ function createCustomElement(component, config) {
     const strategyFactory = config.strategyFactory || new ComponentNgElementStrategyFactory(component, config.injector);
     const attributeToPropertyInputs = getDefaultAttributeToPropertyInputs(inputs);
     class NgElementImpl extends NgElement {
+        injector;
         // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
         // field externs. So using quoted access to explicitly prevent renaming.
-        static { this['observedAttributes'] = Object.keys(attributeToPropertyInputs); }
+        static ['observedAttributes'] = Object.keys(attributeToPropertyInputs);
         get ngElementStrategy() {
             // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
             // now this is tested using a Google internal test suite.
@@ -344,6 +358,7 @@ function createCustomElement(component, config) {
             }
             return this._ngElementStrategy;
         }
+        _ngElementStrategy;
         constructor(injector) {
             super();
             this.injector = injector;
@@ -411,7 +426,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('19.1.0-next.0+sha-0f2f7ec');
+const VERSION = new Version('19.1.0-next.0+sha-db467e1');
 
 /**
  * @module
