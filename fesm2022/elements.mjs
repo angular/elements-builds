@@ -1,5 +1,5 @@
 /**
- * @license Angular v19.1.3+sha-68dbaf5
+ * @license Angular v19.1.3+sha-4418064
  * (c) 2010-2024 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -345,12 +345,12 @@ function createCustomElement(component, config) {
                 // Re-apply pre-existing input values (set as properties on the element) through the
                 // strategy.
                 // TODO(alxhub): why are we doing this? this makes no sense.
-                inputs.forEach(({ propName, transform, isSignal }) => {
-                    if (!this.hasOwnProperty(propName) || isSignal) {
-                        // No pre-existing value for `propName`, or a signal input.
+                inputs.forEach(({ propName, transform }) => {
+                    if (!this.hasOwnProperty(propName)) {
+                        // No pre-existing value for `propName`.
                         return;
                     }
-                    // Delete the property from the instance and re-apply it through the strategy.
+                    // Delete the property from the DOM node and re-apply it through the strategy.
                     const value = this[propName];
                     delete this[propName];
                     strategy.setInputValue(propName, value, transform);
@@ -426,7 +426,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('19.1.3+sha-68dbaf5');
+const VERSION = new Version('19.1.3+sha-4418064');
 
 /**
  * @module
