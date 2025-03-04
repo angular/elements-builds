@@ -1,10 +1,10 @@
 /**
- * @license Angular v19.2.0+sha-31bbbe9
+ * @license Angular v19.2.0+sha-fbbe5d5
  * (c) 2010-2025 Google LLC. https://angular.io/
  * License: MIT
  */
 
-import { ComponentFactoryResolver, NgZone, ApplicationRef, ɵChangeDetectionScheduler, Injector, Version } from '@angular/core';
+import { ComponentFactoryResolver, NgZone, ApplicationRef, ɵChangeDetectionScheduler, ɵisViewDirty, ɵmarkForRefresh, Injector, Version } from '@angular/core';
 import { ReplaySubject, merge, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -246,12 +246,12 @@ class ComponentNgElementStrategy {
         this.runInZone(() => {
             this.componentRef.setInput(this.inputMap.get(property) ?? property, value);
             // `setInput` won't mark the view dirty if the input didn't change from its previous value.
-            if (this.componentRef.hostView.dirty) {
+            if (ɵisViewDirty(this.componentRef.hostView)) {
                 // `setInput` will have marked the view dirty already, but also mark it for refresh. This
                 // guarantees the view will be checked even if the input is being set from within change
                 // detection. This provides backwards compatibility, since we used to unconditionally
                 // schedule change detection in addition to the current zone run.
-                this.componentRef.changeDetectorRef.markForRefresh();
+                ɵmarkForRefresh(this.componentRef.changeDetectorRef);
                 // Notifying the scheduler with `NotificationSource.CustomElement` causes a `tick()` to be
                 // scheduled unconditionally, even if the scheduler is otherwise disabled.
                 this.cdScheduler.notify(6 /* NotificationSource.CustomElement */);
@@ -426,7 +426,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('19.2.0+sha-31bbbe9');
+const VERSION = new Version('19.2.0+sha-fbbe5d5');
 
 /**
  * @module
