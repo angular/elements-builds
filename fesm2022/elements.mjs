@@ -1,5 +1,5 @@
 /**
- * @license Angular v20.0.0-next.1+sha-81fe053
+ * @license Angular v20.0.0-next.1+sha-1b91de3
  * (c) 2010-2025 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -34,18 +34,6 @@ function camelToDashCase(input) {
 function isElement(node) {
     return !!node && node.nodeType === Node.ELEMENT_NODE;
 }
-/**
- * Check whether the input is a function.
- */
-function isFunction(value) {
-    return typeof value === 'function';
-}
-/**
- * Convert a kebab-cased string to camelCased.
- */
-function kebabToCamelCase(input) {
-    return input.replace(/-([a-z\d])/g, (_, char) => char.toUpperCase());
-}
 let _matches;
 /**
  * Check whether an `Element` matches a CSS selector.
@@ -64,12 +52,6 @@ function matchesSelector(el, selector) {
                 elProto.webkitMatchesSelector;
     }
     return el.nodeType === Node.ELEMENT_NODE ? _matches.call(el, selector) : false;
-}
-/**
- * Test two values for strict equality, accounting for the fact that `NaN !== NaN`.
- */
-function strictEquals(value1, value2) {
-    return value1 === value2 || (value1 !== value1 && value2 !== value2);
 }
 /** Gets a map of default set of attributes to observe and the properties they affect. */
 function getDefaultAttributeToPropertyInputs(inputs) {
@@ -426,20 +408,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('20.0.0-next.1+sha-81fe053');
-
-/**
- * @module
- * @description
- * Entry point for all public APIs of the `elements` package.
- */
-// This file only reexports content of the `src` folder. Keep it that way.
-
-// This file is not used to build this module. It is only used during editing
-
-/**
- * Generated bundle index. Do not edit.
- */
+const VERSION = new Version('20.0.0-next.1+sha-1b91de3');
 
 export { NgElement, VERSION, createCustomElement };
 //# sourceMappingURL=elements.mjs.map
