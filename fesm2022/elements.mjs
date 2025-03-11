@@ -1,10 +1,10 @@
 /**
- * @license Angular v19.2.1+sha-56b551d
+ * @license Angular v19.2.1+sha-044dac9
  * (c) 2010-2025 Google LLC. https://angular.io/
  * License: MIT
  */
 
-import { ComponentFactoryResolver, NgZone, ApplicationRef, ɵChangeDetectionScheduler, ɵisViewDirty, ɵmarkForRefresh, Injector, Version } from '@angular/core';
+import { ComponentFactoryResolver, NgZone, ApplicationRef, ɵChangeDetectionScheduler as _ChangeDetectionScheduler, ɵisViewDirty as _isViewDirty, ɵmarkForRefresh as _markForRefresh, Injector, Version } from '@angular/core';
 import { ReplaySubject, merge, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -72,6 +72,8 @@ function getComponentInputs(component, injector) {
 }
 
 // NOTE: This is a (slightly improved) version of what is used in ngUpgrade's
+//       `DowngradeComponentAdapter`.
+// TODO(gkalpak): Investigate if it makes sense to share the code.
 function extractProjectableNodes(host, ngContentSelectors) {
     const nodes = host.childNodes;
     const projectableNodes = ngContentSelectors.map(() => []);
@@ -163,7 +165,7 @@ class ComponentNgElementStrategy {
         this.inputMap = inputMap;
         this.ngZone = this.injector.get(NgZone);
         this.appRef = this.injector.get(ApplicationRef);
-        this.cdScheduler = injector.get(ɵChangeDetectionScheduler);
+        this.cdScheduler = injector.get(_ChangeDetectionScheduler);
         this.elementZone = typeof Zone === 'undefined' ? null : this.ngZone.run(() => Zone.current);
     }
     /**
@@ -228,12 +230,12 @@ class ComponentNgElementStrategy {
         this.runInZone(() => {
             this.componentRef.setInput(this.inputMap.get(property) ?? property, value);
             // `setInput` won't mark the view dirty if the input didn't change from its previous value.
-            if (ɵisViewDirty(this.componentRef.hostView)) {
+            if (_isViewDirty(this.componentRef.hostView)) {
                 // `setInput` will have marked the view dirty already, but also mark it for refresh. This
                 // guarantees the view will be checked even if the input is being set from within change
                 // detection. This provides backwards compatibility, since we used to unconditionally
                 // schedule change detection in addition to the current zone run.
-                ɵmarkForRefresh(this.componentRef.changeDetectorRef);
+                _markForRefresh(this.componentRef.changeDetectorRef);
                 // Notifying the scheduler with `NotificationSource.CustomElement` causes a `tick()` to be
                 // scheduled unconditionally, even if the scheduler is otherwise disabled.
                 this.cdScheduler.notify(6 /* NotificationSource.CustomElement */);
@@ -408,7 +410,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('19.2.1+sha-56b551d');
+const VERSION = new Version('19.2.1+sha-044dac9');
 
 export { NgElement, VERSION, createCustomElement };
 //# sourceMappingURL=elements.mjs.map
