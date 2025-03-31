@@ -1,5 +1,5 @@
 /**
- * @license Angular v20.0.0-next.4+sha-52dfce6
+ * @license Angular v20.0.0-next.4+sha-599c45c
  * (c) 2010-2025 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -410,7 +410,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('20.0.0-next.4+sha-52dfce6');
+const VERSION = new Version('20.0.0-next.4+sha-599c45c');
 
 export { NgElement, VERSION, createCustomElement };
 //# sourceMappingURL=elements.mjs.map
