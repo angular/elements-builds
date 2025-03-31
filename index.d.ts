@@ -1,5 +1,5 @@
 /**
- * @license Angular v19.2.4+sha-fdde642
+ * @license Angular v19.2.4+sha-84f3ba0
  * (c) 2010-2025 Google LLC. https://angular.io/
  * License: MIT
  */
@@ -151,4 +151,5 @@ declare function createCustomElement<P>(component: Type<any>, config: NgElementC
  */
 declare const VERSION: Version;
 
-export { NgElement, type NgElementConfig, type NgElementConstructor, type NgElementStrategy, type NgElementStrategyEvent, type NgElementStrategyFactory, VERSION, type WithProperties, createCustomElement };
+export { NgElement, VERSION, createCustomElement };
+export type { NgElementConfig, NgElementConstructor, NgElementStrategy, NgElementStrategyEvent, NgElementStrategyFactory, WithProperties };
