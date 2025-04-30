@@ -1,12 +1,12 @@
 /**
- * @license Angular v18.1.0-next.0+sha-87c5f3c
- * (c) 2010-2024 Google LLC. https://angular.io/
+ * @license Angular v20.0.0-next.9+sha-f4d60ff
+ * (c) 2010-2025 Google LLC. https://angular.io/
  * License: MIT
  */
 
-import { ComponentFactoryResolver, NgZone, Injector, ChangeDetectorRef, ApplicationRef, SimpleChange, Version } from '@angular/core';
-import { ReplaySubject, merge } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { ComponentFactoryResolver, NgZone, ApplicationRef, ɵChangeDetectionScheduler as _ChangeDetectionScheduler, ɵisViewDirty as _isViewDirty, ɵmarkForRefresh as _markForRefresh, Injector, Version } from '@angular/core';
+import { ReplaySubject, merge, Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 /**
  * Provide methods for scheduling the execution of a callback.
@@ -21,26 +21,6 @@ const scheduler = {
         const id = setTimeout(taskFn, delay);
         return () => clearTimeout(id);
     },
-    /**
-     * Schedule a callback to be called before the next render.
-     * (If `window.requestAnimationFrame()` is not available, use `scheduler.schedule()` instead.)
-     *
-     * Returns a function that when executed will cancel the scheduled function.
-     */
-    scheduleBeforeRender(taskFn) {
-        // TODO(gkalpak): Implement a better way of accessing `requestAnimationFrame()`
-        //                (e.g. accounting for vendor prefix, SSR-compatibility, etc).
-        if (typeof window === 'undefined') {
-            // For SSR just schedule immediately.
-            return scheduler.schedule(taskFn, 0);
-        }
-        if (typeof window.requestAnimationFrame === 'undefined') {
-            const frameMs = 16;
-            return scheduler.schedule(taskFn, frameMs);
-        }
-        const id = window.requestAnimationFrame(taskFn);
-        return () => window.cancelAnimationFrame(id);
-    },
 };
 /**
  * Convert a camelCased string to kebab-cased.
@@ -53,18 +33,6 @@ function camelToDashCase(input) {
  */
 function isElement(node) {
     return !!node && node.nodeType === Node.ELEMENT_NODE;
-}
-/**
- * Check whether the input is a function.
- */
-function isFunction(value) {
-    return typeof value === 'function';
-}
-/**
- * Convert a kebab-cased string to camelCased.
- */
-function kebabToCamelCase(input) {
-    return input.replace(/-([a-z\d])/g, (_, char) => char.toUpperCase());
 }
 let _matches;
 /**
@@ -85,12 +53,6 @@ function matchesSelector(el, selector) {
     }
     return el.nodeType === Node.ELEMENT_NODE ? _matches.call(el, selector) : false;
 }
-/**
- * Test two values for strict equality, accounting for the fact that `NaN !== NaN`.
- */
-function strictEquals(value1, value2) {
-    return value1 === value2 || (value1 !== value1 && value2 !== value2);
-}
 /** Gets a map of default set of attributes to observe and the properties they affect. */
 function getDefaultAttributeToPropertyInputs(inputs) {
     const attributeToPropertyInputs = {};
@@ -110,6 +72,8 @@ function getComponentInputs(component, injector) {
 }
 
 // NOTE: This is a (slightly improved) version of what is used in ngUpgrade's
+//       `DowngradeComponentAdapter`.
+// TODO(gkalpak): Investigate if it makes sense to share the code.
 function extractProjectableNodes(host, ngContentSelectors) {
     const nodes = host.childNodes;
     const projectableNodes = ngContentSelectors.map(() => []);
@@ -151,13 +115,18 @@ const DESTROY_DELAY = 10;
  * constructor's injector's factory resolver and passes that factory to each strategy.
  */
 class ComponentNgElementStrategyFactory {
+    componentFactory;
+    inputMap = new Map();
     constructor(component, injector) {
         this.componentFactory = injector
             .get(ComponentFactoryResolver)
             .resolveComponentFactory(component);
+        for (const input of this.componentFactory.inputs) {
+            this.inputMap.set(input.propName, input.templateName);
+        }
     }
     create(injector) {
-        return new ComponentNgElementStrategy(this.componentFactory, injector);
+        return new ComponentNgElementStrategy(this.componentFactory, injector, this.inputMap);
     }
 }
 /**
@@ -165,34 +134,38 @@ class ComponentNgElementStrategyFactory {
  * in response to input changes.
  */
 class ComponentNgElementStrategy {
-    constructor(componentFactory, injector) {
+    componentFactory;
+    injector;
+    inputMap;
+    // Subject of `NgElementStrategyEvent` observables corresponding to the component's outputs.
+    eventEmitters = new ReplaySubject(1);
+    /** Merged stream of the component's output events. */
+    events = this.eventEmitters.pipe(switchMap((emitters) => merge(...emitters)));
+    /** Reference to the component that was created on connect. */
+    componentRef = null;
+    /** Callback function that when called will cancel a scheduled destruction on the component. */
+    scheduledDestroyFn = null;
+    /** Initial input values that were set before the component was created. */
+    initialInputValues = new Map();
+    /** Service for setting zone context. */
+    ngZone;
+    /** The zone the element was created in or `null` if Zone.js is not loaded. */
+    elementZone;
+    /**
+     * The `ApplicationRef` shared by all instances of this custom element (and potentially others).
+     */
+    appRef;
+    /**
+     * Angular's change detection scheduler, which works independently of zone.js.
+     */
+    cdScheduler;
+    constructor(componentFactory, injector, inputMap) {
         this.componentFactory = componentFactory;
         this.injector = injector;
-        // Subject of `NgElementStrategyEvent` observables corresponding to the component's outputs.
-        this.eventEmitters = new ReplaySubject(1);
-        /** Merged stream of the component's output events. */
-        this.events = this.eventEmitters.pipe(switchMap((emitters) => merge(...emitters)));
-        /** Reference to the component that was created on connect. */
-        this.componentRef = null;
-        /** Reference to the component view's `ChangeDetectorRef`. */
-        this.viewChangeDetectorRef = null;
-        /**
-         * Changes that have been made to component inputs since the last change detection run.
-         * (NOTE: These are only recorded if the component implements the `OnChanges` interface.)
-         */
-        this.inputChanges = null;
-        /** Whether changes have been made to component inputs since the last change detection run. */
-        this.hasInputChanges = false;
-        /** Whether the created component implements the `OnChanges` interface. */
-        this.implementsOnChanges = false;
-        /** Whether a change detection has been scheduled to run on the component. */
-        this.scheduledChangeDetectionFn = null;
-        /** Callback function that when called will cancel a scheduled destruction on the component. */
-        this.scheduledDestroyFn = null;
-        /** Initial input values that were set before the component was created. */
-        this.initialInputValues = new Map();
-        this.unchangedInputs = new Set(this.componentFactory.inputs.map(({ propName }) => propName));
+        this.inputMap = inputMap;
         this.ngZone = this.injector.get(NgZone);
+        this.appRef = this.injector.get(ApplicationRef);
+        this.cdScheduler = injector.get(_ChangeDetectionScheduler);
         this.elementZone = typeof Zone === 'undefined' ? null : this.ngZone.run(() => Zone.current);
     }
     /**
@@ -229,7 +202,6 @@ class ComponentNgElementStrategy {
                 if (this.componentRef !== null) {
                     this.componentRef.destroy();
                     this.componentRef = null;
-                    this.viewChangeDetectorRef = null;
                 }
             }, DESTROY_DELAY);
         });
@@ -250,30 +222,24 @@ class ComponentNgElementStrategy {
      * Sets the input value for the property. If the component has not yet been created, the value is
      * cached and set when the component is created.
      */
-    setInputValue(property, value, transform) {
+    setInputValue(property, value) {
+        if (this.componentRef === null) {
+            this.initialInputValues.set(property, value);
+            return;
+        }
         this.runInZone(() => {
-            if (transform) {
-                value = transform.call(this.componentRef?.instance, value);
+            this.componentRef.setInput(this.inputMap.get(property) ?? property, value);
+            // `setInput` won't mark the view dirty if the input didn't change from its previous value.
+            if (_isViewDirty(this.componentRef.hostView)) {
+                // `setInput` will have marked the view dirty already, but also mark it for refresh. This
+                // guarantees the view will be checked even if the input is being set from within change
+                // detection. This provides backwards compatibility, since we used to unconditionally
+                // schedule change detection in addition to the current zone run.
+                _markForRefresh(this.componentRef.changeDetectorRef);
+                // Notifying the scheduler with `NotificationSource.CustomElement` causes a `tick()` to be
+                // scheduled unconditionally, even if the scheduler is otherwise disabled.
+                this.cdScheduler.notify(6 /* NotificationSource.CustomElement */);
             }
-            if (this.componentRef === null) {
-                this.initialInputValues.set(property, value);
-                return;
-            }
-            // Ignore the value if it is strictly equal to the current value, except if it is `undefined`
-            // and this is the first change to the value (because an explicit `undefined` _is_ strictly
-            // equal to not having a value set at all, but we still need to record this as a change).
-            if (strictEquals(value, this.getInputValue(property)) &&
-                !(value === undefined && this.unchangedInputs.has(property))) {
-                return;
-            }
-            // Record the changed value and update internal state to reflect the fact that this input has
-            // changed.
-            this.recordInputChange(property, value);
-            this.unchangedInputs.delete(property);
-            this.hasInputChanges = true;
-            // Update the component instance and schedule change detection.
-            this.componentRef.instance[property] = value;
-            this.scheduleDetectChanges();
         });
     }
     /**
@@ -284,97 +250,28 @@ class ComponentNgElementStrategy {
         const childInjector = Injector.create({ providers: [], parent: this.injector });
         const projectableNodes = extractProjectableNodes(element, this.componentFactory.ngContentSelectors);
         this.componentRef = this.componentFactory.create(childInjector, projectableNodes, element);
-        this.viewChangeDetectorRef = this.componentRef.injector.get(ChangeDetectorRef);
-        this.implementsOnChanges = isFunction(this.componentRef.instance.ngOnChanges);
         this.initializeInputs();
         this.initializeOutputs(this.componentRef);
-        this.detectChanges();
-        const applicationRef = this.injector.get(ApplicationRef);
-        applicationRef.attachView(this.componentRef.hostView);
+        this.appRef.attachView(this.componentRef.hostView);
+        this.componentRef.hostView.detectChanges();
     }
     /** Set any stored initial inputs on the component's properties. */
     initializeInputs() {
-        this.componentFactory.inputs.forEach(({ propName, transform }) => {
-            if (this.initialInputValues.has(propName)) {
-                // Call `setInputValue()` now that the component has been instantiated to update its
-                // properties and fire `ngOnChanges()`.
-                this.setInputValue(propName, this.initialInputValues.get(propName), transform);
-            }
-        });
+        for (const [propName, value] of this.initialInputValues) {
+            this.setInputValue(propName, value);
+        }
         this.initialInputValues.clear();
     }
     /** Sets up listeners for the component's outputs so that the events stream emits the events. */
     initializeOutputs(componentRef) {
         const eventEmitters = this.componentFactory.outputs.map(({ propName, templateName }) => {
             const emitter = componentRef.instance[propName];
-            return emitter.pipe(map((value) => ({ name: templateName, value })));
+            return new Observable((observer) => {
+                const sub = emitter.subscribe((value) => observer.next({ name: templateName, value }));
+                return () => sub.unsubscribe();
+            });
         });
         this.eventEmitters.next(eventEmitters);
-    }
-    /** Calls ngOnChanges with all the inputs that have changed since the last call. */
-    callNgOnChanges(componentRef) {
-        if (!this.implementsOnChanges || this.inputChanges === null) {
-            return;
-        }
-        // Cache the changes and set inputChanges to null to capture any changes that might occur
-        // during ngOnChanges.
-        const inputChanges = this.inputChanges;
-        this.inputChanges = null;
-        componentRef.instance.ngOnChanges(inputChanges);
-    }
-    /**
-     * Marks the component view for check, if necessary.
-     * (NOTE: This is required when the `ChangeDetectionStrategy` is set to `OnPush`.)
-     */
-    markViewForCheck(viewChangeDetectorRef) {
-        if (this.hasInputChanges) {
-            this.hasInputChanges = false;
-            viewChangeDetectorRef.markForCheck();
-        }
-    }
-    /**
-     * Schedules change detection to run on the component.
-     * Ignores subsequent calls if already scheduled.
-     */
-    scheduleDetectChanges() {
-        if (this.scheduledChangeDetectionFn) {
-            return;
-        }
-        this.scheduledChangeDetectionFn = scheduler.scheduleBeforeRender(() => {
-            this.scheduledChangeDetectionFn = null;
-            this.detectChanges();
-        });
-    }
-    /**
-     * Records input changes so that the component receives SimpleChanges in its onChanges function.
-     */
-    recordInputChange(property, currentValue) {
-        // Do not record the change if the component does not implement `OnChanges`.
-        if (!this.implementsOnChanges) {
-            return;
-        }
-        if (this.inputChanges === null) {
-            this.inputChanges = {};
-        }
-        // If there already is a change, modify the current value to match but leave the values for
-        // `previousValue` and `isFirstChange`.
-        const pendingChange = this.inputChanges[property];
-        if (pendingChange) {
-            pendingChange.currentValue = currentValue;
-            return;
-        }
-        const isFirstChange = this.unchangedInputs.has(property);
-        const previousValue = isFirstChange ? undefined : this.getInputValue(property);
-        this.inputChanges[property] = new SimpleChange(previousValue, currentValue, isFirstChange);
-    }
-    /** Runs change detection on the component. */
-    detectChanges() {
-        if (this.componentRef === null) {
-            return;
-        }
-        this.callNgOnChanges(this.componentRef);
-        this.markViewForCheck(this.viewChangeDetectorRef);
-        this.componentRef.changeDetectorRef.detectChanges();
     }
     /** Runs in the angular zone, if present. */
     runInZone(fn) {
@@ -388,13 +285,10 @@ class ComponentNgElementStrategy {
  * @publicApi
  */
 class NgElement extends HTMLElement {
-    constructor() {
-        super(...arguments);
-        /**
-         * A subscription to change, connect, and disconnect events in the custom element.
-         */
-        this.ngElementEventsSubscription = null;
-    }
+    /**
+     * A subscription to change, connect, and disconnect events in the custom element.
+     */
+    ngElementEventsSubscription = null;
 }
 /**
  *  @description Creates a custom element class based on an Angular component.
@@ -423,9 +317,10 @@ function createCustomElement(component, config) {
     const strategyFactory = config.strategyFactory || new ComponentNgElementStrategyFactory(component, config.injector);
     const attributeToPropertyInputs = getDefaultAttributeToPropertyInputs(inputs);
     class NgElementImpl extends NgElement {
+        injector;
         // Work around a bug in closure typed optimizations(b/79557487) where it is not honoring static
         // field externs. So using quoted access to explicitly prevent renaming.
-        static { this['observedAttributes'] = Object.keys(attributeToPropertyInputs); }
+        static ['observedAttributes'] = Object.keys(attributeToPropertyInputs);
         get ngElementStrategy() {
             // TODO(andrewseguin): Add e2e tests that cover cases where the constructor isn't called. For
             // now this is tested using a Google internal test suite.
@@ -433,12 +328,13 @@ function createCustomElement(component, config) {
                 const strategy = (this._ngElementStrategy = strategyFactory.create(this.injector || config.injector));
                 // Re-apply pre-existing input values (set as properties on the element) through the
                 // strategy.
+                // TODO(alxhub): why are we doing this? this makes no sense.
                 inputs.forEach(({ propName, transform }) => {
                     if (!this.hasOwnProperty(propName)) {
                         // No pre-existing value for `propName`.
                         return;
                     }
-                    // Delete the property from the instance and re-apply it through the strategy.
+                    // Delete the property from the DOM node and re-apply it through the strategy.
                     const value = this[propName];
                     delete this[propName];
                     strategy.setInputValue(propName, value, transform);
@@ -446,6 +342,7 @@ function createCustomElement(component, config) {
             }
             return this._ngElementStrategy;
         }
+        _ngElementStrategy;
         constructor(injector) {
             super();
             this.injector = injector;
@@ -513,20 +410,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('18.1.0-next.0+sha-87c5f3c');
-
-/**
- * @module
- * @description
- * Entry point for all public APIs of the `elements` package.
- */
-// This file only reexports content of the `src` folder. Keep it that way.
-
-// This file is not used to build this module. It is only used during editing
-
-/**
- * Generated bundle index. Do not edit.
- */
+const VERSION = new Version('20.0.0-next.9+sha-f4d60ff');
 
 export { NgElement, VERSION, createCustomElement };
 //# sourceMappingURL=elements.mjs.map
