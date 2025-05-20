@@ -1,17 +1,17 @@
 {
   "name": "@angular/elements",
-  "version": "20.0.0-rc.1+sha-6218b38",
+  "version": "20.0.0-rc.1+sha-30e0812",
   "description": "Angular - library for using Angular Components as Custom Elements",
   "author": "angular",
   "license": "MIT",
   "engines": {
-    "node": "^20.11.1 || ^22.11.0 || >=24.0.0"
+    "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
   },
   "peerDependencies": {
-    "@angular/core": "20.0.0-rc.1+sha-6218b38",
+    "@angular/core": "20.0.0-rc.1+sha-30e0812",
     "rxjs": "^6.5.3 || ^7.4.0"
   },
   "repository": {
