@@ -1,10 +1,10 @@
 /**
- * @license Angular v21.0.0-next.5+sha-c0e1c41
+ * @license Angular v21.0.0-next.5+sha-be0455a
  * (c) 2010-2025 Google LLC. https://angular.io/
  * License: MIT
  */
 
-import { ComponentFactoryResolver, NgZone, ApplicationRef, ɵChangeDetectionScheduler as _ChangeDetectionScheduler, ɵisViewDirty as _isViewDirty, ɵmarkForRefresh as _markForRefresh, Injector, Version } from '@angular/core';
+import { ComponentFactoryResolver, NgZone, ApplicationRef, ɵChangeDetectionScheduler as _ChangeDetectionScheduler, ɵisViewDirty as _isViewDirty, ɵmarkForRefresh as _markForRefresh, Injector, isSignal, Version } from '@angular/core';
 import { ReplaySubject, merge, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -392,10 +392,11 @@ function createCustomElement(component, config) {
         }
     }
     // Add getters and setters to the prototype for each property input.
-    inputs.forEach(({ propName, transform }) => {
+    inputs.forEach(({ propName, transform, isSignal: _isSignal }) => {
         Object.defineProperty(NgElementImpl.prototype, propName, {
             get() {
-                return this.ngElementStrategy.getInputValue(propName);
+                const inputValue = this.ngElementStrategy.getInputValue(propName);
+                return _isSignal && isSignal(inputValue) ? inputValue() : inputValue;
             },
             set(newValue) {
                 this.ngElementStrategy.setInputValue(propName, newValue, transform);
@@ -410,7 +411,7 @@ function createCustomElement(component, config) {
 /**
  * @publicApi
  */
-const VERSION = new Version('21.0.0-next.5+sha-c0e1c41');
+const VERSION = new Version('21.0.0-next.5+sha-be0455a');
 
 export { NgElement, VERSION, createCustomElement };
 //# sourceMappingURL=elements.mjs.map
