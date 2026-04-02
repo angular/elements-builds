@@ -1,10 +1,10 @@
 /**
- * @license Angular v22.0.0-next.6+sha-164cf98
+ * @license Angular v22.0.0-next.6+sha-9d76ac8
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
 
-import { ComponentFactoryResolver, NgZone, ApplicationRef, ɵChangeDetectionScheduler as _ChangeDetectionScheduler, ɵisViewDirty as _isViewDirty, ɵmarkForRefresh as _markForRefresh, Injector, isSignal, Version } from '@angular/core';
+import { ɵComponentFactoryResolver as _ComponentFactoryResolver, NgZone, ApplicationRef, ɵChangeDetectionScheduler as _ChangeDetectionScheduler, ɵisViewDirty as _isViewDirty, ɵmarkForRefresh as _markForRefresh, Injector, isSignal, Version } from '@angular/core';
 import { ReplaySubject, merge, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -40,7 +40,7 @@ function getDefaultAttributeToPropertyInputs(inputs) {
   return attributeToPropertyInputs;
 }
 function getComponentInputs(component, injector) {
-  const componentFactoryResolver = injector.get(ComponentFactoryResolver);
+  const componentFactoryResolver = injector.get(_ComponentFactoryResolver);
   const componentFactory = componentFactoryResolver.resolveComponentFactory(component);
   return componentFactory.inputs;
 }
@@ -84,7 +84,7 @@ class ComponentNgElementStrategyFactory {
   componentFactory;
   inputMap = new Map();
   constructor(component, injector) {
-    this.componentFactory = injector.get(ComponentFactoryResolver).resolveComponentFactory(component);
+    this.componentFactory = injector.get(_ComponentFactoryResolver).resolveComponentFactory(component);
     for (const input of this.componentFactory.inputs) {
       this.inputMap.set(input.propName, input.templateName);
     }
@@ -285,7 +285,7 @@ function createCustomElement(component, config) {
   return NgElementImpl;
 }
 
-const VERSION = /* @__PURE__ */new Version('22.0.0-next.6+sha-164cf98');
+const VERSION = /* @__PURE__ */new Version('22.0.0-next.6+sha-9d76ac8');
 
 export { NgElement, VERSION, createCustomElement };
 //# sourceMappingURL=elements.mjs.map
