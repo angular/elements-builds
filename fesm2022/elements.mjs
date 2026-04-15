@@ -1,10 +1,10 @@
 /**
- * @license Angular v22.0.0-next.8+sha-c326548
+ * @license Angular v21.3.0-next.0+sha-4835277
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
 
-import { reflectComponentType, NgZone, ApplicationRef, ɵChangeDetectionScheduler as _ChangeDetectionScheduler, ɵisViewDirty as _isViewDirty, ɵmarkForRefresh as _markForRefresh, Injector, createComponent, isSignal, Version } from '@angular/core';
+import { ComponentFactoryResolver, NgZone, ApplicationRef, ɵChangeDetectionScheduler as _ChangeDetectionScheduler, ɵisViewDirty as _isViewDirty, ɵmarkForRefresh as _markForRefresh, Injector, isSignal, Version } from '@angular/core';
 import { ReplaySubject, merge, Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -40,7 +40,9 @@ function getDefaultAttributeToPropertyInputs(inputs) {
   return attributeToPropertyInputs;
 }
 function getComponentInputs(component, injector) {
-  return reflectComponentType(component).inputs;
+  const componentFactoryResolver = injector.get(ComponentFactoryResolver);
+  const componentFactory = componentFactoryResolver.resolveComponentFactory(component);
+  return componentFactory.inputs;
 }
 
 function extractProjectableNodes(host, ngContentSelectors) {
@@ -79,22 +81,20 @@ function findMatchingIndex(node, selectors, defaultIndex) {
 
 const DESTROY_DELAY = 10;
 class ComponentNgElementStrategyFactory {
-  component;
-  componentMirror;
+  componentFactory;
   inputMap = new Map();
-  constructor(component) {
-    this.component = component;
-    this.componentMirror = reflectComponentType(component);
-    for (const input of this.componentMirror.inputs) {
+  constructor(component, injector) {
+    this.componentFactory = injector.get(ComponentFactoryResolver).resolveComponentFactory(component);
+    for (const input of this.componentFactory.inputs) {
       this.inputMap.set(input.propName, input.templateName);
     }
   }
   create(injector) {
-    return new ComponentNgElementStrategy(this.component, injector, this.inputMap);
+    return new ComponentNgElementStrategy(this.componentFactory, injector, this.inputMap);
   }
 }
 class ComponentNgElementStrategy {
-  component;
+  componentFactory;
   injector;
   inputMap;
   eventEmitters = new ReplaySubject(1);
@@ -106,8 +106,8 @@ class ComponentNgElementStrategy {
   elementZone;
   appRef;
   cdScheduler;
-  constructor(component, injector, inputMap) {
-    this.component = component;
+  constructor(componentFactory, injector, inputMap) {
+    this.componentFactory = componentFactory;
     this.injector = injector;
     this.inputMap = inputMap;
     this.ngZone = this.injector.get(NgZone);
@@ -166,13 +166,8 @@ class ComponentNgElementStrategy {
       providers: [],
       parent: this.injector
     });
-    const projectableNodes = extractProjectableNodes(element, reflectComponentType(this.component).ngContentSelectors);
-    this.componentRef = createComponent(this.component, {
-      environmentInjector: this.injector,
-      elementInjector: childInjector,
-      hostElement: element,
-      projectableNodes
-    });
+    const projectableNodes = extractProjectableNodes(element, this.componentFactory.ngContentSelectors);
+    this.componentRef = this.componentFactory.create(childInjector, projectableNodes, element);
     this.initializeInputs();
     this.initializeOutputs(this.componentRef);
     this.appRef.attachView(this.componentRef.hostView);
@@ -185,7 +180,7 @@ class ComponentNgElementStrategy {
     this.initialInputValues.clear();
   }
   initializeOutputs(componentRef) {
-    const eventEmitters = reflectComponentType(this.component).outputs.map(({
+    const eventEmitters = this.componentFactory.outputs.map(({
       propName,
       templateName
     }) => {
@@ -209,8 +204,8 @@ class NgElement extends HTMLElement {
   ngElementEventsSubscription = null;
 }
 function createCustomElement(component, config) {
-  const inputs = getComponentInputs(component);
-  const strategyFactory = config.strategyFactory || new ComponentNgElementStrategyFactory(component);
+  const inputs = getComponentInputs(component, config.injector);
+  const strategyFactory = config.strategyFactory || new ComponentNgElementStrategyFactory(component, config.injector);
   const attributeToPropertyInputs = getDefaultAttributeToPropertyInputs(inputs);
   class NgElementImpl extends NgElement {
     injector;
@@ -290,7 +285,7 @@ function createCustomElement(component, config) {
   return NgElementImpl;
 }
 
-const VERSION = /* @__PURE__ */new Version('22.0.0-next.8+sha-c326548');
+const VERSION = /* @__PURE__ */new Version('21.3.0-next.0+sha-4835277');
 
 export { NgElement, VERSION, createCustomElement };
 //# sourceMappingURL=elements.mjs.map
