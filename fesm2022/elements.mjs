@@ -1,5 +1,5 @@
 /**
- * @license Angular v22.1.2+sha-85f12a5
+ * @license Angular v22.1.2+sha-4413711
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -222,7 +222,7 @@ function createCustomElement(component, config) {
           propName,
           transform
         }) => {
-          if (!this.hasOwnProperty(propName)) {
+          if (!Object.hasOwn(this, propName)) {
             return;
           }
           const value = this[propName];
@@ -290,7 +290,7 @@ function createCustomElement(component, config) {
   return NgElementImpl;
 }
 
-const VERSION = /* @__PURE__ */new Version('22.1.2+sha-85f12a5');
+const VERSION = /* @__PURE__ */new Version('22.1.2+sha-4413711');
 
 export { NgElement, VERSION, createCustomElement };
 //# sourceMappingURL=elements.mjs.map
