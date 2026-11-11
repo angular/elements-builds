@@ -1,5 +1,5 @@
 /**
- * @license Angular v22.2.5+sha-b9a20da
+ * @license Angular v22.2.5+sha-5b66fb4
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -290,7 +290,7 @@ function createCustomElement(component, config) {
   return NgElementImpl;
 }
 
-const VERSION = /* @__PURE__ */new Version('22.2.5+sha-b9a20da');
+const VERSION = /* @__PURE__ */new Version('22.2.5+sha-5b66fb4');
 
 export { NgElement, VERSION, createCustomElement };
 //# sourceMappingURL=elements.mjs.map
